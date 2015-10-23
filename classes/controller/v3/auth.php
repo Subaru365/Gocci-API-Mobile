@@ -19,6 +19,9 @@ class Controller_V3_Auth extends Controller_V3_Input
         $this->parameter = Model_V3_Router::create_user($this->parameter);
 
         Controller_V3_Mobile_Base::output_success($this->parameter);
+
+                $this->overlap_username($user_data['username']);
+        $this->overlap_register_id($user_data['register_id']);
     }
 
 
@@ -29,6 +32,8 @@ class Controller_V3_Auth extends Controller_V3_Input
         $this->parameter = Model_V3_Router::login($this->parameter['identity_id']);
 
         Controller_V3_Mobile_Base::output_success($this->parameter);
+
+        $this->verify_identity_id(['identity_id']);
     }
 
 
@@ -39,6 +44,10 @@ class Controller_V3_Auth extends Controller_V3_Input
         $this->parameter = Model_V3_Router::login($this->parameter['identity_id']);
 
         Controller_V3_Mobile_Base::output_success($this->parameter);
+
+
+        $this->verify_identity_id(['identity_id']);
+        $this->overlap_register_id(['register_id']);
     }
 
 
@@ -49,6 +58,8 @@ class Controller_V3_Auth extends Controller_V3_Input
         $this->parameter = Model_V3_Router::pass_login($this->parameter['identity_id']);
 
         Controller_V3_Mobile_Base::output_success($this->parameter);
+
+        $this->verify_password($user_data['username'], $user_data['pass']);
     }
 
 
