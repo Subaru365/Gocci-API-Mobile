@@ -3,7 +3,7 @@
  * Status Code and Message list.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/10/22)
+ * @version    3.0 (2015/10/26)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -11,18 +11,32 @@
  */
 
 /** @return Array $val */
-class Model_V3_Db_User extends Model
+class Model_V3_Db_User extends Model_V3_Db
 {
-    private static $table_name = 'users';
+    public function __construct()
+    {
+        self::$table_name = 'users';
+    }
 
-    /** @var Object $query */
-    private $query;
 
+    public function get_identity_id($user_id)
+    {
+        $this->select_id2($user_id);
+        $this->run();
+        return $this->result;
+    }
+
+    
+
+
+    //SELECT
+    //-------------------------------------------------//
 
     /** @param String $username */
     private function select_id($username)
     {
         $this->query = DB::select('user_id')
+        ->from(self::$table_name)
         ->where('username', "$username");
     }
 
@@ -30,6 +44,7 @@ class Model_V3_Db_User extends Model
     private function select_id2($identity_id)
     {
         $this->query = DB::select('user_id')
+        ->from(self::$table_name)
         ->where('identity_id', "$identity_id");
     }
 
@@ -37,6 +52,7 @@ class Model_V3_Db_User extends Model
     private function select_name($user_id)
     {
         $query = DB::select('username')
+        ->from(self::$table_name)
         ->where('user_id', "$user_id");
     }
 
@@ -44,6 +60,7 @@ class Model_V3_Db_User extends Model
     private function select_pass($username)
     {
         $this->query = DB::select('password')
+        ->from(self::$table_name)
         ->where('username', "$username");
     }
 
@@ -51,6 +68,7 @@ class Model_V3_Db_User extends Model
     private function select_identity($username)
     {
         $this->query = DB::select('identity_id')
+        ->from(self::$table_name)
         ->where('username', "$username");
     }
 
@@ -58,6 +76,7 @@ class Model_V3_Db_User extends Model
     private function select_flag($user_id)
     {
         $this->query = DB::select('login_flag')
+        ->from(self::$table_name)
         ->where('user_id', "$user_id");
     }
 
@@ -65,6 +84,7 @@ class Model_V3_Db_User extends Model
     private function select_data($user_id)
     {
         $this->query = DB::select('user_id', 'username', 'profile_img')
+        ->from(self::$table_name)
         ->where('user_id', "$user_id");
     }
 
@@ -72,6 +92,7 @@ class Model_V3_Db_User extends Model
     private function select_auth($identity_id)
     {
         $this->query = DB::select('user_id', 'username', 'identity_id', 'profile_img', 'badge_num')
+        ->from(self::$table_name)
         ->where('identity_id', "$identity_id");
     }
 
@@ -82,6 +103,7 @@ class Model_V3_Db_User extends Model
     //     ->limit   ('1');
     // }
 
+    //UPDATE
     //-------------------------------------------------//
 
     private function update_name($name)
@@ -119,20 +141,54 @@ class Model_V3_Db_User extends Model
         ->where('user_id', session::get('user_id'));
     }
 
-    private function update_logout($user_id)
+    private function update_login()
+    {
+        $query = DB::update(self::$table_name)
+        ->value('login_flag', '1')
+        ->where('user_id', session::get('user_id'));
+    }
+
+    private function update_badge($user_id. badge_num)
+    {
+        $query = DB::update(self::$table_name)
+        ->value('badge_num', $badge_num)
+        ->where('user_id', $user_id);
+    }
+
+
+    //DELETE
+    //-------------------------------------------------//
+
+    private function delete_facebook()
+    {
+        $query = DB::update(self::$table_name)
+        ->value('facebook_flag', '0')
+        ->where('user_id', session::get('user_id'));
+    }
+
+    private function delete_twitter()
+    {
+        $query = DB::update(self::$table_name)
+        ->value('twitter_flag', '0')
+        ->where('user_id', session::get('user_id'));
+    }
+
+    private function delete_login($user_id)
     {
         $query = DB::update(self::$table_name)
         ->value('login_flag', '0')
         ->where('user_id', "$user_id");
     }
 
-    private function update_badge()
+    private function delete_badge()
     {
         $query = DB::update(self::$table_name)
         ->value('badge_num', '0')
         ->where('user_id', session::get('user_id'));
     }
 
+
+    //INSERT
     //-------------------------------------------------//
 
     private function insert_data($data)
@@ -149,17 +205,6 @@ class Model_V3_Db_User extends Model
     //==========================================================================//
 
 
-    //ユーザー名取得
-    private function get_name($user_id)
-    {
-        $query = DB::select('username')
-        ->where('user_id', "$user_id");
-
-        $username = $query->execute()->as_array();
-        return $username[0]['username'];
-    }
-
-
 
     //通知数取得
     private function get_badge($user_id)
@@ -172,69 +217,6 @@ class Model_V3_Db_User extends Model
     }
 
 //$profile_img = '0_tosty_' . mt_rand(1, 7);
-
-
-    //通知数リセット
-    private function reset_badge($user_id)
-    {
-        $query = DB::update(self::$table_name)
-        ->value('badge_num', '0')
-        ->where('user_id', "$user_id")
-        ->execute();
-
-        return $query;
-    }
-
-
-    //SNS連携
-    private function update_sns_flag($user_id, $provider)
-    {
-        if ($provider == 'graph.facebook.com') {
-            $flag = 'facebook_flag';
-        } else {
-            $flag = 'twitter_flag';
-        }
-
-        $query = DB::update(self::$table_name)
-        ->value("$flag", '1')
-        ->where('user_id', "$user_id")
-        ->execute();
-    }
-
-
-
-    //プロフィール画像・ユーザー名変更
-    private function update_profile($user_id, $username, $profile_img)
-    {
-        $query = DB::update(self::$table_name)
-        ->value('profile_img', "$profile_img");
-
-        if ($username != '変更に失敗しました') {
-            $query->value('username', "$username");
-        }
-
-        $query->where('user_id', "$user_id")
-        ->execute();
-
-        return $username;
-    }
-
-
-
-    //SNS連携
-    private function delete_sns_flag($user_id, $provider)
-    {
-        if ($provider == 'graph.facebook.com') {
-            $flag = 'facebook_flag';
-        } else {
-            $flag = 'twitter_flag';
-        }
-
-        $query = DB::update(self::$table_name)
-        ->value("$flag", '0')
-        ->where('user_id', "$user_id")
-        ->execute();
-    }
 
 
     private function encryption_pass($pass)

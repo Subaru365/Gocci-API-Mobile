@@ -1,68 +1,74 @@
 <?php
 /**
- * Status Code and Message list.
+ * Check at input data of uri.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/10/23)
+ * @version    3.0 (2015/10/26)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
-class Model_V3_Validation extends Model
+class Model_V3_Regex extends Model
 {
-	/** 
-	 * @var Object $val 
-	 */
-	private $val;
 
 	/** 
 	 * @var Array $data 
 	 */
 	private $verify_data = array();
 
-	//======================================================//
+	/** 
+	 * @var Instance $val 
+	 */
+	private $val;
 
-	public function __construct($data)
+
+	//-----------------------------------------------------//
+
+
+	public function __construct()
 	{
-		$this->verify_data  = $data;
-		$this->val  		= Validation::forge();
+		$this->val = Validation::forge();
 	}
 
-	public function check()
+
+	public function check_request($data)
+	{
+		$this->verify_data = $data;
+		$this->set_request();
+		$this->run();
+	}
+
+
+	private function set_request($data)
 	{
 		switch (Uri::string()) {
 
 			case 'v3/auth/signup':
-				$this->check_signup();
+				$this->set_req_signup();
 				break;
 
 			case 'v3/auth/login':
-				$this->check_login();
+				$this->set_req_login();
 				break;
 
 			case 'v3/auth/sns_login':
-				$this->check_sns_login();
+				$this->set_req_sns_login();
 				break;
 
 			case 'v3/auth/pass_login':
-				$this->check_pass_login();
+				$this->set_req_pass_login();
 				break;
 
 			default:
 				Model_V3_Status::ERROR_CONNECTION_FAILED();
 				break;
 		}
-
-		$this->run();
 	}
 
-	//======================================================//
-	// URI list
-	//======================================================//
 
-	private function check_signup()
+	private function set_req_signup()
 	{
 		$this->regex_username();
 		$this->regex_os();
@@ -71,12 +77,12 @@ class Model_V3_Validation extends Model
 		$this->regex_register_id();
 	}
 
-	private function check_login()
+	private function set_req_login()
 	{
 		$this->regex_identity_id();
 	}
 
-	private function check_sns_login()
+	private function set_req_sns_login()
 	{
 		$this->regex_identity_id();
 		$this->regex_os();
@@ -85,7 +91,77 @@ class Model_V3_Validation extends Model
 		$this->regex_register_id();
 	}
 
-	private function check_pass_login()
+	private function set_req_pass_login()
+	{
+		$this->regex_username();
+		$this->regex_password();
+		$this->regex_register_id();
+	}
+
+
+	//======================================================//
+	// Set RegEx
+	//======================================================//
+
+	public function check_response()
+	{
+		$this->verify_data = $data;
+		$this->set_responce();
+		$this->run();
+	}
+
+
+	public function set_responce()
+	{
+		switch (Uri::string()) {
+
+			case 'v3/auth/signup':
+				$this->set_regex_signup();
+				break;
+
+			case 'v3/auth/login':
+				$this->set_regex_login();
+				break;
+
+			case 'v3/auth/sns_login':
+				$this->set_regex_sns_login();
+				break;
+
+			case 'v3/auth/pass_login':
+				$this->set_regex_pass_login();
+				break;
+
+			default:
+				Model_V3_Status::ERROR_CONNECTION_FAILED();
+				break;
+		}
+	}
+
+
+	private function set_req_signup()
+	{
+		$this->regex_username();
+		$this->regex_os();
+		$this->regex_ver();
+		$this->regex_model();
+		$this->regex_register_id();
+	}
+
+	private function set_req_login()
+	{
+		$this->regex_identity_id();
+	}
+
+	private function set_req_sns_login()
+	{
+		$this->regex_identity_id();
+		$this->regex_os();
+		$this->regex_ver();
+		$this->regex_model();
+		$this->regex_register_id();
+	}
+
+	private function set_req_pass_login()
 	{
 		$this->regex_username();
 		$this->regex_password();
@@ -158,9 +234,10 @@ class Model_V3_Validation extends Model
 	//Valodation Check Run
 	private function run()
 	{
-		$verify_data = $this->verify_data
+		$val  = $this->val;
+		$data = $this->verify_data;
 
-		if($this->val->run($verify_data)){
+		if($val->run($data)){
 		    //OK
 			return true;
 
