@@ -10,7 +10,7 @@
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
-class Controller_V3_Input extends Controller
+class Controller_V3_Public extends Controller
 {
     /** 
      * @var Array $status
@@ -44,33 +44,16 @@ class Controller_V3_Input extends Controller
 	public function before()
 	{
         $this->Param = new Model_V3_Param();
-        $this->User  = new Model_V3_Db_User();
 
-        $param       = &$this->Param;
-        $req_params  = &$this->req_params;
+        $this->set_request();
 
-        $req_params = $param->get_request();
-        
-        $Regex      = new Model_V3_Regex($req_params);
-        
-        if ($Regex->check()) {
-        	//Validation Success!
-
-        } else {
-        	//Validation Error.
-        	$this->status = Model_V3_Status::get_status('VALIDATION_ERROR');
-            $this->output();
-        }
+        $this->User = new Model_V3_Db_User();
     }
 
 
     protected function output_success()
     {
-        $param      = &$this->Param;
-        $req_params = &$this->req_params;
-        $res_params = &$this->res_params;
-
-        $res_params = $param->get_responce($req_params);
+        $this->set_responce();
 
         $this->status = Model_V3_Status::get_status('SUCCESS', $res_params);
         $this->output();
@@ -86,6 +69,31 @@ class Controller_V3_Input extends Controller
         );
 
         echo $json;
+        exit;
+    }
+
+
+    private function set_request()
+    {
+        $this->req_params = $this->Param->get_request();
+    
+        if ($this->req_params)) {
+            //Validation Error.
+            $status = Model_V3_Status::get_status('VALIDATION_ERROR');
+            $this->output;
+        }
+    }
+
+
+    private function set_responce()
+    {
+        $this->res_params = $this->Param->get_responce($this->req_params);
+    
+        if ($this->res_params)) {
+            //Validation Error.
+            $status = Model_V3_Status::get_status('VALIDATION_ERROR');
+            $this->output;
+        }
     }
 }
 
