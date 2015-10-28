@@ -19,14 +19,20 @@ class Model_V3_Db_User extends Model_V3_Db
     }
 
 
-    public function get_identity_id($user_id)
+    public function get_user_id($identity_id)
     {
-        $this->select_id2($user_id);
+        $this->select_id2($identity_id);
         $this->run();
         return $this->result;
     }
 
-    
+    public function get_auth_data($identity_id)
+    {
+        $this->select_auth($identity_id);
+        $this->run();
+        return $this->result;
+    }
+
 
 
     //SELECT
@@ -148,7 +154,7 @@ class Model_V3_Db_User extends Model_V3_Db
         ->where('user_id', session::get('user_id'));
     }
 
-    private function update_badge($user_id. badge_num)
+    private function update_badge($user_id, $badge_num)
     {
         $query = DB::update(self::$table_name)
         ->value('badge_num', $badge_num)

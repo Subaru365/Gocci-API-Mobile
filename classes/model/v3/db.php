@@ -27,9 +27,9 @@ class Model_V3_Db extends Model
 	 */
 	protected $query;
 
-
 	protected function run()
 	{
-		$result 		= $this->query->exexute()->as_array();
+		$result 		= $this->query->execute()->as_array();
 		$this->result 	= $result;
 	}
+}

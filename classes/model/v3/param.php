@@ -18,17 +18,17 @@ class Model_V3_Param extends Model
 	private $uri = '';
 
 	/**
-	 * @var Array $input_data
+	 * @var Array $val_param
 	 */
-	private $input_data = array();
+	private $val_param = array();
 
 	/**
-	 * @var Array $form_data
+	 * @var Array $safe_param
 	 */
-	private $format_data = array();
+	private $safe_param = array();
 
 	/** 
-	 * @var Instance $val 
+	 * @var Instance $Val 
 	 */
 	private $Val;
 
@@ -36,7 +36,6 @@ class Model_V3_Param extends Model
 	public function __construct()
 	{
 		$this->uri = Uri::string();
-		$this->Val = Validation::forge();
 	}
 
 
@@ -46,9 +45,12 @@ class Model_V3_Param extends Model
 
 	public function get_request()
 	{
+		$this->Val = Validation::forge('request');
+		
 		$this->set_request();
-		$this->check();
-		return $this->format_data;
+		$this->check($this->val_param);
+
+		return $this->safe_param;
 	}
 
 	//-----------------------------------------------------//
@@ -78,7 +80,7 @@ class Model_V3_Param extends Model
 				break;
 
 			default:
-				Model_V3_Status::ERROR_CONNECTION_FAILED();
+				Model_V3_Status::get_status();
 				break;
 		}
 	}
@@ -89,7 +91,7 @@ class Model_V3_Param extends Model
 
 	private function get_req_signup()
 	{
-		$this->input_data = array(
+		$this->val_param = array(
 			'username' 	  => Input::get('username'),
 			'os' 		  => Input::get('os'),
 			'ver'		  => Input::get('ver'),
@@ -100,14 +102,14 @@ class Model_V3_Param extends Model
 
 	private function get_req_login()
 	{
-		$this->input_data = array(
+		$this->val_param = array(
 			'identity_id' => Input::get('identity_id')
 		);
 	}
 
 	private function get_req_sns_login()
 	{
-		$this->input_data = array(
+		$this->val_param = array(
 			'identity_id' => Input::get('identity_id'),
 			'os' 		  => Input::get('os'),
 			'ver' 		  => Input::get('ver'),
@@ -118,7 +120,7 @@ class Model_V3_Param extends Model
 
 	private function get_req_pass_login()
 	{
-		$this->input_data = array(
+		$this->val_param = array(
 			'username' 	  => Input::get('username'),
 			'password' 	  => Input::get('password'),
 			'register_id' => Input::get('register_id')
@@ -160,11 +162,13 @@ class Model_V3_Param extends Model
 	// Responce Params
 	//======================================================//
 
-	public function get_responce()
+	public function get_responce($param)
 	{
+		$this->Val = Validation::forge('responce');
+		$this->val_param = $param;
 		$this->set_responce();
-		$this->check();
-		return $this->format_data;
+		$this->check($param);
+		return $this->safe_param;
 	}
 
 	//-----------------------------------------------------//
@@ -174,22 +178,18 @@ class Model_V3_Param extends Model
 		switch ($this->uri) {
 
 			case 'v3/auth/signup':
-				$this->get_res_signup();
 				$this->set_res_signup();
 				break;
 
 			case 'v3/auth/login':
-				$this->get_res_login();
 				$this->set_res_login();
 				break;
 
 			case 'v3/auth/sns_login':
-				$this->get_res_sns_login();
 				$this->set_res_sns_login();
 				break;
 
 			case 'v3/auth/pass_login':
-				$this->get_res_pass_login();
 				$this->set_res_pass_login();
 				break;
 
@@ -200,51 +200,60 @@ class Model_V3_Param extends Model
 	}
 
 
-	// Request Params
+	// Responce Params
 	//-----------------------------------------------------//
 
-	private function get_res_signup()
+	private function set_res_signup()
 	{
-		$this->input_data = array(
-			'username' 	  => Input::get('username'),
-			'os' 		  => Input::get('os'),
-			'ver'		  => Input::get('ver'),
-			'model' 	  => Input::get('model'),
-			'register_id' => Input::get('register_id')
-		);
+		$this->regex_user_id();
+		$this->regex_username();
+		$this->regex_profile_img();
+		$this->regex_identity_id();
+		$this->regex_badge_num();
+		$this->regex_cognito_token();
 	}
 
-	private function get_res_login()
+	private function set_res_login()
 	{
-		$this->input_data = array(
-			'identity_id' => Input::get('identity_id')
-		);
+		$this->regex_user_id();
+		$this->regex_username();
+		$this->regex_profile_img();
+		$this->regex_identity_id();
+		$this->regex_badge_num();
+		$this->regex_cognito_token();
 	}
 
-	private function get_res_sns_login()
+	private function set_res_sns_login()
 	{
-		$this->input_data = array(
-			'identity_id' => Input::get('identity_id'),
-			'os' 		  => Input::get('os'),
-			'ver' 		  => Input::get('ver'),
-			'model' 	  => Input::get('model'),
-			'register_id' => Input::get('register_id')
-		);
+		$this->regex_user_id();
+		$this->regex_username();
+		$this->regex_profile_img();
+		$this->regex_identity_id();
+		$this->regex_badge_num();
+		$this->regex_cognito_token();
 	}
 
-	private function get_res_pass_login()
+	private function set_res_pass_login()
 	{
-		$this->input_data = array(
-			'username' 	  => Input::get('username'),
-			'password' 	  => Input::get('password'),
-			'register_id' => Input::get('register_id')
-		);
+		$this->regex_user_id();
+		$this->regex_username();
+		$this->regex_profile_img();
+		$this->regex_identity_id();
+		$this->regex_badge_num();
+		$this->regex_cognito_token();
 	}
-
 
 	//======================================================//
 	// RegEx methods
 	//======================================================//
+
+	private function regex_user_id()
+	{
+		$this->Val
+		->add('user_id', 'GET user_id')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[0-9]+$/');
+	}	
 
 	private function regex_username()
 	{
@@ -252,6 +261,46 @@ class Model_V3_Param extends Model
 		->add('username', 'GET username')
 		->add_rule('required')
 		->add_rule('match_pattern', '/^\w{4,20}$/');
+	}
+
+	private function regex_password()
+	{
+		$this->Val
+		->add('pass', 'GET password')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^\w{6,25}$/');
+	}
+
+	private function regex_identity_id()
+	{
+		$this->Val
+		->add('identity_id', 'GET identity_id')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^us-east-1:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/');
+	}
+
+	private function regex_profile_img()
+	{
+		$this->Val
+		->add('profile_img', 'GET profile_img')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^http\S+$/');
+	}
+
+	private function regex_badge_num()
+	{
+		$this->Val
+		->add('badge_num', 'GET badge_num')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[0-9]+$/');
+	}
+
+	private function regex_cognito_token()
+	{
+		$this->Val
+		->add('cognito_token', 'GET cognito_token')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[a-zA-Z0-9_.-]{400,2200}$/');
 	}
 
 	private function regex_os()
@@ -278,22 +327,6 @@ class Model_V3_Param extends Model
 		->add_rule('match_pattern', '/^[a-zA-Z0-9_-]{0,10}$/');
 	}
 
-	private function regex_password()
-	{
-		$this->Val
-		->add('pass', 'GET password')
-		->add_rule('required')
-		->add_rule('match_pattern', '/^\w{6,25}$/');
-	}
-
-	private function regex_identity_id()
-	{
-		$this->Val
-		->add('identity_id', 'GET identity_id')
-		->add_rule('required')
-		->add_rule('match_pattern', '/^us-east-1:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/');
-	}
-
 	private function regex_register_id()
 	{
 		$this->Val
@@ -305,18 +338,17 @@ class Model_V3_Param extends Model
 	//======================================================//
 
 	//Valodation Check
-	private function check()
+	private function check($val_param)
 	{
-		$val  = $this->Val;
-		$data = $this->input_data;
+		$Val = $this->Val;
 
-		if($val->run($data)){
+		if($Val->run($val_param)){
 		    //OK
-		    $this->format_data = $data;
+		    $this->safe_param = $val_param;
 
 		}else{
 			//エラー 形式不備
-		    foreach($val->error() as $key=>$value){
+		    foreach($Val->error() as $key=>$value){
 		    	$keys[]		= $key;
 		    	$messages[] = $value;
 		    }
@@ -324,8 +356,11 @@ class Model_V3_Param extends Model
 		    $key 		= implode(", ", $keys);
 		    $message    = implode(". ", $messages);
 
-		    Controller_V2_Mobile_Base::output_validation_error($key, $message);
+		    //Controller_V2_Mobile_Base::output_validation_error($key, $message);
+		    
 		    error_log("$message");
+		    echo "hoge";
+		    exit;
 		}
 	}
 }

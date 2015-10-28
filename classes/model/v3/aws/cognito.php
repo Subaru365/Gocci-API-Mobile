@@ -1,163 +1,143 @@
 <?php
 /**
-* CognitoIdentity Model
-*/
+ * Authentication Class. Request SignUp, LogIn.
+ *
+ * @package    Gocci-Mobile
+ * @version    3.0 (2015/10/27)
+ * @author     Subaru365 (a-murata@inase-inc.jp)
+ * @license    MIT License
+ * @copyright  2015 Inase,inc.
+ * @link       https://bitbucket.org/inase/gocci-mobile-api
+ */
 
 use Aws\CognitoIdentity\CognitoIdentityClient;
 use Aws\CognitoSync\CognitoSyncClient;
 
-class Model_V2_Aws_Cognito extends Model
+class Model_V3_Aws_Cognito extends Model
 {
-    private static function set_client()
+    /**
+     * @var Instance $Client
+     */
+    private $Client;
+
+    /**
+     * @var String $identity_pool_id
+     */
+    private $identity_pool_id;
+
+    /** 
+     * @var String $developer_provider
+     */
+    private $developer_provider;
+
+
+    public function __construct()
     {
-        $client = new CognitoIdentityClient
-        ([
+        $this->Client = new CognitoIdentityClient([
             'region'    => 'us-east-1',
             'version'   => 'latest'
         ]);
-        return $client;
+
+        $config = Config::get('_cognito');
+        $this->identity_pool_id   = $config['IdentityPoolId'];
+        $this->developer_provider = $config['developer_provider'];
     }
 
 
-    //IdentityID新規発行
-	public static function set_data()
-	{
-        $client = new CognitoIdentityClient
-        ([
-            'region'    => 'us-east-1',
-            'version'   => 'latest'
-        ]);
-
-
-//        $client = self::set_client();
-		$config  = Config::get('_cognito');
-        $user_id = session::get('user_id');
-
-        $result = $client->getOpenIdTokenForDeveloperIdentity
-        ([
-            'IdentityPoolId'    => "$config[IdentityPoolId]",
-            'Logins'            => [
-                "$config[developer_provider]" => "$user_id",
-            ]
-        ]);
-		return $result;
-	}
-
-
-    //identity_idからtokenを取得
-    public static function get_token($identity_id)
+    public function get_token()
     {
-        $client = self::set_client();
-        $config = Config::get('_cognito');
-
-        $result = $client->getOpenIdTokenForDeveloperIdentity([
-            'IdentityId'        => "$identity_id",
-            'IdentityPoolId'    => "$config[IdentityPoolId]",
-            'Logins'            => [
-                "$config[developer_provider]" => session::get('user_id'),
-            ]
-        ]);
+        $result = $this->my_data();
         return $result['Token'];
     }
 
-
-    //=========================================================================//
-
-    //SNS連携
-    public static function post_sns($data)
+    private function my_data()
     {
-        $cognito_data = Config::get('_cognito');
+        $identity_pool_id   = $this->identity_pool_id;
+        $developer_provider = $this->developer_provider;
 
-        $client = new CognitoIdentityClient([
-            'region'    => 'us-east-1',
-            'version'   => 'latest'
-        ]);
-
-        $result = $client->getOpenIdTokenForDeveloperIdentity([
-            'IdentityId'        => "$data['identity_id']",
-            'IdentityPoolId'    => "$cognito_data[IdentityPoolId]",
+        $result = $this->Client->getOpenIdTokenForDeveloperIdentity([
+            //'IdentityId'        => "$identity_id",
+            'IdentityPoolId'    => "$identity_pool_id",
             'Logins'            => [
-                "$cognito_data[developer_provider]" => session::get('user_id'),
-                "$provider" => "$data['token']",
-            ],
+                "$developer_provider" => session::get('user_id'),
+            ]
         ]);
-
         return $result;
     }
+
+
+ //    private function get_cognito()    
+ //    {
+ //        $config = Config::get('_cognito');
+
+ //        $result = self::$Client->getOpenIdTokenForDeveloperIdentity([
+ //            'IdentityId'        => "$identity_id",
+ //            'IdentityPoolId'    => "$config[IdentityPoolId]",
+ //            'Logins'            => [
+ //                "$config[developer_provider]" => session::get('user_id'),
+ //            ]
+ //        ]);
+ //        return $result['Token'];
+ //    }
+
+
+	// public static function set_data()
+	// {
+ //       $Client = self::set_Client();
+	// 	$config  = Config::get('_cognito');
+ //        $user_id = session::get('user_id');
+
+ //        $result = $Client->getOpenIdTokenForDeveloperIdentity
+ //        ([
+ //            'IdentityPoolId'    => "$config[IdentityPoolId]",
+ //            'Logins'            => [
+ //                "$config[developer_provider]" => "$user_id",
+ //            ]
+ //        ]);
+	// 	return $result;
+	// }
+
+
+ //    //=========================================================================//
+
+ //    //SNS連携
+ //    public static function post_sns($data)
+ //    {
+ //        $cognito_data = Config::get('_cognito');
+
+ //        $Client = new CognitoIdentityClient([
+ //            'region'    => 'us-east-1',
+ //            'version'   => 'latest'
+ //        ]);
+
+ //        $result = $Client->getOpenIdTokenForDeveloperIdentity([
+ //            'IdentityId'        => "$data['identity_id']",
+ //            'IdentityPoolId'    => "$cognito_data[IdentityPoolId]",
+ //            'Logins'            => [
+ //                "$cognito_data[developer_provider]" => session::get('user_id'),
+ //                "$provider" => "$data['token']",
+ //            ],
+ //        ]);
+
+ //        return $result;
+ //    }
+
+
+ //    public static function delete_sns($identity_id, $provider, $token)
+ //    {
+ //        $developer_provider = Config::get('_cognito.developer_provider');
+
+ //        $result = $Client->unlinkIdentity([
+ //            'IdentityId'        => "$identity_id",
+ //            'Logins'            => ["$provider" => "$token"],
+ //            'LoginsToRemove'    => ["$provider"],
+ //        ]);
+ //    }
 
     public static function delete_identity_id($identity_id)
     {
-        $client = new CognitoIdentityClient([
-            'region'  => 'us-east-1',
-            'version' => 'latest'
-        ]);
-
-        $result = $client->deleteIdentities([
+        $result = $Client->deleteIdentities([
             'IdentityIdsToDelete' => ["$identity_id"],
         ]);
-    }
-
-
-    public static function delete_sns($identity_id, $provider, $token)
-    {
-        $developer_provider = Config::get('_cognito.developer_provider');
-
-        $client = new CognitoIdentityClient([
-            'region'  => 'us-east-1',
-            'version' => 'latest'
-        ]);
-
-        $result = $client->unlinkIdentity([
-            'IdentityId'        => "$identity_id",
-            'Logins'            => ["$provider" => "$token"],
-            'LoginsToRemove'    => ["$provider"],
-        ]);
-    }
-
-
-
-
-    //=========================================================================//
-
-
-    //identity_id取得
-    public static function get_identity_id($provider, $token)
-    {
-        $IdentityPoolId = Config::get('_cognito.IdentityPoolId');
-
-        $client = new CognitoIdentityClient([
-            'region'  => 'us-east-1',
-            'version' => 'latest'
-        ]);
-
-        $result = $client->getOpenIdTokenForDeveloperIdentity([
-            'IdentityPoolId'    => "$IdentityPoolId",
-            'Logins'            => ["$provider" => "$token",],
-        ]);
-        return $result['IdentityId'];
-    }
-
-
-    //SNS連携
-    public static function post_dev_sns($provider, $token)
-    {
-        $cognito_data = Config::get('_cognito');
-
-        $client = new CognitoIdentityClient([
-            'region'  => 'us-east-1',
-            'version' => 'latest'
-        ]);
-
-        $result = $client->getOpenIdTokenForDeveloperIdentity([
-            'IdentityPoolId' => "$cognito_data[IdentityPoolId]",
-            'Logins'         => [
-                "$cognito_data[developer_provider]" => session::get('user_id'),
-                "$provider" => "$token",
-            ],
-        ]);
-
-        $identity_id = $result['IdentityId'];
-
-        return $result;
     }
 }
