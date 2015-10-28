@@ -29,40 +29,44 @@ class Model_V3_Status extends Model
     	switch ($status_code) {
 
     		case 'SUCCESS':
-    			$status['message'] => 'Successful API request';
+    			$status['message'] = 'Successful API request';
     			break;
 
     		case 'ERROR_CONNECTION_FAILED':
-    			$status['message'] => 'Server connection failed';
+    			$status['message'] = 'Server connection failed';
     			break;
 
     		case 'ERROR_USERNAME_ALREADY_REGISTERD':
-    			$status['message'] => 'The provided username was already registerd by another user';
+    			$status['message'] = 'The provided username was already registerd by another user';
     			break;
 
     		case 'ERROR_REGISTER_ID_ALREADY_REGISTERD':
-				$status['message'] => 'This deviced already has an registerd account';
+				$status['message'] = 'This deviced already has an registerd account';
     			break;
 
     		case 'ERROR_IDENTITY_ID_NOT_REGISTERD':
-    			$status['message'] => 'The provided identity_id is not bound to any account';
+    			$status['message'] = 'The provided identity_id is not bound to any account';
     			break;
 
     		case 'ERROR_USERNAME_NOT_REGISTERD':
-    			$status['message'] => 'The entered username does not exist';
+    			$status['message'] = 'The entered username does not exist';
     			break;
 
     		case 'ERROR_PASSWORD_WRONG':
-    			$status['message'] => 'Password wrong';
+    			$status['message'] = 'Password wrong';
     			break;
 
     		default:
-    			$status['message'] => 'Unknown global error';
+    			$status['message'] = 'Unknown global error';
     			break;
     	}
 
     	if ($status_code !== 'SUCCESS') {
     		//View::forge($status);
+            error_log('NOT SUCCESS');
+            exit;
     	}
+
+        return $status;
     }
 }

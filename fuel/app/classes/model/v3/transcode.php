@@ -1,13 +1,13 @@
 <?php
 
-class Model_V2_Transcode extends Model
+class Model_V3_Transcode extends Model
 {
     public static function encode($post_data)
     {
-        $directory = explode('-', $post_data['movie']);
-        $post_data['thumbnail']  = "$directory[0]" . '/' . "$directory[1]" . '/'  . '00002_' . "$post_data['movie']" . '_img';
-        $post_data['movie']      = "$directory[0]" . '/' . "$directory[1]" . '/'  . "$post_data['movie']" . '_movie';
-        return $post_data;
+        // $directory = explode('-', $post_data['movie']);
+        // $post_data['thumbnail']  = "$directory[0]" . '/' . "$directory[1]" . '/'  . '00002_' . "$post_data['movie']" . '_img';
+        // $post_data['movie']      = "$directory[0]" . '/' . "$directory[1]" . '/'  . "$post_data['movie']" . '_movie';
+        // return $post_data;
     }
 
 	public static function decode_profile_img($profile_img)

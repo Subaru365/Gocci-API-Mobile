@@ -12,6 +12,20 @@
 
 class Controller_V3_Auth extends Controller_V3_Public
 {
+    /**
+     * @var Instance $Cognito
+     */
+    private $Cognito;
+
+
+    public function before()
+    {
+        parent::before();
+
+        $this->Cognito = new Model_V3_Aws_Cognito();
+        $this->User    = new Model_V3_Db_User();
+    }
+
     public function action_signup()
     {
         //$req_params is [name, os, model, reg_id]
@@ -24,18 +38,16 @@ class Controller_V3_Auth extends Controller_V3_Public
         $this->overlap_register_id($user_data['register_id']);
     }
 
-
     public function action_login()
     {
         //Input $this->req_params is [identity_id]
+        //$this->verify_identity_id();
+        // print_r($this->req_params);
+        // exit;
 
+        $this->login();
 
-
-        $this->req_params = Model_V3_Router::login($this->req_params['identity_id']);
-
-        Controller_V3_Mobile_Base::output_success($this->req_params);
-
-        $this->verify_identity_id(['identity_id']);
+        $this->output_success();
     }
 
 
@@ -78,8 +90,37 @@ class Controller_V3_Auth extends Controller_V3_Public
 
     // }
 
-    private function verify_identity_id()
+
+
+
+    //======================================================//
+    // Functions
+    //======================================================//
+
+    private static function set_session($user_id)
     {
-        get_identity_id()
+        Session::set('user_id', "$user_id");
+    }
+
+    private function login()
+    {
+        $User           =  $this->User;
+        $Cognito        =  $this->Cognito;
+        $identity_id    =  $this->req_params['identity_id'];
+        $res_params     = &$this->res_params;
+
+        $result         = $User->get_auth_data($identity_id);
+
+        if (!empty($result)) {
+            $result[0]['profile_img'] = Model_V3_Transcode::decode_profile_img($result[0]['profile_img']);
+            $res_params = $result[0];
+        
+        } else {
+            $this->status = Model_V3_Status::get_status('ERROR_IDENTITY_ID_NOT_REGISTERD');
+            $this->output();
+        }
+
+        self::set_session($res_params['user_id']);
+        $res_params['cognito_token'] = $Cognito->get_token($identity_id);
     }
 }

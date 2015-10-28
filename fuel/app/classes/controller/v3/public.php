@@ -9,6 +9,7 @@
  * @copyright  2015 Inase,inc.
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
+header('Content-Type: application/json; charset=UTF-8');
 
 class Controller_V3_Public extends Controller
 {
@@ -45,14 +46,14 @@ class Controller_V3_Public extends Controller
 	{
         $this->Param = new Model_V3_Param();
 
-        $this->set_request();
-
-        $this->User = new Model_V3_Db_User();
+        //$this->set_request();
+        $this->req_params['identity_id'] = input::get('identity_id');
     }
 
 
     protected function output_success()
     {
+        $res_params = $this->res_params;
         $this->set_responce();
 
         $this->status = Model_V3_Status::get_status('SUCCESS', $res_params);
@@ -75,21 +76,19 @@ class Controller_V3_Public extends Controller
 
     private function set_request()
     {
-        $this->req_params = $this->Param->get_request();
-    
-        if ($this->req_params)) {
-            //Validation Error.
-            $status = Model_V3_Status::get_status('VALIDATION_ERROR');
-            $this->output;
-        }
+        $Param = $this->Param;
+
+        $this->req_params = $Param->get_request();
     }
 
 
     private function set_responce()
     {
-        $this->res_params = $this->Param->get_responce($this->req_params);
+        $Param = $this->Param;
+
+        $this->res_params = $Param->get_responce($this->res_params);
     
-        if ($this->res_params)) {
+        if (empty($this->res_params)) {
             //Validation Error.
             $status = Model_V3_Status::get_status('VALIDATION_ERROR');
             $this->output;
