@@ -17,7 +17,8 @@ class Model_V3_Status extends Model
      * @param  Array  $payload
 	 * @return Array  $status 
 	 */
-    public static function get_status($status_code, $payload = array())
+    public static function get_status(
+        $status_code = 'ERROR_UNKNOWN_ERROR', $payload = array())
     {
     	$status = array(
 			'version'   => 3.0,
@@ -63,8 +64,7 @@ class Model_V3_Status extends Model
 
     	if ($status_code !== 'SUCCESS') {
     		//View::forge($status);
-            error_log('NOT SUCCESS');
-            exit;
+            error_log($status_code);
     	}
 
         return $status;

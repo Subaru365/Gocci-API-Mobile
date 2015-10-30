@@ -1,30 +1,95 @@
 <?php
 /**
-*
-*/
-class Model_V2_Db_Device extends Model
-{
-    public static function get_device_id($register_id)
-    {
-        $query = DB::select('device_id')
-        ->from('devices')
-        ->where('register_id', "$register_id");
+ * Status Code and Message list.
+ *
+ * @package    Gocci-Mobile
+ * @version    3.0 (2015/10/29)
+ * @author     Subaru365 (a-murata@inase-inc.jp)
+ * @license    MIT License
+ * @copyright  2015 Inase,inc.
+ * @link       https://bitbucket.org/inase/gocci-mobile-api
+ */
 
-        $result = $query->execute()->as_array();
+class Model_V3_Db_Device extends Model_V3_Db
+{
+    /**
+     * @var String $table_name
+     */
+    private static $table_name = 'devices';
+
+
+    public function get_id($register_id)
+    {
+        $this->select_id($register_id);
+        $result = $this->run();
         return $result;
     }
 
-
-    public static function put_data($user_data)
+    public function get_arn($user_id)
     {
-        $query = DB::insert('devices')
+        $this->select_arn($user_id);
+        $result = $this->run();
+        return $result[0]['endpoint_arn'];
+    }
+
+    public function update_data($params)
+    {
+        $this->update_device($params);
+        $result = $this->query->execute();
+        return $result;
+    }
+
+    public function set_data($params)
+    {
+        $this->insert_data($params);
+        $result = $this->query->execute();
+        return $result;
+    }
+
+    //SELECT
+    //-------------------------------------------------//
+
+    private function select_id($register_id)
+    {
+        $this->query = DB::select('device_id')
+        ->from(self::$table_name)
+        ->where('register_id', "$register_id");
+    }
+
+    private function select_arn($user_id)
+    {
+        $this->query = DB::select('endpoint_arn')
+        ->from(self::$table_name)
+        ->where('device_user_id', "$user_id");
+    }
+
+    //UPDATE
+    //-------------------------------------------------//
+
+    private function update_device($params)
+    {
+        $this->query = DB::update(self::$table_name)
         ->set(array(
-            'device_user_id'   => "$user_data[user_id]",
-            'os'               => "$user_data[os]",
-            'model'            => "$user_data[model]",
-            'register_id'      => "$user_data[register_id]",
-            'endpoint_arn'     => "$user_data[endpoint_arn]"
+            'os'            => "$params[os]",
+            'model'         => "$params[model]",
+            'register_id'   => "$params[register_id]",
+            'endpoint_arn'  => "$params[endpoint_arn]"
         ))
-        ->execute();
+        ->where('device_user_id', "$params[user_id]");
+    }
+
+    //INSERT
+    //-------------------------------------------------//
+
+    private function insert_data($params)
+    {
+        $this->query = DB::insert(self::$table_name)
+        ->set(array(
+            'device_user_id'   => "$params[user_id]",
+            'os'               => "$params[os]",
+            'model'            => "$params[model]",
+            'register_id'      => "$params[register_id]",
+            'endpoint_arn'     => "$params[endpoint_arn]"
+        ));
     }
 }

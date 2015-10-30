@@ -27,8 +27,8 @@ class Model_V3_Param extends Model
 	 */
 	private $safe_param = array();
 
-	/** 
-	 * @var Instance $Val 
+	/**
+	 * @var Instance $Val
 	 */
 	private $Val;
 
@@ -46,7 +46,7 @@ class Model_V3_Param extends Model
 	public function get_request()
 	{
 		$this->Val = Validation::forge('request');
-		
+
 		$this->set_request();
 		$this->check($this->val_param);
 
@@ -253,7 +253,7 @@ class Model_V3_Param extends Model
 		->add('user_id', 'GET user_id')
 		->add_rule('required')
 		->add_rule('match_pattern', '/^[0-9]+$/');
-	}	
+	}
 
 	private function regex_username()
 	{
@@ -356,11 +356,8 @@ class Model_V3_Param extends Model
 		    $key 		= implode(", ", $keys);
 		    $message    = implode(". ", $messages);
 
-		    //Controller_V2_Mobile_Base::output_validation_error($key, $message);
-		    
 		    error_log("$message");
-		    echo "hoge";
-		    exit;
+		    $this->safe_param = FALSE;
 		}
 	}
 }
