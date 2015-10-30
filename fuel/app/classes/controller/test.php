@@ -12,9 +12,12 @@ class Controller_Test extends Controller
 		$this->test = "hoge";
 	}
 
-	public function action_index()
+
+
+	public function action_info()
 	{
-		echo $this->test;
+		if ($_SERVER['REMOTE_ADDR'] !== '118.238.250.166') die();
+		phpinfo();
 	}
 
 	// public static function push($endpointArn, $alert)

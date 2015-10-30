@@ -3,7 +3,7 @@
  * Authentication Class. Request SignUp, LogIn.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/10/27)
+ * @version    3.0 (2015/10/29)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -23,12 +23,12 @@ class Model_V3_Aws_Cognito extends Model
     /**
      * @var String $identity_pool_id
      */
-    private $identity_pool_id;
+    private static $identity_pool_id;
 
     /** 
      * @var String $developer_provider
      */
-    private $developer_provider;
+    private static $developer_provider;
 
 
     public function __construct()
@@ -39,8 +39,8 @@ class Model_V3_Aws_Cognito extends Model
         ]);
 
         $config = Config::get('_cognito');
-        $this->identity_pool_id   = $config['IdentityPoolId'];
-        $this->developer_provider = $config['developer_provider'];
+        self::$identity_pool_id   = $config['IdentityPoolId'];
+        self::$developer_provider = $config['developer_provider'];
     }
 
 
@@ -50,19 +50,37 @@ class Model_V3_Aws_Cognito extends Model
         return $result['Token'];
     }
 
+    public function get_data()
+    {
+        $result = $this->my_data();
+        return $result;
+    }
+
+    public function delete_identity_id($identity_id)
+    {
+        $this->delete_id($identity_id);
+    }
+
+
     private function my_data()
     {
-        $identity_pool_id   = $this->identity_pool_id;
-        $developer_provider = $this->developer_provider;
+        $identity_pool_id   = self::$identity_pool_id;
+        $developer_provider = self::$developer_provider;
 
         $result = $this->Client->getOpenIdTokenForDeveloperIdentity([
-            //'IdentityId'        => "$identity_id",
             'IdentityPoolId'    => "$identity_pool_id",
             'Logins'            => [
                 "$developer_provider" => session::get('user_id'),
             ]
         ]);
         return $result;
+    }
+
+    private function delete_id($identity_id)
+    {
+        $result = $this->Client->deleteIdentities([
+            'IdentityIdsToDelete' => ["$identity_id"],
+        ]);
     }
 
 
@@ -133,11 +151,4 @@ class Model_V3_Aws_Cognito extends Model
  //            'LoginsToRemove'    => ["$provider"],
  //        ]);
  //    }
-
-    public static function delete_identity_id($identity_id)
-    {
-        $result = $Client->deleteIdentities([
-            'IdentityIdsToDelete' => ["$identity_id"],
-        ]);
-    }
 }

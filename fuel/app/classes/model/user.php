@@ -453,19 +453,7 @@ class Model_User extends Model
             exit;
         }
     }
-
-    public static function web_verify_pass($pass, $hash_pass)
-    {
-	if (password_verify($pass, $hash_pass)) {
-            //認証OK
-	    $match_pass = password_verify($pass, $hash_pass);
-        }else{
-             error_log('パスワードが一致しません');
-             Controller_V1_Web_Base::error_json("パスワードが正しくありません");
-             exit;
-        }
-	return $match_pass;
-    }
+    
 
     public static function get_current_db_pass($user_id, $current_password)
     {

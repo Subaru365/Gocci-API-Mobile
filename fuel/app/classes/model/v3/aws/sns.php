@@ -1,93 +1,91 @@
 <?php
-
-use Aws\Sns\SnsClient;
 /**
-*SNS
-*/
-class Model_Sns extends Model
+ * Authentication Class. Request SignUp, LogIn.
+ *
+ * @package    Gocci-Mobile
+ * @version    3.0 (2015/10/29)
+ * @author     Subaru365 (a-murata@inase-inc.jp)
+ * @license    MIT License
+ * @copyright  2015 Inase,inc.
+ * @link       https://bitbucket.org/inase/gocci-mobile-api
+ */
+use Aws\Sns\SnsClient;
+
+class Model_V3_Aws_Sns extends Model
 {
-	public static function set_endpoint($user_data)
-	{
-		//AWS SNSに端末を登録
-        if ($user_data['os'] == 'android') {
-            $endpoint_arn = self::set_android($user_data);
+	/**
+     * @var Instance $Client
+     */
+    private $Client;
 
-        }elseif ($user_data['os'] == 'iOS') {
-			$endpoint_arn = self::set_iOS($user_data);
 
-		}else{
-            error_log("Model_Sns: $user_data['os']が不正です。");
-            exit;
+    public function __construct()
+    {
+        $this->Client = new SnsClient([
+			'region'  => 'ap-northeast-1',
+    		'version' => '2010-03-31'
+		]);
+    }
+
+    public function set_device($user_data)
+    {
+    	if ($user_data['os'] === 'android') {
+            $result = self::set_android($user_data);
+
+        } else {
+        	$result = self::set_ios($user_data);
         }
 
-        return $endpoint_arn;
-	}
+        return $result['EndpointArn'];
+    }
+
+    public function delete_data($endpoint_arn)
+    {
+    	$this->delete_endpoint($endpoint_arn);
+    }
 
 
-	private static function set_android($user_data)
+	private function set_android($user_data)
 	{
 		$android_arn = Config::get('_sns.android_ApplicationArn');
 
-		$client = new SnsClient([
-			'region'  => 'ap-northeast-1',
-    		'version' => '2010-03-31'
-		]);
-
-		$result = $client->createPlatformEndpoint([
-    		'CustomUserData' 			=> "user_id / $user_data[user_id]",
+		$result = $this->Client->createPlatformEndpoint([
+    		'CustomUserData' 			=> 'user_id/'.session::get('useer_id'),
     		'PlatformApplicationArn'    => "$android_arn",
     		'Token'                     => "$user_data[register_id]",
     	]);
-
-    	return $result['EndpointArn'];
+    	return $result;
 	}
 
-
-	private static function set_iOS($user_data)
+	private function set_ios($user_data)
 	{
 		$iOS_arn = Config::get('_sns.iOS_ApplicationArn');
 
-		$client = new SnsClient([
-			'region'  => 'ap-northeast-1',
-    		'version' => '2010-03-31'
-		]);
-
-		$result = $client->createPlatformEndpoint([
-    		'CustomUserData' 			=> "user_id / $user_data[user_id]",
+		$result = $this->Client->createPlatformEndpoint([
+    		'CustomUserData' 			=> 'user_id/'.session::get('user_id'),
     		'PlatformApplicationArn'    => "$iOS_arn",
     		'Token'                     => "$user_data[register_id]",
     	]);
-
-    	return $result['EndpointArn'];
+    	return $result;
 	}
 
 
-	public static function post_message($keyword, $user_id, $target_user_id)
+	public function publish_android($keyword, $user_id, $target_user_id)
 	{
         $username  = Model_User::get_name($user_id);
-        $target_arn = Model_Device::get_arn($target_user_id);
+        $target_arn = Model_user_data::get_arn($target_user_id);
 
         $message = "$username" . 'さんから' . "$keyword" . 'されました！';
 
-        $client = new SnsClient([
-            'region'  => 'ap-northeast-1',
-            'version' => '2010-03-31'
-        ]);
-
-        $result = $client->publish([
+	    $result = $client->publish([
             'Message'   => "$message",
             'TargetArn' => "$target_arn",
         ]);
 	}
 
 
-	public static function publish_ios($endpointArn, $alert)
+	public function publish_ios($endpointArn, $alert)
 	{
-		$client = new SnsClient([
-			'region'  => 'ap-northeast-1',
-    		'version' => '2010-03-31'
-		]);
-
 		$client->publish(array(
 
         	'TargetArn' => $endpointArn,
@@ -111,15 +109,9 @@ class Model_Sns extends Model
         ));
 	}
 
-
-	public static function delete_endpoint($endpoint_arn)
+	private function delete_endpoint($endpoint_arn)
 	{
-		$client = new SnsClient([
-			'region'  => 'ap-northeast-1',
-    		'version' => '2010-03-31'
-		]);
-
-		$result = $client->deleteEndpoint([
+		$this->Client->deleteEndpoint([
     		'EndpointArn' => "$endpoint_arn",
 		]);
 	}

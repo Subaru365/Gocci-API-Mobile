@@ -3,7 +3,7 @@
  * Authentication Class. Request SignUp, LogIn.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/10/27)
+ * @version    3.0 (2015/10/30)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -17,80 +17,63 @@ class Controller_V3_Auth extends Controller_V3_Public
      */
     private $Cognito;
 
+    /**
+     * @var Instance $Sns
+     */
+    private $Sns;
+
 
     public function before()
     {
         parent::before();
 
-        $this->Cognito = new Model_V3_Aws_Cognito();
         $this->User    = new Model_V3_Db_User();
+        $this->Device  = new Model_V3_Db_Device();
+        $this->Cognito = new Model_V3_Aws_Cognito();
+        $this->Sns     = new Model_V3_Aws_Sns();
     }
 
     public function action_signup()
     {
-        //$req_params is [name, os, model, reg_id]
+        //$req_params is [username, os, ver, model, reg_id]
+        $this->chk_overlap_username($this->req_params['username']);
+        $this->chk_overlap_register_id($this->req_params['register_id']);
 
-        $this->req_params = Model_V3_Router::create_user($this->req_params);
-
-        Controller_V3_Mobile_Base::output_success($this->req_params);
-
-                $this->overlap_username($user_data['username']);
-        $this->overlap_register_id($user_data['register_id']);
+        $this->create_user();
+        $this->output_success();
     }
 
     public function action_login()
     {
         //Input $this->req_params is [identity_id]
-        //$this->verify_identity_id();
-        // print_r($this->req_params);
-        // exit;
-
         $this->login();
-
         $this->output_success();
     }
 
 
     public function action_sns_login()
     {
-        //Input $this->req_params is [identity_id, os, model, register_id]
+        //Input $this->req_params is [identity, os, ver, model, reg_id]
+        $this->req_params['user_id'] = $this->chk_identity_id($this->req_params['identity_id']);
+        $this->chk_overlap_register_id($this->req_params['register_id']);
 
-        $this->req_params = Model_V3_Router::login($this->req_params['identity_id']);
-
-        Controller_V3_Mobile_Base::output_success($this->req_params);
-
-
-        $this->verify_identity_id(['identity_id']);
-        $this->overlap_register_id(['register_id']);
+        $this->update_device();
+        $this->login();
+        $this->output_success();
     }
 
 
     public function action_pass_login()
     {
         //Input $this->req_params is [username, pass, os, model, register_id]
+        $this->req_params['user_id'] = $this->chk_username($this->req_params['username']);
+        $this->chk_password($this->req_params['username'], $this->req_params['password']);
+        $this->chk_overlap_register_id($this->req_params['register_id']);
 
-        $this->req_params = Model_V3_Router::pass_login($this->req_params['identity_id']);
-
-        Controller_V3_Mobile_Base::output_success($this->req_params);
-
-        $this->verify_password($user_data['username'], $user_data['pass']);
+        $this->update_device();
+        $this->login();
+        $this->output_success();
     }
-
-
-    // public function action_device_refresh()
-    // {
-    //     //Input $this->req_params is [$register_id]
-    //     $this->req_params = self::get_input();
-
-    //     $old_endpoint_arn = Model_Device::get_arn($user_id);
-    //     Model_Sns::delete_endpoint($old_endpoint_arn);
-
-    //     $new_endpoint_arn = Model_Sns::post_endpoint($user_id, $register_id, $os);
-    //     Model_Device::update_data($user_id, $os, $model, $register_id, $new_endpoint_arn);
-
-    // }
-
-
 
 
     //======================================================//
@@ -102,25 +85,146 @@ class Controller_V3_Auth extends Controller_V3_Public
         Session::set('user_id', "$user_id");
     }
 
-    private function login()
+    private static function get_rand_profile_img()
     {
-        $User           =  $this->User;
-        $Cognito        =  $this->Cognito;
-        $identity_id    =  $this->req_params['identity_id'];
-        $res_params     = &$this->res_params;
+        $profile_img = '2014-09-06_0_tosty_' . mt_rand(1, 7);
+        return $profile_img;
+    }
 
-        $result         = $User->get_auth_data($identity_id);
+
+    private function chk_identity_id($identity_id)
+    {
+        $result = $this->User->get_id($identity_id);
+
+        if (empty($result)) {
+            $this->status = Model_V3_Status::get_status('ERROR_IDENTITY_ID_NOT_REGISTERD');
+            $this->Cognitto->delete_id($identity_id);
+            $this->output();
+        }
+        return $result[0]['user_id'];
+    }
+
+
+    private function chk_username($username)
+    {
+        $user_id = $this->User->check_name($username);
+
+        if (empty($user_id)) {
+            $this->status = Model_V3_Status::get_status('ERROR_USERNAME_NOT_REGISTERD');
+            $this->output();
+        }
+        return $user_id;
+    }
+
+
+    private function chk_password($username, $password)
+    {
+        $hash_pass = $this->User->get_password($username);
+
+        if (empty($hash_pass)) {
+            $this->status = Model_V3_Status::get_status('パスワード未登録');
+            $this->output();
+
+        } else if (password_verify($pass, $hash_pass)) {
+            //認証OK
+
+        } else {
+            $this->status = Model_V3_Status::get_status('ERROR_PASSWORD_WRONG');
+            $this->output();
+        }
+    }
+
+
+    private function chk_overlap_username($username)
+    {
+        $result = $this->User->check_name($username);
 
         if (!empty($result)) {
-            $result[0]['profile_img'] = Model_V3_Transcode::decode_profile_img($result[0]['profile_img']);
-            $res_params = $result[0];
-        
+            $this->status = Model_V3_Status::get_status('ERROR_USERNAME_ALREADY_REGISTERD');
+            $this->output();
+        }
+    }
+
+
+    private function chk_overlap_register_id($register_id)
+    {
+        $result = $this->Device->get_id($register_id);
+
+        if (!empty($result)) {
+            $this->status = Model_V3_Status::get_status('ERROR_REGISTER_ID_ALREADY_REGISTERD');
+            $this->output();
+        }
+    }
+
+    //======================================================//
+
+    private function login()
+    {
+        $User       = $this->User;
+        $Cognito    = $this->Cognito;
+        $req_params = $this->req_params;
+
+        $user_data  = $User->get_auth_data($req_params['identity_id']);
+
+        if (!empty($user_data)) {
+            $req_params = $user_data[0];
+            $req_params['profile_img'] = Model_V3_Transcode::decode_profile_img($req_params['profile_img']);
+
         } else {
             $this->status = Model_V3_Status::get_status('ERROR_IDENTITY_ID_NOT_REGISTERD');
             $this->output();
         }
 
-        self::set_session($res_params['user_id']);
-        $res_params['cognito_token'] = $Cognito->get_token($identity_id);
+        self::set_session($req_params['user_id']);
+        $req_params['cognito_token'] = $Cognito->get_token();
+
+        $this->req_params = $req_params;
+    }
+
+
+    private function create_user()
+    {
+        $User       =  $this->User;
+        $Device     =  $this->Device;
+        $Cognito    =  $this->Cognito;
+        $Sns        =  $this->Sns;
+        $req_params = &$this->req_params;
+
+        $req_params['user_id'] = $User->get_next_user_id();
+        self::set_session($req_params['user_id']);
+
+        $result = $Cognito->get_data();
+        $req_params['identity_id']      = $result['IdentityId'];
+        $req_params['cognito_token']    = $result['Token'];
+
+
+        $req_params['endpoint_arn'] = $Sns->set_device($req_params);
+        $req_params['profile_img']  = self::get_rand_profile_img();
+
+        $User   ->set_data($req_params);
+        $Device ->set_data($req_params);
+
+        $req_params['badge_num']   = 0;
+        $req_params['profile_img'] = Model_V3_Transcode::decode_profile_img($req_params['profile_img']);
+    }
+
+
+    private function update_device()
+    {
+        //外部処理 Link:Controller/bgp/update_device
+        $req_params = $this->req_params;
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,
+            'http://localhost/v3/bgp/update_device/'
+            .'?user_id='     . "$req_params[user_id]"
+            .'&os='          . "$req_params[os]"
+            .'&ver='         . "$req_params[ver]"
+            .'&model='       . "$req_params[model]"
+            .'&register_id=' . "$req_params[register_id]"
+        );
+
+        curl_exec($ch);
+        curl_close($ch);
     }
 }
