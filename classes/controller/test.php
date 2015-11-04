@@ -16,9 +16,31 @@ class Controller_Test extends Controller
 
 	public function action_info()
 	{
-		if ($_SERVER['REMOTE_ADDR'] !== '118.238.250.166') die();
-		phpinfo();
-	}
+
+		$user_1 = array(
+			'name' => 'buzz',
+			'id'   => 1,
+		);
+
+		$user_2 = array(
+			'name' => 'fuzz',
+			'id'   => 2,
+		);
+
+		$user_data['new_user'] = $user_1;		
+		$user_data['old_user'] = $user_2;
+
+		$status['payload'] = $user_data;
+		
+        $json = json_encode(
+            $status,
+            JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|
+            JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT
+        );
+
+        echo $json;
+        exit;
+    }
 
 	// public static function push($endpointArn, $alert)
 	// {

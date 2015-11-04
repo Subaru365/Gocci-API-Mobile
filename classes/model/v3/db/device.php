@@ -3,7 +3,7 @@
  * Status Code and Message list.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/10/29)
+ * @version    3.0 (2015/11/03)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -18,9 +18,16 @@ class Model_V3_Db_Device extends Model_V3_Db
     private static $table_name = 'devices';
 
 
-    public function get_id($register_id)
+    public function get_id($reg_id)
     {
-        $this->select_id($register_id);
+        $this->select_id($reg_id);
+        $result = $this->run();
+        return $result;
+    }
+
+    public function check_arn($reg_id)
+    {
+        $this->select_arn2($reg_id);
         $result = $this->run();
         return $result;
     }
@@ -39,6 +46,13 @@ class Model_V3_Db_Device extends Model_V3_Db
         return $result;
     }
 
+    public function delete_device($reg_id)
+    {
+        $this->delete_data($reg_id);
+        $result = $this->query->execute();
+        return $result;
+    }
+
     public function set_data($params)
     {
         $this->insert_data($params);
@@ -49,11 +63,11 @@ class Model_V3_Db_Device extends Model_V3_Db
     //SELECT
     //-------------------------------------------------//
 
-    private function select_id($register_id)
+    private function select_id($reg_id)
     {
         $this->query = DB::select('device_id')
         ->from(self::$table_name)
-        ->where('register_id', "$register_id");
+        ->where('register_id', "$reg_id");
     }
 
     private function select_arn($user_id)
@@ -61,6 +75,13 @@ class Model_V3_Db_Device extends Model_V3_Db
         $this->query = DB::select('endpoint_arn')
         ->from(self::$table_name)
         ->where('device_user_id', "$user_id");
+    }
+
+    private function select_arn2($reg_id)
+    {
+        $this->query = DB::select('endpoint_arn')
+        ->from(self::$table_name)
+        ->where('register_id', "$reg_id");
     }
 
     //UPDATE
@@ -72,11 +93,21 @@ class Model_V3_Db_Device extends Model_V3_Db
         ->set(array(
             'os'            => "$params[os]",
             'model'         => "$params[model]",
-            'register_id'   => "$params[register_id]",
+            'register_id'   => "$params[reg_id]",
             'endpoint_arn'  => "$params[endpoint_arn]"
         ))
         ->where('device_user_id', "$params[user_id]");
     }
+
+    //DELETE
+    //-------------------------------------------------//
+
+    private function delete_data($reg_id)
+    {
+        $this->query = DB::delete(self::$table_name)
+        ->where('register_id', "$reg_id");
+    }
+
 
     //INSERT
     //-------------------------------------------------//
@@ -88,7 +119,7 @@ class Model_V3_Db_Device extends Model_V3_Db
             'device_user_id'   => "$params[user_id]",
             'os'               => "$params[os]",
             'model'            => "$params[model]",
-            'register_id'      => "$params[register_id]",
+            'register_id'      => "$params[reg_id]",
             'endpoint_arn'     => "$params[endpoint_arn]"
         ));
     }

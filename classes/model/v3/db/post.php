@@ -1,10 +1,40 @@
 <?php
-class Model_Post extends Model
+/**
+ * Authentication Class. Request SignUp, LogIn.
+ *
+ * @package    Gocci-Mobile
+ * @version    3.0 (2015/11/02)
+ * @author     Subaru365 (a-murata@inase-inc.jp)
+ * @license    MIT License
+ * @copyright  2015 Inase,inc.
+ * @link       https://bitbucket.org/inase/gocci-mobile-api
+ */
+
+/**
+ * @return Array
+ */
+class Model_V3_Post extends Model_Db
 {
-	//"POST"取得
-	public static function get_data()
+	/**
+	 * @var String $table_name
+	 */
+	private static $table_name = 'posts';
+
+
+	public function get_data()
 	{
-		$query = DB::select(
+
+	}
+
+
+
+
+
+
+	//"POST"取得
+	private function get_data()
+	{
+		$this->query = DB::select(
 			'post_id',		'movie',		'thumbnail',
 			'category',		'tag',			'value',
 			'memo', 		'post_date', 	'cheer_flag',
@@ -13,7 +43,7 @@ class Model_Post extends Model
 			DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat'),
 			DB::expr("GLength(GeomFromText(CONCAT('LineString(${option['lon']} ${option['lat']},', X(lon_lat),' ', Y(lon_lat),')'))) as distance")
 		)
-		->from('posts')
+		->from(self::$table_name)
 
 		->join('restaurants', 'INNER')
 		->on('post_rest_id', '=', 'rest_id')
@@ -31,21 +61,21 @@ class Model_Post extends Model
 
 		->limit(20);
 
-		return $query;
+		return $this->query;
 	}
 
 
-	public static function get_sort($query, $option)
+	private function get_sort($this->query, $option)
 	{
 		//並び替え
 		if ($option['order_id'] == 0) {
 		//時系列
-			$query->order_by('post_date','desc');
+			$this->query->order_by('post_date','desc');
 
 
 		} elseif ($option['order_id'] == 1) {
 		//近い順
-			$query->order_by(DB::expr("GLength(GeomFromText(CONCAT('LineString(${option['lon']} ${option['lat']},', X(lon_lat),' ', Y(lon_lat),')')))"));
+			$this->query->order_by(DB::expr("GLength(GeomFromText(CONCAT('LineString(${option['lon']} ${option['lat']},', X(lon_lat),' ', Y(lon_lat),')')))"));
 
 
 		} elseif ($option['order_id'] == 2) {
@@ -55,7 +85,7 @@ class Model_Post extends Model
 			$interval = date("Y-m-d",strtotime("-1 month"));
 			$now_date = date("Y-m-d",strtotime("+1 day"));
 
-			$query->join('gochis', 'RIGHT')
+			$this->query->join('gochis', 'RIGHT')
 			->on('gochi_post_id', '=', 'post_id')
 
 			->where	   ('gochi_date', 'BETWEEN', array("$interval", "$now_date"))
@@ -67,23 +97,23 @@ class Model_Post extends Model
 
 		//カテゴリー絞り込み
 		if ($option['category_id'] != 0) {
-			$query->where('category_id', $option['category_id']);
+			$this->query->where('category_id', $option['category_id']);
 		}
 
 
 		//価格絞り込み
 		if ($option['value_id'] != 0) {
 			if ($option['value_id'] == 1) {
-				$query->where('value', 'between', array(1, 700));
+				$this->query->where('value', 'between', array(1, 700));
 			}
 			if ($option['value_id'] == 2) {
-				$query->where('value', 'between', array(500, 1500));
+				$this->query->where('value', 'between', array(500, 1500));
 			}
 			if ($option['value_id'] == 3) {
-				$query->where('value', 'between', array(1500, 5000));
+				$this->query->where('value', 'between', array(1500, 5000));
 			}
 			if ($option['value_id'] == 4) {
-				$query->where('value', '>', 3000);
+				$this->query->where('value', '>', 3000);
 			}
 		}
 
@@ -91,32 +121,32 @@ class Model_Post extends Model
 		//次ページ読み込み
 		if ($option['call'] != 0) {
 			$call_num = $option['call'] * $limit;
-			$query->offset($call_num);
+			$this->query->offset($call_num);
 		}
 
 
-		$query ->order_by('post_date','desc');
-		$post_data = $query->execute()->as_array();
+		$this->query ->order_by('post_date','desc');
+		$post_data = $this->query->execute()->as_array();
 
 		return $post_data;
 	}
 
 
-	public static function get_user($post_id)
+	private function get_user($post_id)
 	{
-		$query = DB::select('post_user_id')->from('posts')
+		$this->query = DB::select('post_user_id')->from(self::$table_name)
 		->where('post_id', "$post_id");
 
-		$post_user_id = $query->execute()->as_array();
+		$post_user_id = $this->query->execute()->as_array();
 		return $post_user_id[0]['post_user_id'];
 	}
 
 
 	//1ユーザーが応援している店舗リスト
-	public static function get_user_cheer($user_id)
+	private function get_user_cheer($user_id)
 	{
-		$query = DB::select('rest_id', 'restname', 'locality')
-		->from('posts')
+		$this->query = DB::select('rest_id', 'restname', 'locality')
+		->from(self::$table_name)
 
 		->join('restaurants', 'INNER')
 		->on('post_rest_id', '=', 'rest_id')
@@ -127,15 +157,15 @@ class Model_Post extends Model
 
 		->distinct(true);
 
-		$cheer_list = $query->execute()->as_array();
+		$cheer_list = $this->query->execute()->as_array();
 		return $cheer_list;
 	}
 
 
 	//ユーザーに対する応援店数取得
-	public static function get_user_cheer_num($user_id)
+	private function get_user_cheer_num($user_id)
 	{
-		$query = DB::select('post_id')->from('posts')
+		$this->query = DB::select('post_id')->from(self::$table_name)
 
 		->where	   ('post_user_id', "$user_id")
 		->and_where('cheer_flag', '1')
@@ -143,7 +173,7 @@ class Model_Post extends Model
 
 		->distinct(true);
 
-		$result = $query->execute()->as_array();
+		$result = $this->query->execute()->as_array();
 
 		$cheer_num = count($result);
 		return $cheer_num;
@@ -151,10 +181,10 @@ class Model_Post extends Model
 
 
 	//1店舗に対して応援しているユーザーリスト
-	public static function get_rest_cheer($rest_id)
+	private function get_rest_cheer($rest_id)
 	{
-		$query = DB::select('user_id', 'username', 'profile_img')
-		->from('posts')
+		$this->query = DB::select('user_id', 'username', 'profile_img')
+		->from(self::$table_name)
 
 		->join('users', 'INNER')
 		->on('post_user_id', '=', 'user_id')
@@ -165,7 +195,7 @@ class Model_Post extends Model
 
 		->distinct(true);
 
-		$cheer_list = $query->execute()->as_array();
+		$cheer_list = $this->query->execute()->as_array();
 
 		$num = count($cheer_list);
 
@@ -178,15 +208,15 @@ class Model_Post extends Model
 
 
 	//店舗に対する応援総数
-	public static function get_rest_cheer_num($rest_id)
+	private function get_rest_cheer_num($rest_id)
 	{
-		$query = DB::select('post_id')->from('posts')
+		$this->query = DB::select('post_id')->from(self::$table_name)
 
 		->where	   ('post_rest_id', "$rest_id")
 		->and_where('cheer_flag', '1')
 		->and_where('post_status_flag', '1');
 
-		$result = $query->execute()->as_array();
+		$result = $this->query->execute()->as_array();
 
 		$cheer_num = count($result);
 		return $cheer_num;
@@ -194,9 +224,9 @@ class Model_Post extends Model
 
 
 	//動画投稿
-	public static function put_data($post_data)
+	private function put_data($post_data)
 	{
-		$query = DB::insert('posts')
+		$this->query = DB::insert('posts')
 		->set(array(
 			'post_user_id'      => session::get('user_id'),
 			'post_rest_id'      => "$post_data['rest_id']",
@@ -210,45 +240,45 @@ class Model_Post extends Model
 		))
 		->execute();
 		
-		return $query;
+		return $this->query;
 	}
 
 
 	//投稿を表示
-	public static function post_publish($movie)
+	private function post_publish($movie)
 	{
-		$query = DB::update('posts')
+		$this->query = DB::update('posts')
 		->set  (array('post_status_flag' => '1'))
 		->where('movie', "$movie");
 
-		$result = $query->execute();
+		$result = $this->query->execute();
 		return $result;
 	}
 
 
 	//投稿を消去
-	public static function delete_post($post_id)
+	private function delete_post($post_id)
 	{
-		$query = DB::update('posts')
+		$this->query = DB::update('posts')
 		->set  (array('post_status_flag' => '0'))
 		->where('post_id', "$post_id");
 
-		$result = $query->execute();
+		$result = $this->query->execute();
 		return $result;
 	}
 
 
-	// public static function get_memo($post_id)
+	// private function get_memo($post_id)
 	// {
-	// 	$query = DB::select('user_id', 'username', 'profile_img', 'memo', 'post_date')
-	// 	->from('posts')
+	// 	$this->query = DB::select('user_id', 'username', 'profile_img', 'memo', 'post_date')
+	// 	->from(self::$table_name)
 
 	// 	->join('users', 'INNER')
 	// 	->on('post_user_id', '=', 'user_id')
 
 	// 	->where('post_id', "$post_id");
 
-	// 	$value = $query->execute()->as_array();
+	// 	$value = $this->query->execute()->as_array();
 
 	// 	$re_user = array();
 	// 	array_push ($value[0], $re_user);
