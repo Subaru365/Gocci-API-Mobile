@@ -17,6 +17,7 @@ class Model_V3_Db extends Model
 	 */
 	protected $query;
 
+
 	protected function run()
 	{
 		//$query  = $this->query;

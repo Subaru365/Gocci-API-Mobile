@@ -1,19 +1,45 @@
 <?php
 /**
- * Get api
- * v2.0
+ * Authentication Class. Request SignUp, LogIn.
+ *
+ * @package    Gocci-Mobile
+ * @version    3.0 (2015/11/02)
+ * @author     Subaru365 (a-murata@inase-inc.jp)
+ * @license    MIT License
+ * @copyright  2015 Inase,inc.
+ * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
-class Controller_V3_Get extends Controller_V2_Mobile_Base
+class Controller_V3_Get extends Controller_V3_Gate
 {
-	private function get_input()
+	/**
+	 * @var Instance $Post
+	 */
+	protected $Post;
+
+	/**
+	 * @var Instance $User
+	 */
+	protected $User;
+
+	public function before()
+	{
+		parent::before();
+
+		$this->$Post = new Model_V3_Db_Post();
+		$this->$User = new Model_V3_Db_User();
+		$this->$Post = new Model_V3_Db_Post();
+	}
+
+
+	public function action_nearline()
     {
-        $user_data = array_merge(Input::get(), Input::post());
-        return $user_data;
-    }
+    	//$req_params is lon, lat(, call, order_id, category_id, value_id)
+		$post_data  = Model_V2_Router::timeline($option);
 
+	   	$this->output_success();
+	}
 
-	//Timeline Page
 	public function action_timeline()
     {
     	//$option is [call, order_id, category_id, value_id, lon, lat]
@@ -23,7 +49,6 @@ class Controller_V3_Get extends Controller_V2_Mobile_Base
 
 	   	self::output_success($post_data);
 	}
-
 
 	//Followline
 	public function action_followline()

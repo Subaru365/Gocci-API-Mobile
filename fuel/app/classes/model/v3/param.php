@@ -3,7 +3,7 @@
  * Parameter list of uri.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/10/27)
+ * @version    3.0 (2015/11/03)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -23,14 +23,22 @@ class Model_V3_Param extends Model
 	private $val_param = array();
 
 	/**
-	 * @var Array $safe_param
+	 * @var Array $safe_param //if validation failed return FALSE
 	 */
 	private $safe_param = array();
+
+	/**
+	 * @var Array $safe_param //if validation failed return FALSE
+	 */
+	private $res_param = array();
+
 
 	/**
 	 * @var Instance $Val
 	 */
 	private $Val;
+
+
 
 
 	public function __construct()
@@ -96,7 +104,7 @@ class Model_V3_Param extends Model
 			'os' 		  => Input::get('os'),
 			'ver'		  => Input::get('ver'),
 			'model' 	  => Input::get('model'),
-			'register_id' => Input::get('register_id')
+			'reg_id'      => Input::get('reg_id')
 		);
 	}
 
@@ -114,7 +122,7 @@ class Model_V3_Param extends Model
 			'os' 		  => Input::get('os'),
 			'ver' 		  => Input::get('ver'),
 			'model' 	  => Input::get('model'),
-			'register_id' => Input::get('register_id')
+			'reg_id'      => Input::get('reg_id')
 		);
 	}
 
@@ -123,7 +131,7 @@ class Model_V3_Param extends Model
 		$this->val_param = array(
 			'username' 	  => Input::get('username'),
 			'password' 	  => Input::get('password'),
-			'register_id' => Input::get('register_id')
+			'reg_id'      => Input::get('reg_id')
 		);
 	}
 
@@ -133,7 +141,7 @@ class Model_V3_Param extends Model
 		$this->regex_os();
 		$this->regex_ver();
 		$this->regex_model();
-		$this->regex_register_id();
+		$this->regex_reg_id();
 	}
 
 	private function set_req_login()
@@ -147,14 +155,14 @@ class Model_V3_Param extends Model
 		$this->regex_os();
 		$this->regex_ver();
 		$this->regex_model();
-		$this->regex_register_id();
+		$this->regex_reg_id();
 	}
 
 	private function set_req_pass_login()
 	{
 		$this->regex_username();
 		$this->regex_password();
-		$this->regex_register_id();
+		$this->regex_reg_id();
 	}
 
 
@@ -202,6 +210,55 @@ class Model_V3_Param extends Model
 
 	// Responce Params
 	//-----------------------------------------------------//
+
+	private function set_res_signup()
+	{
+		$data = $this->safe_param;
+		$res_param['user_id']		= $data['user_id'];
+		$res_param['username']		= $data['username'];
+		$res_param['profile_img']	= $data['profile_img'];
+		$res_param['identity_id']	= $data['identity_id'];
+		$res_param['badge_num']		= $data['badge_num'];
+		$res_param['cognito_token']	= $data['cognito_token'];
+		$this->res_param = $res_param;
+	}
+
+	private function set_res_login()
+	{
+		$data = $this->safe_param;
+		$res_param['user_id']		= $data['user_id'];
+		$res_param['username']		= $data['username'];
+		$res_param['profile_img']	= $data['profile_img'];
+		$res_param['identity_id']	= $data['identity_id'];
+		$res_param['badge_num']		= $data['badge_num'];
+		$res_param['cognito_token']	= $data['cognito_token'];
+		$this->res_param = $res_param;
+	}
+
+	private function set_res_sns_login()
+	{
+		$data = $this->safe_param;
+		$res_param['user_id']		= $data['user_id'];
+		$res_param['username']		= $data['username'];
+		$res_param['profile_img']	= $data['profile_img'];
+		$res_param['identity_id']	= $data['identity_id'];
+		$res_param['badge_num']		= $data['badge_num'];
+		$res_param['cognito_token']	= $data['cognito_token'];
+		$this->res_param = $res_param;
+	}
+
+	private function set_res_pass_login()
+	{
+		$data = $this->safe_param;
+		$res_param['user_id']		= $data['user_id'];
+		$res_param['username']		= $data['username'];
+		$res_param['profile_img']	= $data['profile_img'];
+		$res_param['identity_id']	= $data['identity_id'];
+		$res_param['badge_num']		= $data['badge_num'];
+		$res_param['cognito_token']	= $data['cognito_token'];
+		$this->res_param = $res_param;
+	}
+
 
 	private function set_res_signup()
 	{
@@ -327,10 +384,10 @@ class Model_V3_Param extends Model
 		->add_rule('match_pattern', '/^[a-zA-Z0-9_-]{0,10}$/');
 	}
 
-	private function regex_register_id()
+	private function regex_reg_id()
 	{
 		$this->Val
-		->add('register_id', 'GET register_id')
+		->add('reg_id', 'GET reg_id')
 		->add_rule('required')
 		->add_rule('match_pattern', '/^([a-f0-9]{64})|([a-zA-Z0-9:_-]{140,250})$/');
 	}

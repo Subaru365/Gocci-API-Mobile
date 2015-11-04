@@ -12,8 +12,14 @@
 
 class Controller_V3_Bgp extends Controller
 {
+    /**
+     * @var Instance $Device
+     */
     private $Device;
 
+    /**
+     * @var Instance $Sns
+     */
     private $Sns;
 
     public function before()
@@ -23,6 +29,22 @@ class Controller_V3_Bgp extends Controller
             exit;
         }
     }
+
+    public function action_update_device()
+    {
+        $params = Input::get();
+
+        $this->Device = new Model_V3_Db_Device();
+        $this->Sns    = new Model_V3_Aws_Sns();
+
+        $old_endpoint_arn = $this->Device->get_arn($params['user_id']);
+        $this->Sns->delete_data($old_endpoint_arn);
+
+        $params['endpoint_arn'] = $this->Sns->set_device($params);
+
+        $this->Device->update_data($params);
+    }
+
 
     // //SNS Push
     // public function action_publish()
@@ -68,19 +90,4 @@ class Controller_V3_Bgp extends Controller
 
     //     echo '拒否しました。確認ありがとう！';
     // }
-
-    public function action_update_device()
-    {
-        $params = Input::get();
-
-        $this->Device = new Model_V3_Db_Device();
-        $this->Sns    = new Model_V3_Aws_Sns();
-
-        $old_endpoint_arn = $this->Device->get_arn($params['user_id']);
-        $this->Sns->delete_data($old_endpoint_arn);
-
-        $params['endpoint_arn'] = $this->Sns->set_device($params);
-
-        $this->Device->update_data($params);
-    }
 }

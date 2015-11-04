@@ -3,7 +3,7 @@
  * Authentication Class. Request SignUp, LogIn.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/10/30)
+ * @version    3.0 (2015/11/03)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -37,7 +37,7 @@ class Controller_V3_Auth extends Controller_V3_Public
     {
         //$req_params is [username, os, ver, model, reg_id]
         $this->chk_overlap_username($this->req_params['username']);
-        $this->chk_overlap_register_id($this->req_params['register_id']);
+        $this->chk_overlap_register_id($this->req_params['reg_id']);
 
         $this->create_user();
         $this->output_success();
@@ -55,7 +55,7 @@ class Controller_V3_Auth extends Controller_V3_Public
     {
         //Input $this->req_params is [identity, os, ver, model, reg_id]
         $this->req_params['user_id'] = $this->chk_identity_id($this->req_params['identity_id']);
-        $this->chk_overlap_register_id($this->req_params['register_id']);
+        $this->chk_overlap_register_id($this->req_params['reg_id']);
 
         $this->update_device();
         $this->login();
@@ -65,10 +65,10 @@ class Controller_V3_Auth extends Controller_V3_Public
 
     public function action_pass_login()
     {
-        //Input $this->req_params is [username, pass, os, model, register_id]
+        //Input $this->req_params is [username, pass, os, model, reg_id]
         $this->req_params['user_id'] = $this->chk_username($this->req_params['username']);
         $this->chk_password($this->req_params['username'], $this->req_params['password']);
-        $this->chk_overlap_register_id($this->req_params['register_id']);
+        $this->chk_overlap_register_id($this->req_params['reg_id']);
 
         $this->update_device();
         $this->login();
@@ -122,7 +122,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         $hash_pass = $this->User->get_password($username);
 
         if (empty($hash_pass)) {
-            $this->status = Model_V3_Status::get_status('パスワード未登録');
+            $this->status = Model_V3_Status::get_status('ERROR_PASSWORD_NOT_REGISTERD');
             $this->output();
 
         } else if (password_verify($pass, $hash_pass)) {
@@ -146,13 +146,15 @@ class Controller_V3_Auth extends Controller_V3_Public
     }
 
 
-    private function chk_overlap_register_id($register_id)
+    private function chk_overlap_register_id($reg_id)
     {
-        $result = $this->Device->get_id($register_id);
+        $Device     = $this->Device;
+        $Sns        = $this->Sns;
+        $device_arn = $Device->check_arn($reg_id);
 
-        if (!empty($result)) {
-            $this->status = Model_V3_Status::get_status('ERROR_REGISTER_ID_ALREADY_REGISTERD');
-            $this->output();
+        if (!empty($device_arn)) {
+            $Device->delete_device($reg_id);
+            $Sns->delete_arn($device_arn);
         }
     }
 
@@ -184,11 +186,11 @@ class Controller_V3_Auth extends Controller_V3_Public
 
     private function create_user()
     {
-        $User       =  $this->User;
-        $Device     =  $this->Device;
-        $Cognito    =  $this->Cognito;
-        $Sns        =  $this->Sns;
-        $req_params = &$this->req_params;
+        $User       = $this->User;
+        $Device     = $this->Device;
+        $Cognito    = $this->Cognito;
+        $Sns        = $this->Sns;
+        $req_params = $this->req_params;
 
         $req_params['user_id'] = $User->get_next_user_id();
         self::set_session($req_params['user_id']);
@@ -206,6 +208,8 @@ class Controller_V3_Auth extends Controller_V3_Public
 
         $req_params['badge_num']   = 0;
         $req_params['profile_img'] = Model_V3_Transcode::decode_profile_img($req_params['profile_img']);
+
+        $this->req_params = $req_params;
     }
 
 
@@ -221,7 +225,7 @@ class Controller_V3_Auth extends Controller_V3_Public
             .'&os='          . "$req_params[os]"
             .'&ver='         . "$req_params[ver]"
             .'&model='       . "$req_params[model]"
-            .'&register_id=' . "$req_params[register_id]"
+            .'&reg_id='      . "$req_params[reg_id]"
         );
 
         curl_exec($ch);
