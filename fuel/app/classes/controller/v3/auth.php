@@ -33,29 +33,36 @@ class Controller_V3_Auth extends Controller_V3_Public
         $this->Sns     = new Model_V3_Aws_Sns();
     }
 
-    public function action_signup()
+    public function action_login()
     {
-        //$req_params is [username, os, ver, model, reg_id]
-        $this->chk_overlap_username($this->req_params['username']);
-        $this->chk_overlap_register_id($this->req_params['reg_id']);
-
-        $this->create_user();
+        //req_params is [identity_id]
+        $this->login();
         $this->output_success();
     }
 
-    public function action_login()
+    public function action_check()
     {
-        //Input $this->req_params is [identity_id]
-        $this->login();
+        //req_params is [register_id]
+        $this->chk_register_id();
+        $this->output_success();
+    }
+
+    public function action_signup()
+    {
+        //$req_params is [username, os, ver, model, register_id]
+        $this->chk_overlap_register_id($this->req_params['register_id']);
+        $this->chk_overlap_username($this->req_params['username']);
+
+        $this->create_user();
         $this->output_success();
     }
 
 
     public function action_sns_login()
     {
-        //Input $this->req_params is [identity, os, ver, model, reg_id]
+        //Input $this->req_params is [identity, os, ver, model, register_id]
+        $this->chk_overlap_register_id($this->req_params['register_id']);
         $this->req_params['user_id'] = $this->chk_identity_id($this->req_params['identity_id']);
-        $this->chk_overlap_register_id($this->req_params['reg_id']);
 
         $this->update_device();
         $this->login();
@@ -65,10 +72,10 @@ class Controller_V3_Auth extends Controller_V3_Public
 
     public function action_pass_login()
     {
-        //Input $this->req_params is [username, pass, os, model, reg_id]
+        //Input $this->req_params is [username, pass, os, model, register_id]
+        $this->chk_overlap_register_id($this->req_params['register_id']);
         $this->req_params['user_id'] = $this->chk_username($this->req_params['username']);
         $this->chk_password($this->req_params['username'], $this->req_params['password']);
-        $this->chk_overlap_register_id($this->req_params['reg_id']);
 
         $this->update_device();
         $this->login();
@@ -92,6 +99,19 @@ class Controller_V3_Auth extends Controller_V3_Public
     }
 
 
+    private function chk_register_id()
+    {
+        $result = $this->Device->get_user($this->req_params['register_id']);
+
+        if (!empty($result)) {
+            //端末登録あり
+            $identity_id  = $this->User->get_identity($result[0]['device_user_id']);
+            $this->status = Model_V3_Status::get_status('ERROR_REGISTER_ID_ALREADY_REGISTERD', $identity_id[0]);
+            $this->output();
+        }
+    }
+
+
     private function chk_identity_id($identity_id)
     {
         $result = $this->User->get_id($identity_id);
@@ -107,13 +127,13 @@ class Controller_V3_Auth extends Controller_V3_Public
 
     private function chk_username($username)
     {
-        $user_id = $this->User->check_name($username);
+        $result = $this->User->check_name($username);
 
-        if (empty($user_id)) {
+        if (empty($result)) {
             $this->status = Model_V3_Status::get_status('ERROR_USERNAME_NOT_REGISTERD');
             $this->output();
         }
-        return $user_id;
+        return $result[0]['user_id'];
     }
 
 
@@ -125,10 +145,14 @@ class Controller_V3_Auth extends Controller_V3_Public
             $this->status = Model_V3_Status::get_status('ERROR_PASSWORD_NOT_REGISTERD');
             $this->output();
 
-        } else if (password_verify($pass, $hash_pass)) {
+        } else if (password_verify($password, $hash_pass[0]['password'])) {
             //認証OK
+            $result = $this->User->get_identity($this->req_params['user_id']);
+            $this->req_params['identity_id'] = $result[0]['identity_id'];
 
         } else {
+            var_dump($hash_pass);
+            var_dump($password);
             $this->status = Model_V3_Status::get_status('ERROR_PASSWORD_WRONG');
             $this->output();
         }
@@ -146,15 +170,13 @@ class Controller_V3_Auth extends Controller_V3_Public
     }
 
 
-    private function chk_overlap_register_id($reg_id)
+    private function chk_overlap_register_id($register_id)
     {
-        $Device     = $this->Device;
-        $Sns        = $this->Sns;
-        $device_arn = $Device->check_arn($reg_id);
+        $device_arn = $this->Device->check_arn($register_id);
 
         if (!empty($device_arn)) {
-            $Device->delete_device($reg_id);
-            $Sns->delete_arn($device_arn);
+            $this->status = Model_V3_Status::get_status('ERROR_REGISTER_ID_ALREADY_REGISTERD');
+            $this->output();
         }
     }
 
@@ -225,7 +247,7 @@ class Controller_V3_Auth extends Controller_V3_Public
             .'&os='          . "$req_params[os]"
             .'&ver='         . "$req_params[ver]"
             .'&model='       . "$req_params[model]"
-            .'&reg_id='      . "$req_params[reg_id]"
+            .'&register_id=' . "$req_params[register_id]"
         );
 
         curl_exec($ch);

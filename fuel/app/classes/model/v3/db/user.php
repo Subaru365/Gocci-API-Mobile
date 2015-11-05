@@ -42,6 +42,27 @@ class Model_V3_Db_User extends Model_V3_Db
         return $last_id++;
     }
 
+    public function get_identity($user_id)
+    {
+        $this->select_identity($user_id);
+        $result = $this->run();
+        return $result;
+    }
+
+    public function get_password($username)
+    {
+        $this->select_pass($username);
+        $result = $this->run();
+        return $result;
+    }
+
+    public function get_prof_data($user_id)
+    {
+        $this->select_prof($user_id);
+        $result = $this->run();
+        return $result;
+    }
+
     public function get_auth_data($identity_id)
     {
         $this->select_auth($identity_id);
@@ -94,11 +115,11 @@ class Model_V3_Db_User extends Model_V3_Db
     }
 
     /** @param String $username */
-    private function select_identity($username)
+    private function select_identity($user_id)
     {
         $this->query = DB::select('identity_id')
         ->from(self::$table_name)
-        ->where('username', "$username");
+        ->where('user_id', "$user_id");
     }
 
     private function select_badge($user_id)
@@ -117,7 +138,7 @@ class Model_V3_Db_User extends Model_V3_Db
     }
 
     /** @param Integer $user_id */
-    private function select_data($user_id)
+    private function select_prof($user_id)
     {
         $this->query = DB::select('user_id', 'username', 'profile_img')
         ->from(self::$table_name)

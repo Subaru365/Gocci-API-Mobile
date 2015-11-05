@@ -67,14 +67,19 @@ class Model_V3_Param extends Model
 	{
 		switch ($this->uri) {
 
-			case 'v3/auth/signup':
-				$this->get_req_signup();
-				$this->set_req_signup();
-				break;
-
 			case 'v3/auth/login':
 				$this->get_req_login();
 				$this->set_req_login();
+				break;
+			
+			case 'v3/auth/check':
+				$this->get_req_check();
+				$this->set_req_check();
+				break;
+
+			case 'v3/auth/signup':
+				$this->get_req_signup();
+				$this->set_req_signup();
 				break;
 
 			case 'v3/auth/sns_login':
@@ -97,6 +102,20 @@ class Model_V3_Param extends Model
 	// Request Params
 	//-----------------------------------------------------//
 
+	private function get_req_login()
+	{
+		$this->val_param = array(
+			'identity_id' => Input::get('identity_id')
+		);
+	}
+
+	private function get_req_check()
+	{
+		$this->val_param = array(
+			'register_id' => Input::get('register_id')
+		);
+	}
+
 	private function get_req_signup()
 	{
 		$this->val_param = array(
@@ -104,14 +123,7 @@ class Model_V3_Param extends Model
 			'os' 		  => Input::get('os'),
 			'ver'		  => Input::get('ver'),
 			'model' 	  => Input::get('model'),
-			'reg_id'      => Input::get('reg_id')
-		);
-	}
-
-	private function get_req_login()
-	{
-		$this->val_param = array(
-			'identity_id' => Input::get('identity_id')
+			'register_id' => Input::get('register_id')
 		);
 	}
 
@@ -122,7 +134,7 @@ class Model_V3_Param extends Model
 			'os' 		  => Input::get('os'),
 			'ver' 		  => Input::get('ver'),
 			'model' 	  => Input::get('model'),
-			'reg_id'      => Input::get('reg_id')
+			'register_id' => Input::get('register_id')
 		);
 	}
 
@@ -130,9 +142,23 @@ class Model_V3_Param extends Model
 	{
 		$this->val_param = array(
 			'username' 	  => Input::get('username'),
-			'password' 	  => Input::get('password'),
-			'reg_id'      => Input::get('reg_id')
+			'password'    => Input::get('password'),
+			'os' 		  => Input::get('os'),
+			'ver' 		  => Input::get('ver'),
+			'model' 	  => Input::get('model'),
+			'register_id' => Input::get('register_id')
 		);
+	}
+
+
+	private function set_req_login()
+	{
+		$this->regex_identity_id();
+	}
+
+	private function set_req_check()
+	{
+		$this->regex_register_id();
 	}
 
 	private function set_req_signup()
@@ -141,12 +167,7 @@ class Model_V3_Param extends Model
 		$this->regex_os();
 		$this->regex_ver();
 		$this->regex_model();
-		$this->regex_reg_id();
-	}
-
-	private function set_req_login()
-	{
-		$this->regex_identity_id();
+		$this->regex_register_id();
 	}
 
 	private function set_req_sns_login()
@@ -155,14 +176,14 @@ class Model_V3_Param extends Model
 		$this->regex_os();
 		$this->regex_ver();
 		$this->regex_model();
-		$this->regex_reg_id();
+		$this->regex_register_id();
 	}
 
 	private function set_req_pass_login()
 	{
 		$this->regex_username();
 		$this->regex_password();
-		$this->regex_reg_id();
+		$this->regex_register_id();
 	}
 
 
@@ -185,12 +206,15 @@ class Model_V3_Param extends Model
 	{
 		switch ($this->uri) {
 
-			case 'v3/auth/signup':
-				$this->set_res_signup();
-				break;
-
 			case 'v3/auth/login':
 				$this->set_res_login();
+				break;
+
+			case 'v3/auth/check':
+				break;
+
+			case 'v3/auth/signup':
+				$this->set_res_signup();
 				break;
 
 			case 'v3/auth/sns_login':
@@ -211,7 +235,7 @@ class Model_V3_Param extends Model
 	// Responce Params
 	//-----------------------------------------------------//
 
-	private function set_res_signup()
+	private function get_res_signup()
 	{
 		$data = $this->safe_param;
 		$res_param['user_id']		= $data['user_id'];
@@ -223,7 +247,7 @@ class Model_V3_Param extends Model
 		$this->res_param = $res_param;
 	}
 
-	private function set_res_login()
+	private function get_res_login()
 	{
 		$data = $this->safe_param;
 		$res_param['user_id']		= $data['user_id'];
@@ -235,7 +259,7 @@ class Model_V3_Param extends Model
 		$this->res_param = $res_param;
 	}
 
-	private function set_res_sns_login()
+	private function get_res_sns_login()
 	{
 		$data = $this->safe_param;
 		$res_param['user_id']		= $data['user_id'];
@@ -247,7 +271,7 @@ class Model_V3_Param extends Model
 		$this->res_param = $res_param;
 	}
 
-	private function set_res_pass_login()
+	private function get_res_pass_login()
 	{
 		$data = $this->safe_param;
 		$res_param['user_id']		= $data['user_id'];
@@ -323,7 +347,7 @@ class Model_V3_Param extends Model
 	private function regex_password()
 	{
 		$this->Val
-		->add('pass', 'GET password')
+		->add('password', 'GET password')
 		->add_rule('required')
 		->add_rule('match_pattern', '/^\w{6,25}$/');
 	}
@@ -373,7 +397,7 @@ class Model_V3_Param extends Model
 		$this->Val
 		->add('ver', 'GET ver')
 		->add_rule('required')
-		->add_rule('match_pattern', '/^[0-9]+$/');
+		->add_rule('match_pattern', '/^\d+\.\d+$/');
 	}
 
 	private function regex_model()
@@ -384,10 +408,10 @@ class Model_V3_Param extends Model
 		->add_rule('match_pattern', '/^[a-zA-Z0-9_-]{0,10}$/');
 	}
 
-	private function regex_reg_id()
+	private function regex_register_id()
 	{
 		$this->Val
-		->add('reg_id', 'GET reg_id')
+		->add('register_id', 'GET register_id')
 		->add_rule('required')
 		->add_rule('match_pattern', '/^([a-f0-9]{64})|([a-zA-Z0-9:_-]{140,250})$/');
 	}
