@@ -271,6 +271,19 @@ class Model_Post extends Model
 	}
 
 
+	public static function get_position()
+	{
+		$query = DB::select('post_rest_id', DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat'))
+		->from('posts')
+		->join('restaurants', 'INNER')
+		->on('post_rest_id', '=', 'rest_id')
+		->distinct(true);
+
+		$position = $query->execute()->as_array();
+		return $position;
+	}
+
+
 	//動画投稿
 	public static function post_data(
 		$user_id, $rest_id, $movie_name, $category_id, $tag_id, $value, $memo, $cheer_flag)

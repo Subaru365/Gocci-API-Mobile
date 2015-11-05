@@ -52,7 +52,7 @@ class Model_V3_Aws_Sns extends Model
 		$result = $this->Client->createPlatformEndpoint([
     		'CustomUserData' 			=> 'user_id/'.session::get('useer_id'),
     		'PlatformApplicationArn'    => "$android_arn",
-    		'Token'                     => "$user_data[reg_id]",
+    		'Token'                     => "$user_data[register_id]",
     	]);
     	return $result;
 	}
@@ -64,13 +64,13 @@ class Model_V3_Aws_Sns extends Model
 		$result = $this->Client->createPlatformEndpoint([
     		'CustomUserData' 			=> 'user_id/'.session::get('user_id'),
     		'PlatformApplicationArn'    => "$iOS_arn",
-    		'Token'                     => "$user_data[reg_id]",
+    		'Token'                     => "$user_data[register_id]",
     	]);
     	return $result;
 	}
 
 
-	public function publish_android($keyword, $user_id, $target_user_id)
+	private function publish_android($keyword, $user_id, $target_user_id)
 	{
         $username  = Model_User::get_name($user_id);
         $target_arn = Model_user_data::get_arn($target_user_id);
@@ -84,7 +84,7 @@ class Model_V3_Aws_Sns extends Model
 	}
 
 
-	public function publish_ios($endpointArn, $alert)
+	private function publish_ios($endpointArn, $alert)
 	{
 		$client->publish(array(
 
@@ -109,7 +109,7 @@ class Model_V3_Aws_Sns extends Model
         ));
 	}
 
-	public function delete_arn($endpoint_arn)
+	private function delete_endpoint($endpoint_arn)
 	{
 		$this->Client->deleteEndpoint([
     		'EndpointArn' => "$endpoint_arn",

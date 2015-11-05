@@ -25,7 +25,7 @@ class Controller_V3_Bgp extends Controller
     public function before()
     {
         if ($_SERVER['REMOTE_ADDR'] !== '127.0.0.1') {
-            error_log('access denied. @Bgp');
+            error_log('access denied.');
             exit;
         }
     }

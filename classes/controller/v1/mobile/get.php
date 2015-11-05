@@ -212,6 +212,13 @@ class Controller_V1_Mobile_Get extends Controller_V1_Mobile_Base
 	}
 
 
+	public function action_heatmap()
+	{
+		$data = Model_Post::get_position();
+		self::output_json($data);
+	}
+
+
 	//Follow
 	public function action_follow()
 	{
