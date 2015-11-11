@@ -3,7 +3,7 @@
  * Parameter list of uri.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/03)
+ * @version    3.0 (2015/11/06)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -55,7 +55,7 @@ class Model_V3_Param extends Model
 	{
 		$this->Val = Validation::forge('request');
 
-		$this->set_request();
+		$this->setRequest();
 		$this->check($this->val_param);
 
 		return $this->safe_param;
@@ -63,33 +63,52 @@ class Model_V3_Param extends Model
 
 	//-----------------------------------------------------//
 
-	private function set_request()
+	private function setRequest()
 	{
 		switch ($this->uri) {
 
 			case 'v3/auth/login':
-				$this->get_req_login();
-				$this->set_req_login();
+				$this->getReq_login();
+				$this->setReq_login();
 				break;
-			
+
 			case 'v3/auth/check':
-				$this->get_req_check();
-				$this->set_req_check();
+				$this->getReq_check();
+				$this->setReq_check();
 				break;
 
 			case 'v3/auth/signup':
-				$this->get_req_signup();
-				$this->set_req_signup();
+				$this->getReq_signup();
+				$this->setReq_signup();
 				break;
 
 			case 'v3/auth/sns_login':
-				$this->get_req_sns_login();
-				$this->set_req_sns_login();
+				$this->getReq_sns_login();
+				$this->setReq_sns_login();
 				break;
 
 			case 'v3/auth/pass_login':
-				$this->get_req_pass_login();
-				$this->set_req_pass_login();
+				$this->getReq_pass_login();
+				$this->setReq_pass_login();
+				break;
+
+			case 'v3/get/nearline':
+				$this->getReq_nearline();
+				$this->setReq_nearline();
+				break;
+
+			case 'v3/get/followline':
+				$this->getReq_followline();
+				$this->setReq_followline();
+				break;
+
+			case 'v3/get/timeline':
+				$this->getReq_timeline();
+				$this->setReq_timeline();
+				break;
+
+
+			case 'v3/get/heatmap':
 				break;
 
 			default:
@@ -102,43 +121,43 @@ class Model_V3_Param extends Model
 	// Request Params
 	//-----------------------------------------------------//
 
-	private function get_req_login()
+	private function getReq_login()
 	{
 		$this->val_param = array(
-			'identity_id' => Input::get('identity_id')
+			'identity_id' => Input::get('identity_id'),
 		);
 	}
 
-	private function get_req_check()
+	private function getReq_check()
 	{
 		$this->val_param = array(
-			'register_id' => Input::get('register_id')
+			'register_id' => Input::get('register_id'),
 		);
 	}
 
-	private function get_req_signup()
+	private function getReq_signup()
 	{
 		$this->val_param = array(
 			'username' 	  => Input::get('username'),
 			'os' 		  => Input::get('os'),
 			'ver'		  => Input::get('ver'),
 			'model' 	  => Input::get('model'),
-			'register_id' => Input::get('register_id')
+			'register_id' => Input::get('register_id'),
 		);
 	}
 
-	private function get_req_sns_login()
+	private function getReq_sns_login()
 	{
 		$this->val_param = array(
 			'identity_id' => Input::get('identity_id'),
 			'os' 		  => Input::get('os'),
 			'ver' 		  => Input::get('ver'),
 			'model' 	  => Input::get('model'),
-			'register_id' => Input::get('register_id')
+			'register_id' => Input::get('register_id'),
 		);
 	}
 
-	private function get_req_pass_login()
+	private function getReq_pass_login()
 	{
 		$this->val_param = array(
 			'username' 	  => Input::get('username'),
@@ -146,22 +165,52 @@ class Model_V3_Param extends Model
 			'os' 		  => Input::get('os'),
 			'ver' 		  => Input::get('ver'),
 			'model' 	  => Input::get('model'),
-			'register_id' => Input::get('register_id')
+			'register_id' => Input::get('register_id'),
+		);
+	}
+
+	private function getReq_nearline()
+	{
+		$this->val_param = array(
+			'lon' 	     	=> Input::get('lon'),
+			'lat' 	     	=> Input::get('lat'),
+			'category_id'	=> Input::get('category_id'),
+			'valuse_id'  	=> Input::get('valuse_id'),
+			'page' 	     	=> Input::get('page'),
+		);
+	}
+
+	private function getReq_followline()
+	{
+		$this->val_param = array(
+			'category_id'	=> Input::get('category_id'),
+			'valuse_id'  	=> Input::get('valuse_id'),
+			'page' 	     	=> Input::get('page'),
+		);
+	}
+
+	private function getReq_timeline()
+	{
+		$this->val_param = array(
+			'category_id'	=> Input::get('category_id'),
+			'valuse_id'  	=> Input::get('valuse_id'),
+			'page' 	     	=> Input::get('page'),
 		);
 	}
 
 
-	private function set_req_login()
+
+	private function setReq_login()
 	{
 		$this->regex_identity_id();
 	}
 
-	private function set_req_check()
+	private function setReq_check()
 	{
 		$this->regex_register_id();
 	}
 
-	private function set_req_signup()
+	private function setReq_signup()
 	{
 		$this->regex_username();
 		$this->regex_os();
@@ -170,7 +219,7 @@ class Model_V3_Param extends Model
 		$this->regex_register_id();
 	}
 
-	private function set_req_sns_login()
+	private function setReq_sns_login()
 	{
 		$this->regex_identity_id();
 		$this->regex_os();
@@ -179,12 +228,36 @@ class Model_V3_Param extends Model
 		$this->regex_register_id();
 	}
 
-	private function set_req_pass_login()
+	private function setReq_pass_login()
 	{
 		$this->regex_username();
 		$this->regex_password();
 		$this->regex_register_id();
 	}
+
+	private function setReq_nearline()
+	{
+		$this->regex_lat();
+		$this->regex_lon();
+		$this->regex_category_id();
+		$this->regex_value_id();
+		$this->regex_page();
+	}
+
+	private function setReq_followline()
+	{
+		$this->regex_category_id();
+		$this->regex_value_id();
+		$this->regex_page();
+	}
+
+	private function setReq_timeline()
+	{
+		$this->regex_category_id();
+		$this->regex_value_id();
+		$this->regex_page();
+	}
+
 
 
 	//======================================================//
@@ -225,8 +298,15 @@ class Model_V3_Param extends Model
 				$this->set_res_pass_login();
 				break;
 
+			case '/v3/get/nearline':
+				break;
+
+			case 'v3/get/heatmap':
+				break;
+
+
 			default:
-				Model_V3_Status::ERROR_CONNECTION_FAILED();
+				//Model_V3_Status::ERROR_CONNECTION_FAILED();
 				break;
 		}
 	}
@@ -235,53 +315,53 @@ class Model_V3_Param extends Model
 	// Responce Params
 	//-----------------------------------------------------//
 
-	private function get_res_signup()
-	{
-		$data = $this->safe_param;
-		$res_param['user_id']		= $data['user_id'];
-		$res_param['username']		= $data['username'];
-		$res_param['profile_img']	= $data['profile_img'];
-		$res_param['identity_id']	= $data['identity_id'];
-		$res_param['badge_num']		= $data['badge_num'];
-		$res_param['cognito_token']	= $data['cognito_token'];
-		$this->res_param = $res_param;
-	}
+	// private function get_res_signup()
+	// {
+	// 	$data = $this->safe_param;
+	// 	$res_param['user_id']		= $data['user_id'];
+	// 	$res_param['username']		= $data['username'];
+	// 	$res_param['profile_img']	= $data['profile_img'];
+	// 	$res_param['identity_id']	= $data['identity_id'];
+	// 	$res_param['badge_num']		= $data['badge_num'];
+	// 	$res_param['cognito_token']	= $data['cognito_token'];
+	// 	$this->res_param = $res_param;
+	// }
 
-	private function get_res_login()
-	{
-		$data = $this->safe_param;
-		$res_param['user_id']		= $data['user_id'];
-		$res_param['username']		= $data['username'];
-		$res_param['profile_img']	= $data['profile_img'];
-		$res_param['identity_id']	= $data['identity_id'];
-		$res_param['badge_num']		= $data['badge_num'];
-		$res_param['cognito_token']	= $data['cognito_token'];
-		$this->res_param = $res_param;
-	}
+	// private function get_res_login()
+	// {
+	// 	$data = $this->safe_param;
+	// 	$res_param['user_id']		= $data['user_id'];
+	// 	$res_param['username']		= $data['username'];
+	// 	$res_param['profile_img']	= $data['profile_img'];
+	// 	$res_param['identity_id']	= $data['identity_id'];
+	// 	$res_param['badge_num']		= $data['badge_num'];
+	// 	$res_param['cognito_token']	= $data['cognito_token'];
+	// 	$this->res_param = $res_param;
+	// }
 
-	private function get_res_sns_login()
-	{
-		$data = $this->safe_param;
-		$res_param['user_id']		= $data['user_id'];
-		$res_param['username']		= $data['username'];
-		$res_param['profile_img']	= $data['profile_img'];
-		$res_param['identity_id']	= $data['identity_id'];
-		$res_param['badge_num']		= $data['badge_num'];
-		$res_param['cognito_token']	= $data['cognito_token'];
-		$this->res_param = $res_param;
-	}
+	// private function get_res_sns_login()
+	// {
+	// 	$data = $this->safe_param;
+	// 	$res_param['user_id']		= $data['user_id'];
+	// 	$res_param['username']		= $data['username'];
+	// 	$res_param['profile_img']	= $data['profile_img'];
+	// 	$res_param['identity_id']	= $data['identity_id'];
+	// 	$res_param['badge_num']		= $data['badge_num'];
+	// 	$res_param['cognito_token']	= $data['cognito_token'];
+	// 	$this->res_param = $res_param;
+	// }
 
-	private function get_res_pass_login()
-	{
-		$data = $this->safe_param;
-		$res_param['user_id']		= $data['user_id'];
-		$res_param['username']		= $data['username'];
-		$res_param['profile_img']	= $data['profile_img'];
-		$res_param['identity_id']	= $data['identity_id'];
-		$res_param['badge_num']		= $data['badge_num'];
-		$res_param['cognito_token']	= $data['cognito_token'];
-		$this->res_param = $res_param;
-	}
+	// private function get_res_pass_login()
+	// {
+	// 	$data = $this->safe_param;
+	// 	$res_param['user_id']		= $data['user_id'];
+	// 	$res_param['username']		= $data['username'];
+	// 	$res_param['profile_img']	= $data['profile_img'];
+	// 	$res_param['identity_id']	= $data['identity_id'];
+	// 	$res_param['badge_num']		= $data['badge_num'];
+	// 	$res_param['cognito_token']	= $data['cognito_token'];
+	// 	$this->res_param = $res_param;
+	// }
 
 
 	private function set_res_signup()
@@ -342,6 +422,7 @@ class Model_V3_Param extends Model
 		->add('username', 'GET username')
 		->add_rule('required')
 		->add_rule('match_pattern', '/^\w{4,20}$/');
+		# /^\S{3,15}$/
 	}
 
 	private function regex_password()
@@ -414,6 +495,43 @@ class Model_V3_Param extends Model
 		->add('register_id', 'GET register_id')
 		->add_rule('required')
 		->add_rule('match_pattern', '/^([a-f0-9]{64})|([a-zA-Z0-9:_-]{140,250})$/');
+	}
+
+	private function regex_lon()
+	{
+		$this->Val
+		->add('lon', 'GET lon')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[0-9.]+$/');
+	}
+
+	private function regex_lat()
+	{
+		$this->Val
+		->add('lat', 'GET lat')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[0-9.]+$/');
+	}
+
+	private function regex_category_id()
+	{
+		$this->Val
+		->add('category_id', 'GET category_id')
+		->add_rule('match_pattern', '/^[0-9]$/');
+	}
+
+	private function regex_value_id()
+	{
+		$this->Val
+		->add('value_id', 'GET value_id')
+		->add_rule('match_pattern', '/^[0-9]$/');
+	}
+
+	private function regex_page()
+	{
+		$this->Val
+		->add('page', 'GET page')
+		->add_rule('match_pattern', '/^[0-9]$/');
 	}
 
 	//======================================================//

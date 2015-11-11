@@ -1,9 +1,9 @@
 <?php
 /**
- * Authentication Class. Request SignUp, LogIn.
+ * Get  Class. Request SignUp, LogIn.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/02)
+ * @version    3.0 (2015/11/09)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -15,7 +15,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 	/**
 	 * @var Instance $Post
 	 */
-	protected $Post;
+	protected $post;
 
 	/**
 	 * @var Instance $User
@@ -25,19 +25,18 @@ class Controller_V3_Get extends Controller_V3_Gate
 	public function before()
 	{
 		parent::before();
-
-		$this->$Post = new Model_V3_Db_Post();
-		$this->$User = new Model_V3_Db_User();
-		$this->$Post = new Model_V3_Db_Post();
 	}
 
 
 	public function action_nearline()
     {
-    	//$req_params is lon, lat(, call, order_id, category_id, value_id)
-		$post_data  = Model_V2_Router::timeline($option);
+		// $req_params is lon, lat(, call, category_id, value_id)
+		$post = Model_V3_Db_Post::getInstance();
 
-	   	$this->output_success();
+		$post->setPosition($this->req_params['lon'], $this->req_params['lat']);
+		$this->req_params = $post->getNearPost();
+
+		$this->output_success();
 	}
 
 	public function action_timeline()
@@ -47,7 +46,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 
 		$post_data  = Model_V2_Router::timeline($option);
 
-	   	self::output_success($post_data);
+	   	$this->output_success($post_data);
 	}
 
 	//Followline
@@ -58,7 +57,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 
 		$post_data	= Model_V2_Router::followline($option);
 
-	   	self::output_success($post_data);
+	   	$this->output_success($post_data);
 	}
 
 
@@ -76,7 +75,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 	   		"comments" 	=> $comment_data
 	   	);
 
-	   	self::output_success($data);
+	   	$this->output_success($data);
 	}
 
 
@@ -94,7 +93,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 	   		"posts" 		=> $post_data
 	   	);
 
-	   	self::output_json($data);
+	   	$this->output_json($data);
 	}
 
 
@@ -112,7 +111,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 	   		"posts" => $post_data
 	   	);
 
-	   	self::output_json($data);
+	   	$this->output_json($data);
 	}
 
 
@@ -121,7 +120,7 @@ class Controller_V3_Get extends Controller_V3_Gate
     {
     	$notice_data = Model_V2_Router::notice();
 
-	   	self::output_json($notice_data);
+	   	$this->output_json($notice_data);
 	}
 
 
@@ -132,7 +131,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 
 		$follow_data	= Model_V2_Router::follow_list($target_user_id);
 
-	   	self::output_json($data);
+	   	$this->output_json($data);
 	}
 
 
@@ -143,7 +142,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 
 		$follow_data	= Model_V2_Router::follower_list($target_user_id);
 
-	   	self::output_json($data);
+	   	$this->output_json($data);
 	}
 
 
@@ -154,7 +153,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 
 		$want_data		= Model_V2_Router::want_list($target_user_id);
 
-	   	self::output_json($data);
+	   	$this->output_json($data);
 	}
 
 
@@ -165,7 +164,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 
 		$cheer_data     = Model_V2_Router::cheer_list($target_user_id);
 
-	   	self::output_json($cheer_data);
+	   	$this->output_json($cheer_data);
 	}
 
 
@@ -173,9 +172,17 @@ class Controller_V3_Get extends Controller_V3_Gate
 	{
 		$target_username = Input::get('username');
 
-		$user_id 		 = Model_V2_Router::search_user($target_username)
+		$user_id 		 = Model_V2_Router::search_user($target_username);
 
-	   	self::output_json($data);
+	   	$this->output_json($data);
+	}
+
+
+	public function action_heatmap()
+	{
+		$post = Model_V3_Db_Post::getInstance();
+		$req_params = $post->getHeatmap();
+		$this->output_success();
 	}
 
 
@@ -192,7 +199,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 	// 		$data[$i]['follow_flag'] = Model_Follow::get_flag($data[$i]['user_id']);
 	// 	}
 
-	//    	self::output_json($data);
+	//    	$this->output_json($data);
 	// }
 
 
@@ -204,7 +211,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 
 	// 	$data 	= Model_Restaurant::get_near($lon, $lat);
 
-	//    	self::output_json($data);
+	//    	$this->output_json($data);
 	// }
 
 }

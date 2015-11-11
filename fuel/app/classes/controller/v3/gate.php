@@ -10,16 +10,17 @@
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
-class Controller_V3_Gate extends Controller_V3_Input
+class Controller_V3_Gate extends Controller_V3_Public
 {
 	public function before()
 	{
-		if(session::get()) {
-            $status         = new Model_V3_Status();
-            $this->status   = $status->ERROR_SESSION_EXPIRED();
+		if(session::get('user_id')) {
+            parent::before();
 
         } else {
-            parent::before();
+        	$status   = Model_V3_Status::getInstance();
+            $this->status   = $status->getStatus('ERROR_SESSION_EXPIRED');
+            $this->output();
         }
 	}
 }

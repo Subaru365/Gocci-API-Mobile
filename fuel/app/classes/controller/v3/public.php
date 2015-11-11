@@ -9,7 +9,7 @@
  * @copyright  2015 Inase,inc.
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
-//header('Content-Type: application/json; charset=UTF-8');
+header('Content-Type: application/json; charset=UTF-8');
 
 class Controller_V3_Public extends Controller
 {
@@ -58,7 +58,7 @@ class Controller_V3_Public extends Controller
     {
         $this->set_responce();
 
-        $this->status = Model_V3_Status::get_status('SUCCESS', $this->res_params);
+        $this->status = Model_V3_Status::getStatus('SUCCESS', $this->res_params);
         $this->output();
     }
 
@@ -85,7 +85,7 @@ class Controller_V3_Public extends Controller
             $this->req_params = $params;
 
         } else {
-            $this->status = Model_V3_Status::get_status('VALIDATION_ERROR');
+            $this->status = Model_V3_Status::getStatus('ERROR_REQUEST_PARAMETER_INVALID');
             $this->output();
         }
     }
@@ -100,7 +100,7 @@ class Controller_V3_Public extends Controller
             $this->res_params = $params;
 
         } else {
-            $this->status = Model_V3_Status::get_status('VALIDATION_ERROR');
+            $this->status = Model_V3_Status::getStatus('ERROR_RESPONSE_PARAMETER_INVALID');
             $this->output();
         }
     }

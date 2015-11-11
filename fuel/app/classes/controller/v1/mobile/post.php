@@ -257,9 +257,14 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
+			$post_id = Model_Post::get_next_id();
+			$hash_id = `/usr/local/bin/inasehash {$post_id}`;
+			$hash_id = rtrim($hash_id);
+
 			$result = Model_Post::post_data(
-				$user_id, $rest_id, $movie_name,
+				$post_id, $hash_id, $user_id, $rest_id, $movie_name,
 				$category_id, $tag_id, $value, $memo, $cheer_flag);
+
 			self::success($keyword);
 		}
 
