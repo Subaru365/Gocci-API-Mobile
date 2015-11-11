@@ -3,7 +3,7 @@
  * Status Code and Message list.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/10/26)
+ * @version    3.0 (2015/11/05)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -12,12 +12,62 @@
 
 class Model_V3_Status extends Model
 {
+    /**
+     * @var Array $api_data
+     */
+    public $api_params = array();
+
+    /**
+     * @var String $code
+     */
+    private $code = '';
+
+    /**
+     * @var String $message
+     */
+    private $message = '';
+
+    /**
+     * @var String $payload
+     */
+    private $payload = Array();
+
+
+    private function __construct()
+    {
+        $this->api_params = array(
+            'version'   => 3.0,
+            'uri'       => Uri::string(),
+            'code'      => $this->code,
+            'message'   => $this->message,
+            'payload'   => $this->payload
+        );
+    }
+
+    public static function getInstance()
+    {
+        static $instance = null;
+
+        if ($instance === null) {
+            $instance = new static();
+        }
+        return $instance;
+    }
+
+    public function SUCCESS($payload)
+    {
+        $this->code     = 'SUCCESS';
+        $this->message  = 'Successful API request';
+        $this->payload  = "$payload";
+        return $this->api_params;
+    }
+
 	/**
 	 * @param  String $status_code
      * @param  Array  $payload
-	 * @return Array  $status 
+	 * @return Array  $status
 	 */
-    public static function get_status(
+    public static function getStatus(
         $status_code = 'ERROR_UNKNOWN_ERROR', $payload = array())
     {
     	$status = array(
@@ -32,6 +82,14 @@ class Model_V3_Status extends Model
     		case 'SUCCESS':
     			$status['message'] = 'Successful API request';
     			break;
+
+            case 'ERROR_REQUEST_PARAMETER_INVALID':
+                $status['message'] = 'Parameter invalid';
+                break;
+
+            case 'ERROR_RESPONSE_PARAMETER_INVALID':
+                $status['message'] = 'Parameter invalid';
+                break;
 
     		case 'ERROR_CONNECTION_FAILED':
     			$status['message'] = 'Server connection failed';

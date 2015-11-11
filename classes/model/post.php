@@ -1,6 +1,20 @@
 <?php
 class Model_Post extends Model
 {
+	public static function get_next_id()
+    {
+        $query = DB::select('post_id')->from('posts')
+        ->order_by('post_id', 'desc')
+        ->limit   ('1');
+
+        $result = $query->execute()->as_array();
+
+        $post_id = $result[0]['post_id'];
+        $post_id++;
+
+        return $post_id;
+    }
+
 
 	//"POST"取得
 	public static function get_data(
@@ -10,7 +24,7 @@ class Model_Post extends Model
 			'post_id', 'movie', 'thumbnail', 'category', 'tag', 'value',
 			'memo', 'post_date', 'cheer_flag',
 			'user_id', 'username', 'profile_img', 'rest_id', 'restname','tell', 'locality',
-			DB::expr('X(lon_lat), Y(lon_lat)'), 
+			DB::expr('X(lon_lat), Y(lon_lat)'),
 			DB::expr("GLength(GeomFromText(CONCAT('LineString(${option['lon']} ${option['lat']},', X(lon_lat),' ', Y(lon_lat),')'))) as distance")
 		)
 		->from('posts')
@@ -286,7 +300,7 @@ class Model_Post extends Model
 
 	//動画投稿
 	public static function post_data(
-		$user_id, $rest_id, $movie_name, $category_id, $tag_id, $value, $memo, $cheer_flag)
+		$post_id, $post_hash, $user_id, $rest_id, $movie_name, $category_id, $tag_id, $value, $memo, $cheer_flag)
 	{
 		$directory = explode('-', $movie_name);
 
@@ -296,6 +310,8 @@ class Model_Post extends Model
 
 		$query = DB::insert('posts')
 		->set(array(
+			'post_id' 			=> "$post_id",
+			'post_hash' 		=> "$post_hash",
 			'post_user_id'      => "$user_id",
 			'post_rest_id'      => "$rest_id",
 			'movie'		        => "$movie",
@@ -304,7 +320,7 @@ class Model_Post extends Model
 			'post_tag_id'	    => "$tag_id",
 			'value'        		=> "$value",
 			'memo'         		=> "$memo",
-			'cheer_flag'   		=> "$cheer_flag"
+			'cheer_flag'   		=> "$cheer_flag",
 		))
 		->execute();
 

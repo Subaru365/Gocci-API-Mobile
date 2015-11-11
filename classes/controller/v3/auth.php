@@ -151,8 +151,6 @@ class Controller_V3_Auth extends Controller_V3_Public
             $this->req_params['identity_id'] = $result[0]['identity_id'];
 
         } else {
-            var_dump($hash_pass);
-            var_dump($password);
             $this->status = Model_V3_Status::get_status('ERROR_PASSWORD_WRONG');
             $this->output();
         }

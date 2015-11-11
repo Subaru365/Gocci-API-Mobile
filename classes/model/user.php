@@ -12,7 +12,7 @@ class Model_User extends Model
 	    // usernameもしくはpasswordが空の場合
 	    Controller_V1_Web_Base::error_json('Username or password do not enter.');
 	}
-	
+
     }
 
     //ユーザー名チェック
@@ -23,60 +23,6 @@ class Model_User extends Model
 
         $result = $query->execute()->as_array();
         return $result;
-    }
-
-    // ユーザー名チェック
-    public static function check_web_name($username)
-    {
-        $query = DB::select('username')->from('users')
-        ->where('username', "$username");
-
-        $result = $query->execute()->as_array();
-
-        if (!empty($result[0]['username'])) {
-             Controller_V1_Web_Base::error_json("username already registered.");
-             // 既に登録されているusername
-
-        } else {
-             // まだ登録されていないusername
-	     // $username = $result[0]['username'];
-             return $username;
-         }
-
-    }
-
-    public static function empty_name($username)
-    {
-
-	if (empty($username)) {
-	   // TRUEだとusernameは空である
-	   return Controller_V1_Web_Base::error_json("Please enter your user name.");
-	} else {
-	   return $username;
-	}
-    }
-
-    public static function empty_password($password)
-    {
-	if (empty($password)) {
-	    return Controller_V1_Web_Base::error_json("Please enter your password.");
-	} else {
-	    return $password;
-	}
-
-    }
-
-    public static function format_name_check($username)
-    {
-	//$username = '';
-	// 文字数チェック
-	if (preg_match('/^[a-z\d_]{4,20}$/i', $username)) {
-   	     // 4 - 20文字以内
-	     return $username;
-	} else {
-    	     return Controller_V1_Web_Base::error_json("ユーザーネームは4文字から20文字以内です");
-	}
-
     }
 
 
@@ -310,7 +256,7 @@ class Model_User extends Model
 	    'profile_igm' => $profile_img,
 	    'identity_id' => $identity_id
 	))
-	->execute();	
+	->execute();
 	$profile_img = Model_Transcode::decode_profile_img($profile_img);
         return $profile_img;
     }
@@ -445,15 +391,15 @@ class Model_User extends Model
     {
         if (password_verify($pass, $hash_pass)) {
             //認証OK
-	    
+
         }else{
-	    
+
             error_log('パスワードが一致しません');
             Controller_V1_Mobile_Base::output_none();
             exit;
         }
     }
-    
+
 
     public static function get_current_db_pass($user_id, $current_password)
     {
@@ -467,7 +413,7 @@ class Model_User extends Model
                 ->where('user_id', $user_id);
 	// これを実行すると、as_arrayには何が入るのか [成功と失敗で]
         return $db_password = $query->execute()->as_array();
-	
+
 
     }
 
@@ -520,16 +466,4 @@ class Model_User extends Model
         $profile_img = Model_Transcode::decode_profile_img($profile_img);
         return $profile_img;
     }
-
-    // web: username/password check
-    public static function pass_login_validate($username, $passsword)
-    {
-	$val = Validation::forge();
-	$val->add_field('username', 'ユーザーネーム', 'required');
-	$val->add_field('password', 'パスワード', 'required');
-
-
-    }
-
-
 }
