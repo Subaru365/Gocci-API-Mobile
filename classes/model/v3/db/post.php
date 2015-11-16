@@ -15,6 +15,8 @@
  */
 class Model_V3_Db_Post extends Model_V3_Db
 {
+	use SingletonTrait;
+
 	/**
 	 * @var String $table_name
 	 */
@@ -25,24 +27,11 @@ class Model_V3_Db_Post extends Model_V3_Db
 	 */
 	private $position = array();
 
-
-	public static function getInstance()
-    {
-        static $instance = null;
-
-        if ($instance === null) {
-            $instance = new static();
-        }
-        return $instance;
-	}
-
-
 	public function setPosition($lon, $lat)
 	{
 		$this->position['lon'] = $lon;
 		$this->position['lat'] = $lat;
 	}
-
 
 	public function getNearPost()
 	{
@@ -70,14 +59,38 @@ class Model_V3_Db_Post extends Model_V3_Db
 		return $data;
 	}
 
-
-	public function getHeatmap()
+	public function getPositionPost()
 	{
 		$this->selectPosition();
 		$result = $this->run();
 		return $result[0];
 	}
 
+	public function getUserPost($user_id)
+	{
+		$this->selectUserData($user_id);
+		$result = $this->run();
+		$data = $this->decodeData($result);
+		return $data;
+	}
+
+	public function getUserCheerNum($user_id)
+	{
+		$this->selectCheer($user_id);
+		$result = $this->run();
+		$num = count($result);
+		return $num;
+	}
+
+	//-----------------------------------------------------//
+
+	private function selectCheer($user_id)
+	{
+		$this->query = DB::select('post_id')
+		->from(self::$table_name)
+		->where('post_user_id', $user_id)
+		->and_where('cheer_flag', '1');
+	}
 
 	private function selectNearData()
 	{
@@ -138,35 +151,57 @@ class Model_V3_Db_Post extends Model_V3_Db
 	}
 
 
-	private function select_data()
+	private function selectUserData($user_id)
 	{
 		$this->query = DB::select(
 			'post_id',		'movie',		'thumbnail',
-			'category',		'tag',			'value',
-			'memo', 		'post_date', 	'cheer_flag',
-			'user_id', 		'username', 	'profile_img',
-			'rest_id', 		'restname',
-			DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat'),
-			DB::expr("GLength(GeomFromText(CONCAT('LineString(${option['lon']} ${option['lat']},', X(lon_lat),' ', Y(lon_lat),')'))) as distance")
+			'category',		'value',		'memo', 		
+			'post_date', 	'cheer_flag',	'rest_id',
+			'restname',
+			DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat')
 		)
 		->from(self::$table_name)
 
 		->join('restaurants', 'INNER')
 		->on('post_rest_id', '=', 'rest_id')
 
-		->join('users', 'INNER')
-		->on('post_user_id', '=', 'user_id')
-
 		->join('categories', 'LEFT OUTER')
 		->on('post_category_id', '=', 'category_id')
 
-		->join('tags', 'LEFT OUTER')
-		->on('post_tag_id', '=', 'tag_id')
+		->order_by('post_date','desc')
 
-		->where('post_status_flag', '1')
+		->where('post_user_id', $user_id)
+		->and_where('post_status_flag', '1')
 
 		->limit(20);
 	}
+
+
+	// private function select_data()
+	// {
+	// 	$this->query = DB::select(
+	// 		'post_id',		'movie',		'thumbnail',
+	// 		'category',		'value',		'memo', 		
+	// 		'post_date', 	'cheer_flag',	'user_id',
+	// 		'username', 	'profile_img',	'rest_id',
+	// 		'restname',
+	// 		DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat'),
+	// 	)
+	// 	->from(self::$table_name)
+
+	// 	->join('restaurants', 'INNER')
+	// 	->on('post_rest_id', '=', 'rest_id')
+
+	// 	->join('users', 'INNER')
+	// 	->on('post_user_id', '=', 'user_id')
+
+	// 	->join('categories', 'LEFT OUTER')
+	// 	->on('post_category_id', '=', 'category_id')
+
+	// 	->where('post_status_flag', '1')
+
+	// 	->limit(20);
+	// }
 
 
 	private function decodeData($data)
@@ -178,10 +213,10 @@ class Model_V3_Db_Post extends Model_V3_Db
 			$data[$i]['hls_movie']  = Model_V3_Transcode::decode_hls_movie($data[$i]['movie']);
 			$data[$i]['thumbnail']  = Model_V3_Transcode::decode_thumbnail($data[$i]['thumbnail']);
 			$data[$i]['post_date']  = Model_V3_Transcode::decode_date($data[$i]['post_date']);
-
 		}
 		return $data;
 	}
+
 
 	private function decodeDistance($data)
 	{

@@ -13,7 +13,7 @@
 /** @return Array $val */
 class Model_V3_Db_User extends Model_V3_Db
 {
-    //use SingletonTrait;
+    use SingletonTrait;
     
     /**
      * @var String $table_name
@@ -58,11 +58,11 @@ class Model_V3_Db_User extends Model_V3_Db
         return $result;
     }
 
-    public function get_prof_data($user_id)
+    public function getProfile($user_id)
     {
         $this->select_prof($user_id);
         $result = $this->run();
-        return $result;
+        return $result[0];
     }
 
     public function get_auth_data($identity_id)

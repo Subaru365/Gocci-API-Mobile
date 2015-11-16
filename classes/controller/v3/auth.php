@@ -27,7 +27,7 @@ class Controller_V3_Auth extends Controller_V3_Public
     {
         parent::before();
 
-        $this->User    = new Model_V3_Db_User();
+        $this->User    = Model_V3_Db_User::getInstance();
         $this->Device  = new Model_V3_Db_Device();
         $this->Cognito = new Model_V3_Aws_Cognito();
         $this->Sns     = new Model_V3_Aws_Sns();

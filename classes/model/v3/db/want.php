@@ -1,14 +1,51 @@
 <?php
+/**
+ * DB-Want Class.
+ *
+ * @package    Gocci-Mobile
+ * @version    3.0 (2015/11/16)
+ * @author     Subaru365 (a-murata@inase-inc.jp)
+ * @license    MIT License
+ * @copyright  2015 Inase,inc.
+ * @link       https://bitbucket.org/inase/gocci-mobile-api
+ */
 
-class Model_V2_Db_Want extends Model
+/**
+ * @return Array
+ */
+class Model_V3_Db_Want extends Model_V3_Db
 {
-	//?
-	public static function get_data($user_id)
+	use SingletonTrait;
+
+	/**
+	 * @var String $table_name
+	 */
+	private static $table_name = 'wants';
+
+
+	public function getWantNum($user_id)
+	{
+		$this->selectId($user_id);
+		$result = $this->run();
+		$num = count($result);
+		return $num;
+	}
+
+	//-----------------------------------------------------//
+
+	private function selectId($user_id)
+	{
+		$this->query = DB::select('want_id')
+		->from(self::$table_name)
+		->where('want_user_id', $user_id);
+	}
+
+	private function get_data($user_id)
 	{
 		$query = DB::select(
 			'rest_id', 'restname', 'locality'
 		)
-		->from('wants')
+		->from(self::$table_name)
 
 		->join('restaurants', 'INNER')
 		->on  ('want_rest_id', '=', 'rest_id')
@@ -20,41 +57,18 @@ class Model_V2_Db_Want extends Model
 	}
 
 
-	public static function get_flag($post_rest_id)
+	private function get_flag($rest_id)
 	{
-		$query = DB::select('want_id')->from('wants')
+		$query = DB::select('want_id')->from(self::$table_name)
 		->where 	('want_user_id', session::get('user_id'))
-		->and_where ('want_rest_id', "$post_rest_id");
-
-		$result = $query->execute()->as_array();
-
-
-		if (empty($result)) {
-			$want_flag = 0;
-		}else{
-			$want_flag = 1;
-		}
-
-		return $want_flag;
-	}
-
-
-	public static function get_num($user_id)
-	{
-		$query = DB::select('want_id')->from('wants')
-		->where('want_user_id', "$user_id");
-
-		$result = $query->execute()->as_array();
-
-		$want_num = count($result);
-		return $want_num;
+		->and_where ('want_rest_id', "$rest_id");
 	}
 
 
 	//行きたい登録
-	public static function put_want($want_rest_id)
+	private function put_want($want_rest_id)
 	{
-		$query = DB::insert('wants')
+		$query = DB::insert(self::$table_name)
 		->set(array(
 			'want_user_id' => session::get('user_id'),
 			'want_rest_id' => "$want_rest_id"
@@ -66,9 +80,9 @@ class Model_V2_Db_Want extends Model
 
 
 	//行きたい解除
-	public static function delete_want($want_rest_id)
+	private function delete_want($want_rest_id)
 	{
-		$query = DB::delete('wants')
+		$query = DB::delete(self::$table_name)
 		->where     ('want_user_id', session::get('user_id'))
 		->and_where ('want_rest_id', "$want_rest_id");
 

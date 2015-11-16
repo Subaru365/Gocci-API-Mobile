@@ -1,59 +1,75 @@
 <?php
+/**
+ * DB-Gochi Class.
+ *
+ * @package    Gocci-Mobile
+ * @version    3.0 (2015/11/16)
+ * @author     Subaru365 (a-murata@inase-inc.jp)
+ * @license    MIT License
+ * @copyright  2015 Inase,inc.
+ * @link       https://bitbucket.org/inase/gocci-mobile-api
+ */
 
-class Model_Gochi extends Model
+/**
+ * @return Array
+ */
+class Model_V3_Db_Gochi extends Model_V3_Db
 {
-	public static function get_num($post_id)
+	use SingletonTrait;
+
+	/**
+	 * @var String $table_name
+	 */
+	private static $table_name = 'gochis';
+
+
+	public function getNum($post_id)
 	{
-		$query = DB::select('gochi_id')
-		->from ('gochis')
-		->where('gochi_post_id', "$post_id");
-
-		$result    = $query->execute()->as_array();
-	   	$gochi_num = count($result);
-
-		return $gochi_num;
+		$this->selectId($post_id);
+		$result = $this->run();
+		$num = count($result);
+		return $num;
 	}
 
-
-	public static function get_flag($post_id)
+	public function getFlag($post_id)
 	{
-		$query = DB::select('gochi_id')
-		->from     ('gochis')
-		->where    ('gochi_user_id', session::get('user_id'))
-		->and_where('gochi_post_id', "$post_id");
-
-		$result = $query->execute()->as_array();
-
-
+		$this->selectId($post_id);
+		$this->query->and_where('gochi_user_id', session::get('user_id'));
+		$result = $this->run();
+		
 		if ($result == true) {
-			$gochi_flag = 1;
+			$flag = 1;
 		}else{
-			$gochi_flag = 0;
+			$flag = 0;
 		}
 
-		return $gochi_flag;
+		return $flag;
+	}
+
+	//-----------------------------------------------------//
+
+	private function selectId($post_id)
+	{
+		$this->query = DB::select('gochi_id')
+		->from (self::$table_name)
+		->where('gochi_post_id', "$post_id");
 	}
 
 
-	public static function get_user($post_id)
+	private function get_user($post_id)
 	{
-		$query = DB::select('post_user_id')
+		$this->query = DB::select('post_user_id')
 		->from ('posts')
 		->where('post_id', "$post_id");
-
-		$result = $query->execute()->as_array();
-		return $result;
 	}
 
 
-	public static function put_data($post_id)
+	private function put_data($post_id)
 	{
-		$query = DB::insert('gochis')
+		$this->query = DB::insert(self::$table_name)
 		->set(array(
 			'gochi_user_id' => session::get('user_id'),
 			'gochi_post_id' => "$post_id"
 		))
-		->execute();
-		return $query;
-	}
+		->execute();	}
 }
