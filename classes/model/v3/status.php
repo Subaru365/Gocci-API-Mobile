@@ -115,6 +115,10 @@ class Model_V3_Status extends Model
     			$status['message'] = 'Password wrong';
     			break;
 
+            case 'ERROR_FOLLOW_USER_NOT_EXIST':
+                $status['message'] = '';
+                break;
+
     		default:
     			$status['message'] = 'Unknown global error';
     			break;

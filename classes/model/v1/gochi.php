@@ -1,6 +1,6 @@
 <?php
 
-class Model_Gochi extends Model
+class Model_V1_Gochi extends Model
 {
 	//１投稿のgochi数を求める
 	public static function get_num($post_id)

@@ -1,5 +1,5 @@
 <?php
-class Model_Re extends Model
+class Model_V1_Re extends Model
 {
   //コメント登録
   public static function post_data($comment_id, $user_id)

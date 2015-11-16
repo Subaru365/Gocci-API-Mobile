@@ -1,5 +1,5 @@
 <?php
-class Model_Comment extends Model
+class Model_V1_Comment extends Model
 {
 
 	public static function get_data($post_id)
@@ -17,7 +17,7 @@ class Model_Comment extends Model
 		$comment_data = $query->execute()->as_array();
 
 		//投稿者のコメントを$comment_data[0]に格納
-		$post_comment = Model_Post::get_memo($post_id);
+		$post_comment = Model_V1_Post::get_memo($post_id);
 		array_unshift($comment_data, $post_comment);
 
 
@@ -26,16 +26,16 @@ class Model_Comment extends Model
 		for ($i=0; $i < $comment_num; $i++) {
 
 			$comment_data[$i]['profile_img'] =
-				Model_Transcode::decode_profile_img($comment_data[$i]['profile_img']);
+				Model_V1_Transcode::decode_profile_img($comment_data[$i]['profile_img']);
 
 			//日付情報を現在との差分に書き換え
 			$comment_data[$i]['comment_date'] =
-				Model_Date::get_data($comment_data[$i]['comment_date']);
+				Model_V1_Date::get_data($comment_data[$i]['comment_date']);
 		}
 
 		for ($i=1; $i < $comment_num; $i++) {
 			$comment_data[$i]['re_user'] =
-				Model_Re::get_data($comment_data[$i]['comment_id']);
+				Model_V1_Re::get_data($comment_data[$i]['comment_id']);
 		}
 
 		return $comment_data;

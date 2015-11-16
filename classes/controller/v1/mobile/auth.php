@@ -18,7 +18,7 @@ class Controller_V1_Mobile_Auth extends Controller
     {
         $keyword     = 'サインアップ';
         $badge_num   = 0;
-        $user_id     = Model_User::get_next_id();
+        $user_id     = Model_V1_User::get_next_id();
         $username    = Input::get('username');
         $os          = Input::get('os');
         $model       = Input::get('model');
@@ -26,7 +26,7 @@ class Controller_V1_Mobile_Auth extends Controller
 
         try
         {
-            $result = Model_User::check_name($username);
+            $result = Model_V1_User::check_name($username);
 
             if (!empty($result)) {
                 Controller_V1_Mobile_Base::output_none();
@@ -34,15 +34,15 @@ class Controller_V1_Mobile_Auth extends Controller
                 exit;
             }
 
-            Model_Device::check_register_id($register_id);
+            Model_V1_Device::check_register_id($register_id);
 
-            $cognito_data = Model_Cognito::post_data($user_id);
+            $cognito_data = Model_V1_Cognito::post_data($user_id);
             $identity_id  = $cognito_data['IdentityId'];
             $token        = $cognito_data['Token'];
 
-            $profile_img  = Model_User::post_data($username, $identity_id);
-            $endpoint_arn = Model_Sns::post_endpoint($user_id, $register_id, $os);
-            Model_Device::post_data($user_id, $os, $model, $register_id, $endpoint_arn);
+            $profile_img  = Model_V1_User::post_data($username, $identity_id);
+            $endpoint_arn = Model_V1_Sns::post_endpoint($user_id, $register_id, $os);
+            Model_V1_Device::post_data($user_id, $os, $model, $register_id, $endpoint_arn);
 
             self::success($keyword, $user_id, $username, $profile_img, $identity_id, $badge_num, $token);
         }
@@ -64,15 +64,15 @@ class Controller_V1_Mobile_Auth extends Controller
 
         try
         {
-            $user_data   = Model_User::get_auth($identity_id);
+            $user_data   = Model_V1_User::get_auth($identity_id);
             $user_id     = $user_data['user_id'];
             $username    = $user_data['username'];
             $profile_img = $user_data['profile_img'];
             $badge_num   = $user_data['badge_num'];
 
-            $token = Model_Cognito::get_token($user_id, $identity_id);
+            $token = Model_V1_Cognito::get_token($user_id, $identity_id);
 
-            Model_Login::post_login($user_id);
+            Model_V1_Login::post_login($user_id);
             self::success($keyword, $user_id, $username, $profile_img, $identity_id, $badge_num, $token);
         }
 
@@ -95,23 +95,23 @@ class Controller_V1_Mobile_Auth extends Controller
 
         try
         {
-            $user_data   = Model_User::get_auth($identity_id);
+            $user_data   = Model_V1_User::get_auth($identity_id);
             $user_id     = $user_data['user_id'];
             $username    = $user_data['username'];
             $profile_img = $user_data['profile_img'];
             $badge_num   = $user_data['badge_num'];
 
 
-            $token = Model_Cognito::get_token($user_id, $identity_id);
+            $token = Model_V1_Cognito::get_token($user_id, $identity_id);
 
-            //Model_Device::check_register_id($register_id);
+            //Model_V1_Device::check_register_id($register_id);
 
-            Model_Device::get_arn($user_id);
+            Model_V1_Device::get_arn($user_id);
 
-            $new_endpoint_arn = Model_Sns::post_endpoint($user_id, $register_id, $os);
-            Model_Device::update_data($user_id, $os, $model, $register_id, $new_endpoint_arn);
+            $new_endpoint_arn = Model_V1_Sns::post_endpoint($user_id, $register_id, $os);
+            Model_V1_Device::update_data($user_id, $os, $model, $register_id, $new_endpoint_arn);
 
-            Model_Login::post_login($user_id);
+            Model_V1_Login::post_login($user_id);
             self::success($keyword, $user_id, $username, $profile_img, $identity_id, $badge_num, $token);
         }
 
@@ -136,21 +136,21 @@ class Controller_V1_Mobile_Auth extends Controller
         try
         {
             if (!empty($pass)) {
-                $user_data   = Model_User::check_pass($username, $pass);
+                $user_data   = Model_V1_User::check_pass($username, $pass);
                 $user_id     = $user_data[0]['user_id'];
                 $profile_img = $user_data[0]['profile_img'];
                 $identity_id = $user_data[0]['identity_id'];
                 $badge_num   = $user_data[0]['badge_num'];
 
 
-                $token = Model_Cognito::get_token($user_id, $identity_id);
+                $token = Model_V1_Cognito::get_token($user_id, $identity_id);
 
-                Model_Device::get_arn($user_id);
+                Model_V1_Device::get_arn($user_id);
 
-                $new_endpoint_arn = Model_Sns::post_endpoint($user_id, $register_id, $os);
-                Model_Device::update_data($user_id, $os, $model, $register_id, $new_endpoint_arn);
+                $new_endpoint_arn = Model_V1_Sns::post_endpoint($user_id, $register_id, $os);
+                Model_V1_Device::update_data($user_id, $os, $model, $register_id, $new_endpoint_arn);
 
-                Model_Login::post_login($user_id);
+                Model_V1_Login::post_login($user_id);
                 self::success($keyword, $user_id, $username, $profile_img, $identity_id, $badge_num, $token);
 
 
@@ -234,24 +234,24 @@ class Controller_V1_Mobile_Auth extends Controller
         $register_id = Input::get('register_id');
 
         try{
-            $user_data = Model_User::check_img($profile_img);
+            $user_data = Model_V1_User::check_img($profile_img);
 
             $user_id  = $user_data['user_id'];
             $username = $user_data['username'];
 
-            $badge_num    = Model_User::get_badge($user_id);
+            $badge_num    = Model_V1_User::get_badge($user_id);
 
-            $cognito_data = Model_Cognito::post_dev_sns(
+            $cognito_data = Model_V1_Cognito::post_dev_sns(
                 $user_id, $provider, $token, $username, $os, $model, $register_id);
 
             $identity_id  = $cognito_data['IdentityId'];
             $token        = $cognito_data['Token'];
 
-            $profile_img  = Model_S3::input($user_id, $profile_img);
-            $profile_img  = Model_User::update_data($user_id, $username, $profile_img, $identity_id);
-            $endpoint_arn = Model_Sns::post_endpoint($user_id, $register_id, $os);
+            $profile_img  = Model_V1_S3::input($user_id, $profile_img);
+            $profile_img  = Model_V1_User::update_data($user_id, $username, $profile_img, $identity_id);
+            $endpoint_arn = Model_V1_Sns::post_endpoint($user_id, $register_id, $os);
 
-            Model_Device::update_data($user_id, $os, $model, $register_id, $endpoint_arn);
+            Model_V1_Device::update_data($user_id, $os, $model, $register_id, $endpoint_arn);
 
             self::success($keyword, $user_id, $username, $profile_img, $identity_id, $badge_num, $token);
         }
@@ -280,16 +280,16 @@ class Controller_V1_Mobile_Auth extends Controller
         $model       = Input::get('model');
         $register_id = Input::get('register_id');
 
-        $user_id     = Model_User::check_conversion($username);
-        Model_Device::check_conversion($register_id);
+        $user_id     = Model_V1_User::check_conversion($username);
+        Model_V1_Device::check_conversion($register_id);
 
         // 初期化ユーザー
         if (empty($user_id)) {
 
             $badge_num    = 0;
-            $user_id      = Model_User::get_next_id();
+            $user_id      = Model_V1_User::get_next_id();
 
-            $cognito_data = Model_Cognito::post_data(
+            $cognito_data = Model_V1_Cognito::post_data(
                 $user_id, $username, $os, $model, $register_id);
 
             $identity_id  = $cognito_data['IdentityId'];
@@ -297,14 +297,14 @@ class Controller_V1_Mobile_Auth extends Controller
 
             try
             {
-                $profile_img  = Model_S3::input($user_id, $profile_img);
+                $profile_img  = Model_V1_S3::input($user_id, $profile_img);
 
-                $profile_img  = Model_User::post_conversion(
+                $profile_img  = Model_V1_User::post_conversion(
                     $user_id, $username, $profile_img, $identity_id);
 
-                $endpoint_arn = Model_Sns::post_endpoint($user_id, $register_id, $os);
+                $endpoint_arn = Model_V1_Sns::post_endpoint($user_id, $register_id, $os);
 
-                Model_Device::post_data(
+                Model_V1_Device::post_data(
                     $user_id, $os, $model, $register_id, $endpoint_arn);
 
                 self::success($keyword, $user_id, $username, $profile_img, $identity_id, $badge_num, $token);
@@ -332,10 +332,10 @@ class Controller_V1_Mobile_Auth extends Controller
             $keyword = '顧客様 登録';
 
             $user_id      = $user_id[0]['user_id'];
-            $badge_num    = Model_User::get_badge($user_id);
+            $badge_num    = Model_V1_User::get_badge($user_id);
 
             // IdentityID取得
-            $cognito_data = Model_Cognito::post_data(
+            $cognito_data = Model_V1_Cognito::post_data(
                 $user_id,
                 $username,
                 $os,
@@ -348,19 +348,19 @@ class Controller_V1_Mobile_Auth extends Controller
 
             try
             {
-                $profile_img  = Model_S3::input($user_id, $profile_img);
+                $profile_img  = Model_V1_S3::input($user_id, $profile_img);
 
-                $profile_img  = Model_User::update_data(
+                $profile_img  = Model_V1_User::update_data(
                     $user_id,
                     $username,
                     $profile_img,
                     $identity_id
                 );
 
-                $endpoint_arn = Model_Sns::post_endpoint($user_id, $register_id, $os);
+                $endpoint_arn = Model_V1_Sns::post_endpoint($user_id, $register_id, $os);
 
                 // Device情報を登録
-                $device       = Model_Device::update_data(
+                $device       = Model_V1_Device::update_data(
                     $user_id,
                     $os,
                     $model,

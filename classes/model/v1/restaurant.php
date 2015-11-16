@@ -1,5 +1,5 @@
 <?php
-class Model_Restaurant extends Model
+class Model_V1_Restaurant extends Model
 {
 	public static function get_near($lon, $lat)
 	{
@@ -23,8 +23,8 @@ class Model_Restaurant extends Model
 
 		$rest_data = $query->execute()->as_array();
 
-		$rest_data[0]['want_flag'] = Model_Want::get_flag($user_id, $rest_id);
-		$rest_data[0]['cheer_num'] = Model_Post::get_rest_cheer_num($rest_id);
+		$rest_data[0]['want_flag'] = Model_V1_Want::get_flag($user_id, $rest_id);
+		$rest_data[0]['cheer_num'] = Model_V1_Post::get_rest_cheer_num($rest_id);
 
 		return $rest_data[0];
 	}

@@ -1,5 +1,5 @@
 <?php
-class Model_Post extends Model
+class Model_V1_Post extends Model
 {
 	public static function get_next_id()
     {
@@ -64,7 +64,7 @@ class Model_Post extends Model
 			$query->where('user_id', 'in', $sort_id);
 
 		}else{
-			error_log("Model_Post:${sort_key}が不正です");
+			error_log("Model_V1_Post:${sort_key}が不正です");
 			exit;
 		}
 
@@ -145,10 +145,10 @@ class Model_Post extends Model
 
 			$movie = $post_data[$i]['movie'];
 
-			$post_data[$i]['mp4_movie']   = Model_Transcode::decode_mp4_movie($post_data[$i]['movie']);
-			$post_data[$i]['movie']       = Model_Transcode::decode_hls_movie($post_data[$i]['movie']);
-			$post_data[$i]['thumbnail']   = Model_Transcode::decode_thumbnail($post_data[$i]['thumbnail']);
-			$post_data[$i]['profile_img'] = Model_Transcode::decode_profile_img($post_data[$i]['profile_img']);
+			$post_data[$i]['mp4_movie']   = Model_V1_Transcode::decode_mp4_movie($post_data[$i]['movie']);
+			$post_data[$i]['movie']       = Model_V1_Transcode::decode_hls_movie($post_data[$i]['movie']);
+			$post_data[$i]['thumbnail']   = Model_V1_Transcode::decode_thumbnail($post_data[$i]['thumbnail']);
+			$post_data[$i]['profile_img'] = Model_V1_Transcode::decode_profile_img($post_data[$i]['profile_img']);
 			$post_data[$i]['share'] = 'mp4/' . "$movie" . '.mp4';
 
 			$dis  		= $post_data[$i]['distance'];
@@ -161,12 +161,12 @@ class Model_Post extends Model
 			$post_rest_id = $post_data[$i]['rest_id'];
 			$post_date 	  = $post_data[$i]['post_date'];
 
-	   		$post_data[$i]['gochi_num']   = Model_Gochi::get_num($post_id);
-	   		$post_data[$i]['comment_num'] = Model_Comment::get_num($post_id);
-	    	$post_data[$i]['want_flag']	  = Model_Want::get_flag($user_id, $post_rest_id);
-	    	$post_data[$i]['follow_flag'] = Model_Follow::get_flag($user_id, $post_user_id);
-	    	$post_data[$i]['gochi_flag']  = Model_Gochi::get_flag($user_id, $post_id);
-			$post_data[$i]['post_date']   = Model_Date::get_data($post_date);
+	   		$post_data[$i]['gochi_num']   = Model_V1_Gochi::get_num($post_id);
+	   		$post_data[$i]['comment_num'] = Model_V1_Comment::get_num($post_id);
+	    	$post_data[$i]['want_flag']	  = Model_V1_Want::get_flag($user_id, $post_rest_id);
+	    	$post_data[$i]['follow_flag'] = Model_V1_Follow::get_flag($user_id, $post_user_id);
+	    	$post_data[$i]['gochi_flag']  = Model_V1_Gochi::get_flag($user_id, $post_id);
+			$post_data[$i]['post_date']   = Model_V1_Date::get_data($post_date);
 		}
 		return $post_data;
 	}
@@ -244,7 +244,7 @@ class Model_Post extends Model
 		$num = count($cheer_list);
 
 		for ($i=0; $i < $num; $i++) {
-			$cheer_list[$i]['profile_img'] =　Model_Transcode::decode_profile_img($cheer_list[$i]['profile_img']);
+			$cheer_list[$i]['profile_img'] =　Model_V1_Transcode::decode_profile_img($cheer_list[$i]['profile_img']);
 		}
 
 		return $cheer_list;
@@ -300,7 +300,7 @@ class Model_Post extends Model
 
 	//動画投稿
 	public static function post_data(
-		$post_id, $post_hash, $user_id, $rest_id, $movie_name, $category_id, $tag_id, $value, $memo, $cheer_flag)
+		$post_id, $user_id, $rest_id, $movie_name, $category_id, $tag_id, $value, $memo, $cheer_flag)
 	{
 		$directory = explode('-', $movie_name);
 
@@ -311,7 +311,6 @@ class Model_Post extends Model
 		$query = DB::insert('posts')
 		->set(array(
 			'post_id' 			=> "$post_id",
-			'post_hash' 		=> "$post_hash",
 			'post_user_id'      => "$user_id",
 			'post_rest_id'      => "$rest_id",
 			'movie'		        => "$movie",

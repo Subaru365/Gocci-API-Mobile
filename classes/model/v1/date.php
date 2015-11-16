@@ -1,5 +1,5 @@
 <?php
-class Model_Date extends Model
+class Model_V1_Date extends Model
 {
 	//TIMESTAMPから現在までの差分を求める
 	public static function get_data($date)

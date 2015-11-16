@@ -48,14 +48,17 @@ class Model_V3_Db_Post extends Model_V3_Db
 	{
 		$this->selectNearData();
 		$result = $this->run();
-		return $result;
+		$data = $this->decodeData($result);
+		$data = $this->decodeDistance($data);
+		return $data;
 	}
 
 	public function getTimePost()
 	{
 		$this->selectTimeData();
 		$result = $this->run();
-		return $result[0];
+		$data = $this->decodeData($result);
+		return $data;
 	}
 
 	public function getFollowPost($user_id)
@@ -63,7 +66,8 @@ class Model_V3_Db_Post extends Model_V3_Db
 		$this->selectTimeData();
 		$this->query->where('post_user_id', 'in', $user_id);
 		$result = $this->run();
-		return $result[0];
+		$data = $this->decodeData($result);		
+		return $data;
 	}
 
 
@@ -83,7 +87,7 @@ class Model_V3_Db_Post extends Model_V3_Db
 		$this->query = DB::select(
 			'post_id',		'movie',		'thumbnail',
 			'rest_id', 		'restname',		'post_user_id',
-		 	'cheer_flag',
+		 	'cheer_flag',   'post_date',
 			DB::expr("GLength(GeomFromText(CONCAT('LineString(
 				${lon} ${lat},', X(lon_lat),' ', Y(lon_lat),')'))) as distance"
 			)
@@ -162,6 +166,33 @@ class Model_V3_Db_Post extends Model_V3_Db
 		->where('post_status_flag', '1')
 
 		->limit(20);
+	}
+
+
+	private function decodeData($data)
+	{
+		$post_num  = count($data);
+
+		for ($i=0; $i < $post_num; $i++) {
+			$data[$i]['mp4_movie']	= Model_V3_Transcode::decode_mp4_movie($data[$i]['movie']);
+			$data[$i]['hls_movie']  = Model_V3_Transcode::decode_hls_movie($data[$i]['movie']);
+			$data[$i]['thumbnail']  = Model_V3_Transcode::decode_thumbnail($data[$i]['thumbnail']);
+			$data[$i]['post_date']  = Model_V3_Transcode::decode_date($data[$i]['post_date']);
+
+		}
+		return $data;
+	}
+
+	private function decodeDistance($data)
+	{
+		$post_num  = count($data);
+
+		for ($i=0; $i < $post_num; $i++) {
+			$dis  		= $data[$i]['distance'];
+			$dis_meter	= $dis * 112120;
+			$data[$i]['distance'] = round($dis_meter);
+		}
+		return $data;
 	}
 }
 

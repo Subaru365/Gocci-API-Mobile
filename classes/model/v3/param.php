@@ -107,6 +107,11 @@ class Model_V3_Param extends Model
 				$this->setReq_timeline();
 				break;
 
+			case 'v3/get/user':
+				$this->getReq_user();
+				$this->setReq_user();
+				break;
+
 
 			case 'v3/get/heatmap':
 				break;
@@ -198,6 +203,13 @@ class Model_V3_Param extends Model
 		);
 	}
 
+	private function getReq_user()
+	{
+		$this->val_param = array(
+			'user_id' 		=> Input::get('user_id'),
+		);
+	}
+
 
 
 	private function setReq_login()
@@ -256,6 +268,11 @@ class Model_V3_Param extends Model
 		$this->regex_category_id();
 		$this->regex_value_id();
 		$this->regex_page();
+	}
+
+	private function setReq_user()
+	{
+		$this->regex_user_id();
 	}
 
 
@@ -421,7 +438,7 @@ class Model_V3_Param extends Model
 		$this->Val
 		->add('username', 'GET username')
 		->add_rule('required')
-		->add_rule('match_pattern', '/^\w{4,20}$/');
+		->add_rule('match_pattern', '/^\S{4,20}$/');
 		# /^\S{3,15}$/
 	}
 

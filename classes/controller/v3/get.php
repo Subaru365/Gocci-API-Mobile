@@ -3,7 +3,7 @@
  * Get  Class. Request SignUp, LogIn.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/09)
+ * @version    3.0 (2015/11/16)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -39,79 +39,88 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$this->output_success();
 	}
 
-	public function action_timeline()
-    {
-    	//$option is [call, order_id, category_id, value_id, lon, lat]
-        $option		= self::get_input();
-
-		$post_data  = Model_V2_Router::timeline($option);
-
-	   	$this->output_success($post_data);
-	}
-
 	//Followline
 	public function action_followline()
 	{
 		//$option is [call, order_id, category_id, value_id, lon, lat]
-        $potion		= self::get_input();
+		$follow  = Model_V3_Db_Follow::getInstance();
+		$post 	 = Model_V3_Db_Post::getInstance();
 
-		$post_data	= Model_V2_Router::followline($option);
+		$follow_user_id = $follow->getFollowId();
 
-	   	$this->output_success($post_data);
+		if (empty($follow_user_id)) {
+			$this->status = Model_V3_Status::getStatus('ERROR_FOLLOW_USER_NOT_EXIST');
+			$this->output();
+		}
+
+		$this->req_params = $post->getFollowPost($follow_user_id);
+
+	   	$this->output_success();
 	}
 
-
-	//Comment Page
-    public function action_comment()
+	public function action_timeline()
     {
-    	//$option is [post_id]
-    	$post_id 		= self::get_input();
+    	//$option is [call, order_id, category_id, value_id, lon, lat]
+    	$post = Model_V3_Db_Post::getInstance();
 
-		$post_data   	= Model_V2_Router::comment_post($post_id);
-	   	$comment_data   = Model_V2_Router::comment($post_id);
+		$this->req_params = $post->getTimePost();
 
-	   	$data = array(
-	   		"post" 		=> $post_data,
-	   		"comments" 	=> $comment_data
-	   	);
-
-	   	$this->output_success($data);
+	   	$this->output_success();
 	}
 
 
-	//Restaurant Page
-	public function action_rest()
-    {
-    	//$option is [rest_id]
-    	$rest_id	= self::get_input();
+	// //Comment Page
+ //    public function action_comment()
+ //    {
+ //    	//$option is [post_id]
+ //    	$post_id 		= self::get_input();
 
-		$rest_data 	= Model_V2_Router::rest($rest_id);
-		$post_data 	= Model_V2_Router::rest_post($rest_id);
+	// 	$post_data   	= Model_V2_Router::comment_post($post_id);
+	//    	$comment_data   = Model_V2_Router::comment($post_id);
 
-	   	$data = array(
-	   		"restaurant"	=> $rest_data,
-	   		"posts" 		=> $post_data
-	   	);
+	//    	$data = array(
+	//    		"post" 		=> $post_data,
+	//    		"comments" 	=> $comment_data
+	//    	);
 
-	   	$this->output_json($data);
-	}
+	//    	$this->output_success($data);
+	// }
+
+
+	// //Restaurant Page
+	// public function action_rest()
+ //    {
+ //    	//$option is [rest_id]
+ //    	$rest_id	= self::get_input();
+
+	// 	$rest_data 	= Model_V2_Router::rest($rest_id);
+	// 	$post_data 	= Model_V2_Router::rest_post($rest_id);
+
+	//    	$data = array(
+	//    		"restaurant"	=> $rest_data,
+	//    		"posts" 		=> $post_data
+	//    	);
+
+	//    	$this->output_json($data);
+	// }
 
 
 	//User Page
 	public function action_user()
 	{
 		//$option is [target_user_id]
-    	$option		= self::get_input();
+		$user = Model_V3_Db_User::getInstance();
+    	$post = Model_V3_Db_Post::getInstance();
 
 		$user_data  = Model_V2_Router::user($target_user_id);
         $post_data  = Model_V2_Router::user_post($option);
 
-	   	$data = array(
+	   	$this->req_params = array(
 	   		"user"	=> $user_data,
 	   		"posts" => $post_data
 	   	);
 
-	   	$this->output_json($data);
+	   	$this->output_success();
 	}
 
 

@@ -1,13 +1,42 @@
 <?php
+/**
+ * Authentication Class. Request SignUp, LogIn.
+ *
+ * @package    Gocci-Mobile
+ * @version    3.0 (2015/11/16)
+ * @author     Subaru365 (a-murata@inase-inc.jp)
+ * @license    MIT License
+ * @copyright  2015 Inase,inc.
+ * @link       https://bitbucket.org/inase/gocci-mobile-api
+ */
 
-class Model_Follow extends Model
+/**
+ * @return Array
+ */
+class Model_V3_Db_Follow extends Model_V3_Db
 {
+	use SingletonTrait;
+
+	/**
+	 * @param String $table_name
+	 */
+	private static $table_name = 'follows';
+
+
+	public function getFollowId()
+	{
+		$this->selectFollowId();
+		$result = $this->run();
+		return $result;
+	}
+
+
 	//自分がフォローしてるかフラグで返す
 	public static function get_flag($target_user_id)
 	{
 		$query = DB::select('follow_id')
 		->from     ('follows')
-		->where    ('follow_a_user_id', session::get('user_id')
+		->where    ('follow_a_user_id', session::get('user_id'))
 		->and_where('follow_p_user_id', "$target_user_id");
 
 		$result = $query->execute()->as_array();
@@ -23,16 +52,11 @@ class Model_Follow extends Model
 	}
 
 
-	//followしているuser_idリスト
-	public static function get_follow_id()
+	public function selectFollowId()
 	{
-		$query = DB::select('follow_p_user_id')
-		->from('follows')
+		$this->query = DB::select('follow_p_user_id')
+		->from(self::$table_name)
 		->where('follow_a_user_id', session::get('user_id'));
-
-		$follow_id = $query->execute()->as_array();
-
-		return $follow_id;
 	}
 
 
@@ -47,7 +71,7 @@ class Model_Follow extends Model
 
 		$result 		= $query->execute()->as_array();
 
-		$follow_list    = self::add_flag($result)
+		$follow_list    = self::add_flag($result);
 		return $follow_list;
 	}
 
@@ -63,7 +87,7 @@ class Model_Follow extends Model
 
 		$result			= $query->execute()->as_array();
 
-		$follower_list  = self::add_flag($result)
+		$follower_list  = self::add_flag($result);
 		return $follower_list;
 	}
 

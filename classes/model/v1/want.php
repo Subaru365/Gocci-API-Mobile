@@ -1,5 +1,5 @@
 <?php
-class Model_Want extends Model
+class Model_V1_Want extends Model
 {
 	public static function get_want($user_id)
 	{

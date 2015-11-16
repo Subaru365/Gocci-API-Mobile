@@ -1,6 +1,6 @@
 <?php
 
-class Model_Notice extends Model
+class Model_V1_Notice extends Model
 {
 
     public static function get_data($user_id)
@@ -30,8 +30,8 @@ class Model_Notice extends Model
 
         for ($i=0; $i < $num; $i++) {
           	//日付情報を現在との差分に書き換え
-          	$notice_data[$i]['notice_date'] = Model_Date::get_data($notice_data[$i]['notice_date']);
-            $notice_data[$i]['profile_img'] = Model_Transcode::decode_profile_img($notice_data[$i]['profile_img']);
+          	$notice_data[$i]['notice_date'] = Model_V1_Date::get_data($notice_data[$i]['notice_date']);
+            $notice_data[$i]['profile_img'] = Model_V1_Transcode::decode_profile_img($notice_data[$i]['profile_img']);
         }
 
     		return $notice_data;

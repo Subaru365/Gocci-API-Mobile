@@ -1,6 +1,6 @@
 <?php
 
-class Model_User extends Model
+class Model_V1_User extends Model
 {
     // ユーザー名とパスワードをチェック【web】
     public static function check_name_pass($username, $password)
@@ -132,7 +132,7 @@ class Model_User extends Model
 
         $user_data = $query->execute()->as_array();
         $user_data[0]['profile_img'] =
-            Model_Transcode::decode_profile_img($user_data[0]['profile_img']);
+            Model_V1_Transcode::decode_profile_img($user_data[0]['profile_img']);
 
         return $user_data[0];
     }
@@ -164,12 +164,12 @@ class Model_User extends Model
             error_log('登録されてないユーザー:' . "$identity_id");
 
             //Cognitoから消去
-            Model_Cognito::delete_identity_id($identity_id);
+            Model_V1_Cognito::delete_identity_id($identity_id);
             exit;
         }
 
         $user_data[0]['profile_img'] =
-            Model_Transcode::decode_profile_img($user_data[0]['profile_img']);
+            Model_V1_Transcode::decode_profile_img($user_data[0]['profile_img']);
 
         return $user_data[0];
     }
@@ -199,12 +199,12 @@ class Model_User extends Model
         //---------------------------------------------------------//
         //付加情報格納(follow_num, fllower_num, cheer_num, status_flag)
 
-        $user_data[0]['profile_img']  = Model_Transcode::decode_profile_img($user_data[0]['profile_img']);
-        $user_data[0]['follow_num']   = Model_Follow::follow_num($target_user_id);
-        $user_data[0]['follower_num'] = Model_Follow::follower_num($target_user_id);
-        $user_data[0]['cheer_num']    = Model_Post::get_user_cheer_num($target_user_id);
-        $user_data[0]['want_num']     = Model_Want::want_num($target_user_id);
-        $user_data[0]['follow_flag']  = Model_Follow::get_flag($user_id, $target_user_id);
+        $user_data[0]['profile_img']  = Model_V1_Transcode::decode_profile_img($user_data[0]['profile_img']);
+        $user_data[0]['follow_num']   = Model_V1_Follow::follow_num($target_user_id);
+        $user_data[0]['follower_num'] = Model_V1_Follow::follower_num($target_user_id);
+        $user_data[0]['cheer_num']    = Model_V1_Post::get_user_cheer_num($target_user_id);
+        $user_data[0]['want_num']     = Model_V1_Want::want_num($target_user_id);
+        $user_data[0]['follow_flag']  = Model_V1_Follow::get_flag($user_id, $target_user_id);
 
         return $user_data[0];
     }
@@ -223,7 +223,7 @@ class Model_User extends Model
         ))
         ->execute();
 
-        $profile_img = Model_Transcode::decode_profile_img($profile_img);
+        $profile_img = Model_V1_Transcode::decode_profile_img($profile_img);
         return $profile_img;
     }
 
@@ -241,7 +241,7 @@ class Model_User extends Model
         ))
         ->execute();
 
-        $profile_img = Model_Transcode::decode_profile_img($profile_img);
+        $profile_img = Model_V1_Transcode::decode_profile_img($profile_img);
         return $profile_img;
 
 
@@ -257,7 +257,7 @@ class Model_User extends Model
 	    'identity_id' => $identity_id
 	))
 	->execute();
-	$profile_img = Model_Transcode::decode_profile_img($profile_img);
+	$profile_img = Model_V1_Transcode::decode_profile_img($profile_img);
         return $profile_img;
     }
 
@@ -312,7 +312,7 @@ class Model_User extends Model
         ->where('user_id', "$user_id")
         ->execute();
 
-        $profile_img = Model_Transcode::decode_profile_img($profile_img);
+        $profile_img = Model_V1_Transcode::decode_profile_img($profile_img);
         return $profile_img;
     }
 
@@ -445,7 +445,7 @@ class Model_User extends Model
         ))
         ->execute();
 
-        $profile_img = Model_Transcode::decode_profile_img($profile_img);
+        $profile_img = Model_V1_Transcode::decode_profile_img($profile_img);
         return $profile_img;
     }
 
@@ -463,7 +463,7 @@ class Model_User extends Model
         ->where('user_id', "$user_id")
         ->execute();
 
-        $profile_img = Model_Transcode::decode_profile_img($profile_img);
+        $profile_img = Model_V1_Transcode::decode_profile_img($profile_img);
         return $profile_img;
     }
 }
