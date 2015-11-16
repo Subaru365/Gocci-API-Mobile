@@ -87,37 +87,38 @@ class Controller_V3_Get extends Controller_V3_Gate
 	// }
 
 
-	// //Restaurant Page
-	// public function action_rest()
- //    {
- //    	//$option is [rest_id]
- //    	$rest_id	= self::get_input();
+	//Restaurant Page
+	public function action_rest()
+	{
+		//$option is [rest_id]
+		$rest = Model_V3_Rest::getInstance();
+		$post = Model_V3_Post::getInstance();
 
-	// 	$rest_data 	= Model_V2_Router::rest($rest_id);
-	// 	$post_data 	= Model_V2_Router::rest_post($rest_id);
+		$rest_data 	= $rest->get;
+		$post_data 	= $post->getRestPost($this->req_params['rest_id']);
 
-	//    	$data = array(
-	//    		"restaurant"	=> $rest_data,
-	//    		"posts" 		=> $post_data
-	//    	);
+		$data = array(
+			"rest" 	=> $rest_data,
+			"posts" => $post_data
+		);
 
-	//    	$this->output_json($data);
-	// }
+		$this->output_json($data);
+	}
 
 
 	//User Page
 	public function action_user()
 	{
 		//$option is [target_user_id]
-		$user = Model_V3_Db_User::getInstance();
-    	$post = Model_V3_Db_Post::getInstance();
+		$user = Model_V3_User::getInstance();
+    	$post = Model_V3_Post::getInstance();
 
-		$user_data  = Model_V2_Router::user($target_user_id);
-        $post_data  = Model_V2_Router::user_post($option);
+		$user_data  = $user->getProfile($this->req_params['user_id']);
+        $post_data 	= $post->getUserPost($this->req_params['user_id']);
 
 	   	$this->req_params = array(
 	   		"user"	=> $user_data,
-	   		"posts" => $post_data
+	   		"posts" => $post_data,
 	   	);
 
 	   	$this->output_success();
