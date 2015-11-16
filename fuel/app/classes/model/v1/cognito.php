@@ -6,7 +6,7 @@ use Aws\CognitoSync\CognitoSyncClient;
 /**
 * CognitoIdentity Model
 */
-class Model_Cognito extends Model
+class Model_V1_Cognito extends Model
 {
     //IdentityID取得 DataSet [User_Info]
     public static function post_data($user_id)

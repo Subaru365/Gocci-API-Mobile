@@ -1,6 +1,6 @@
 <?php
 
-class Model_Follow extends Model
+class Model_V1_Follow extends Model
 {
 	//followしているuser_idリスト
 	public static function get_follow_id($user_id)
@@ -38,7 +38,7 @@ class Model_Follow extends Model
 
 		for ($i=0; $i < $follow_num; $i++) {
 			$follow_list[$i]['profile_img'] =
-				Model_Transcode::decode_profile_img($follow_list[$i]['profile_img']);
+				Model_V1_Transcode::decode_profile_img($follow_list[$i]['profile_img']);
 
 			$follow_list[$i]['follow_flag'] =
 				self::get_flag($user_id, $follow_list[$i]['user_id']);
@@ -65,7 +65,7 @@ class Model_Follow extends Model
 
 		for ($i=0; $i < $follower_num; $i++) {
 			$follower_list[$i]['profile_img'] =
-				Model_Transcode::decode_profile_img($follower_list[$i]['profile_img']);
+				Model_V1_Transcode::decode_profile_img($follower_list[$i]['profile_img']);
 
 			$follower_list[$i]['follow_flag'] =
 				self::get_flag($user_id, $follower_list[$i]['user_id']);

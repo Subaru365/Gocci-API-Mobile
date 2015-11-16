@@ -1,5 +1,5 @@
 <?php
-class Model_Feedback extends Model
+class Model_V1_Feedback extends Model
 {
 	public static function post_add($user_id, $feedback)
 	{

@@ -4,7 +4,7 @@ use Aws\Sns\SnsClient;
 /**
 *SNS
 */
-class Model_Sns extends Model
+class Model_V1_Sns extends Model
 {
 
 	public static function post_endpoint($user_id, $register_id, $os)
@@ -17,7 +17,7 @@ class Model_Sns extends Model
             } elseif ($brand[0] == 'iOS') {
 		$endpoint_arn = self::post_iOS($user_id, $register_id);
 	    } else {
-                error_log('Model_Sns: endpoint_arn 未発行');
+                error_log('Model_V1_Sns: endpoint_arn 未発行');
                 exit;
             }
 
@@ -63,8 +63,8 @@ class Model_Sns extends Model
 
 	public static function post_message($keyword, $user_id, $target_user_id)
 	{
-        	$username  = Model_User::get_name($user_id);
-        	$target_arn = Model_Device::get_arn($target_user_id);
+        	$username  = Model_V1_User::get_name($user_id);
+        	$target_arn = Model_V1_Device::get_arn($target_user_id);
 
         	$message = "$username" . 'さんから' . "$keyword" . 'されました！';
 
@@ -82,7 +82,7 @@ class Model_Sns extends Model
 
 	public static function post_publish($user_id, $message)
 	{
-		$target_arn = Model_Device::get_arn($user_id);
+		$target_arn = Model_V1_Device::get_arn($user_id);
 
 		$client = new SnsClient([
 			'region'  => 'ap-northeast-1',

@@ -1,6 +1,6 @@
 <?php
 
-class Model_Transcode extends Model
+class Model_V1_Transcode extends Model
 {
 	public static function decode_profile_img($profile_img)
     {

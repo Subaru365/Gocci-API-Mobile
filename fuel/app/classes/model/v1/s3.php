@@ -4,7 +4,7 @@ use Aws\S3\S3Client;
 /**
 * S3 Model
 */
-class Model_S3 extends Model
+class Model_V1_S3 extends Model
 {
     public static function input($user_id, $profile_img_url)
     {

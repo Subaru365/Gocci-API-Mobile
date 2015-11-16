@@ -1,5 +1,5 @@
 <?php
-class Model_Block extends Model
+class Model_V1_Block extends Model
 {
      protected static $_table_name = 'blocks';
 

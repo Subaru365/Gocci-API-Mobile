@@ -106,7 +106,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         if (!empty($result)) {
             //端末登録あり
             $identity_id  = $this->User->get_identity($result[0]['device_user_id']);
-            $this->status = Model_V3_Status::get_status('ERROR_REGISTER_ID_ALREADY_REGISTERD', $identity_id[0]);
+            $this->status = Model_V3_Status::getStatus('ERROR_REGISTER_ID_ALREADY_REGISTERD', $identity_id[0]);
             $this->output();
         }
     }
@@ -117,7 +117,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         $result = $this->User->get_id($identity_id);
 
         if (empty($result)) {
-            $this->status = Model_V3_Status::get_status('ERROR_IDENTITY_ID_NOT_REGISTERD');
+            $this->status = Model_V3_Status::getStatus('ERROR_IDENTITY_ID_NOT_REGISTERD');
             $this->Cognitto->delete_id($identity_id);
             $this->output();
         }
@@ -130,7 +130,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         $result = $this->User->check_name($username);
 
         if (empty($result)) {
-            $this->status = Model_V3_Status::get_status('ERROR_USERNAME_NOT_REGISTERD');
+            $this->status = Model_V3_Status::getStatus('ERROR_USERNAME_NOT_REGISTERD');
             $this->output();
         }
         return $result[0]['user_id'];
@@ -142,7 +142,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         $hash_pass = $this->User->get_password($username);
 
         if (empty($hash_pass)) {
-            $this->status = Model_V3_Status::get_status('ERROR_PASSWORD_NOT_REGISTERD');
+            $this->status = Model_V3_Status::getStatus('ERROR_PASSWORD_NOT_REGISTERD');
             $this->output();
 
         } else if (password_verify($password, $hash_pass[0]['password'])) {
@@ -151,7 +151,7 @@ class Controller_V3_Auth extends Controller_V3_Public
             $this->req_params['identity_id'] = $result[0]['identity_id'];
 
         } else {
-            $this->status = Model_V3_Status::get_status('ERROR_PASSWORD_WRONG');
+            $this->status = Model_V3_Status::getStatus('ERROR_PASSWORD_WRONG');
             $this->output();
         }
     }
@@ -162,7 +162,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         $result = $this->User->check_name($username);
 
         if (!empty($result)) {
-            $this->status = Model_V3_Status::get_status('ERROR_USERNAME_ALREADY_REGISTERD');
+            $this->status = Model_V3_Status::getStatus('ERROR_USERNAME_ALREADY_REGISTERD');
             $this->output();
         }
     }
@@ -173,7 +173,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         $device_arn = $this->Device->check_arn($register_id);
 
         if (!empty($device_arn)) {
-            $this->status = Model_V3_Status::get_status('ERROR_REGISTER_ID_ALREADY_REGISTERD');
+            $this->status = Model_V3_Status::getStatus('ERROR_REGISTER_ID_ALREADY_REGISTERD');
             $this->output();
         }
     }
@@ -193,7 +193,7 @@ class Controller_V3_Auth extends Controller_V3_Public
             $req_params['profile_img'] = Model_V3_Transcode::decode_profile_img($req_params['profile_img']);
 
         } else {
-            $this->status = Model_V3_Status::get_status('ERROR_IDENTITY_ID_NOT_REGISTERD');
+            $this->status = Model_V3_Status::getStatus('ERROR_IDENTITY_ID_NOT_REGISTERD');
             $this->output();
         }
 

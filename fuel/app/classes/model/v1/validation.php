@@ -4,7 +4,7 @@
 *
 */
 
-class Model_Validation extends Model
+class Model_V1_Validation extends Model
 {
 	public static function check_signup($username, $password)
 	{
@@ -126,7 +126,7 @@ class Model_Validation extends Model
 	//ユーザー名重複チェック
     private static function overlap_username($username)
     {
-        $result = Model_V2_Db_User::get_user_id($username);
+        $result = Model_V1_V2_Db_User::get_user_id($username);
 
         if (!empty($result)) {
         	//登録済み
@@ -138,7 +138,7 @@ class Model_Validation extends Model
     //デバイス重複チェック
     private static function overlap_register_id($register_id)
     {
-        $result = Model_V2_Db_Device::get_device_id($register_id);
+        $result = Model_V1_V2_Db_Device::get_device_id($register_id);
 
         if (!empty($result)) {
         	//登録済み
@@ -150,19 +150,19 @@ class Model_Validation extends Model
     //identity_id未登録チェック
     private static function verify_identity_id($identity_id)
     {
-    	$result = Model_V2_Db_User::get_user_id($identity_id);
+    	$result = Model_V1_V2_Db_User::get_user_id($identity_id);
 
     	if (empty($result)) {
     		//登録なし
             Controller_V2_Mobile_Base::output_error(303);
-            Model_Cognito::delete_identity_id($identity_id);
+            Model_V1_Cognito::delete_identity_id($identity_id);
             exit;
         }
     }
 
     private static function verify_password($username, $password)
     {
-    	$hash_pass = Model_V2_Db_User::get_password($username);
+    	$hash_pass = Model_V1_V2_Db_User::get_password($username);
 
     	if (empty($hash_pass)) {
     		//username登録なし

@@ -2,10 +2,10 @@
 // Bootstrap the framework DO NOT edit this
 require COREPATH.'bootstrap.php';
 
+// Add AWS namespace
 \Autoloader::add_namespace(
 	'Aws', APPPATH.'vendor/aws/aws-sdk-php/src/Aws', true
 );
-
 
 \Autoloader::add_classes(array(
 	// Add classes you want to override here
@@ -16,6 +16,8 @@ require COREPATH.'bootstrap.php';
 // Register the autoloader
 \Autoloader::register();
 
+// Load trait
+\Fuel::load(APPPATH.DS.'traits.php');
 
 /**
  * Your environment.  Can be set to any of the following:

@@ -1,5 +1,5 @@
 <?php
-header('Content-Type: application/json; charset=UTF-8');
+//header('Content-Type: application/json; charset=UTF-8');
 /*
 * POST API
 *　投稿に関するAPIです。
@@ -15,7 +15,7 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			Model_User::update_pass($user_id, $pass);
+			Model_V1_User::update_pass($user_id, $pass);
 			self::success($keyword);
 		}
 		catch(\Database_Exception $e)
@@ -39,13 +39,13 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 		{
 			if ($profile_img != 'none')
 			{
-				$profile_img = Model_S3::input($user_id, $profile_img);
-				$profile_img = Model_User::update_profile_img($user_id, $profile_img);
+				$profile_img = Model_V1_S3::input($user_id, $profile_img);
+				$profile_img = Model_V1_User::update_profile_img($user_id, $profile_img);
 			}
 
-			$identity_id = Model_User::get_identity_id($user_id);
-			Model_User::update_sns_flag($user_id, $provider);
-			Model_Cognito::post_sns($user_id, $identity_id, $provider, $token);
+			$identity_id = Model_V1_User::get_identity_id($user_id);
+			Model_V1_User::update_sns_flag($user_id, $provider);
+			Model_V1_Cognito::post_sns($user_id, $identity_id, $provider, $token);
 
 			$data = array(
 				'code' 	      => 200,
@@ -72,9 +72,9 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			$identity_id = Model_User::get_identity_id($user_id);
-			Model_User::delete_sns_flag($user_id, $provider);
-			Model_Cognito::delete_sns($user_id, $identity_id, $provider, $token);
+			$identity_id = Model_V1_User::get_identity_id($user_id);
+			Model_V1_User::delete_sns_flag($user_id, $provider);
+			Model_V1_Cognito::delete_sns($user_id, $identity_id, $provider, $token);
 
 			self::success($keyword);
 		}
@@ -97,11 +97,11 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			$target_user_id = Model_Gochi::post_gochi(
+			$target_user_id = Model_V1_Gochi::post_gochi(
 				$user_id, $post_id);
 
 			if ($user_id != $target_user_id) {
-				$record = Model_Notice::post_data(
+				$record = Model_V1_Notice::post_data(
 					$keyword, $user_id, $target_user_id, $post_id);
 			}
 
@@ -127,11 +127,11 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			$comment_id = Model_Comment::post_comment($user_id, $post_id, $comment);
-			$target_user_id = Model_Post::get_user($post_id);
+			$comment_id = Model_V1_Comment::post_comment($user_id, $post_id, $comment);
+			$target_user_id = Model_V1_Post::get_user($post_id);
 
 			if ($user_id != $target_user_id) {
-				Model_Notice::post_data($keyword, $user_id, $target_user_id, $post_id);
+				Model_V1_Notice::post_data($keyword, $user_id, $target_user_id, $post_id);
 			}
 
 			if (!empty($re_user_id)) {
@@ -139,8 +139,8 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 				$num = count($re_user_id);
 
 				for ($i=0; $i < $num; $i++) {
-					Model_Re::post_data($comment_id, $re_user_id[$i]);
-					Model_Notice::post_data($keyword, $user_id, $re_user_id[$i], $post_id);
+					Model_V1_Re::post_data($comment_id, $re_user_id[$i]);
+					Model_V1_Notice::post_data($keyword, $user_id, $re_user_id[$i], $post_id);
 				}
 			}
 			self::success($keyword);
@@ -163,9 +163,9 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			$result = Model_Follow::post_follow($user_id, $follow_user_id);
+			$result = Model_V1_Follow::post_follow($user_id, $follow_user_id);
 
-			$record = Model_Notice::post_data(
+			$record = Model_V1_Notice::post_data(
 				$keyword, $user_id, $follow_user_id);
 
 			self::success($keyword);
@@ -188,7 +188,7 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			$result = Model_Follow::post_unfollow($user_id, $unfollow_user_id);
+			$result = Model_V1_Follow::post_unfollow($user_id, $unfollow_user_id);
 			self::success($keyword);
 		}
 
@@ -209,7 +209,7 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			$result = Model_Want::post_want($user_id, $rest_id);
+			$result = Model_V1_Want::post_want($user_id, $rest_id);
 			self::success($keyword);
 		}
 
@@ -230,7 +230,7 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			$result = Model_Want::post_unwant($user_id, $rest_id);
+			$result = Model_V1_Want::post_unwant($user_id, $rest_id);
 			self::success($keyword);
 		}
 
@@ -257,12 +257,12 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			$post_id = Model_Post::get_next_id();
-			$hash_id = `/usr/local/bin/inasehash {$post_id}`;
-			$hash_id = rtrim($hash_id);
+			$post_id = Model_V1_Post::get_next_id();
+			//$hash_id = `/usr/local/bin/inasehash {$post_id}`;
+			//$hash_id = rtrim($hash_id);
 
-			$result = Model_Post::post_data(
-				$post_id, $hash_id, $user_id, $rest_id, $movie_name,
+			$result = Model_V1_Post::post_data(
+				$post_id, $user_id, $rest_id, $movie_name,
 				$category_id, $tag_id, $value, $memo, $cheer_flag);
 
 			self::success($keyword);
@@ -285,7 +285,7 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			$result = Model_Block::post_block($user_id, $post_id);
+			$result = Model_V1_Block::post_block($user_id, $post_id);
 			self::success($keyword);
 		}
 
@@ -305,7 +305,7 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			$result = Model_Post::post_delete($post_id);
+			$result = Model_V1_Post::post_delete($post_id);
 			self::success($keyword);
 		}
 
@@ -327,23 +327,23 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			$user_data   = Model_User::get_profile($user_id);
+			$user_data   = Model_V1_User::get_profile($user_id);
 			$username    = $user_data['username'];
 			$profile_img = $user_data['profile_img'];
 
 
 			if (!empty($new_username) && !empty($new_profile_img)) {
 			//双方更新
-				$profile_img = Model_User::update_profile_img($user_id, $new_profile_img);
-				$username = Model_User::update_name($user_id, $new_username);
+				$profile_img = Model_V1_User::update_profile_img($user_id, $new_profile_img);
+				$username = Model_V1_User::update_name($user_id, $new_username);
 
 			}elseif (!empty($new_profile_img)) {
 			//プロフィール画像更新
-				$profile_img = Model_User::update_profile_img($user_id, $new_profile_img);
+				$profile_img = Model_V1_User::update_profile_img($user_id, $new_profile_img);
 
 			}elseif (!empty($new_username)) {
 			//ユーザーネーム更新
-				$username = Model_User::update_name($user_id, $new_username);
+				$username = Model_V1_User::update_name($user_id, $new_username);
 			}
 
 			$data = array(
@@ -373,7 +373,7 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 		try
 		{
 			//$clean_feedback = Controller_V1_Inputfilter::action_encoding($feedback);
-			$result = Model_Feedback::post_add($user_id, $feedback);
+			$result = Model_V1_Feedback::post_add($user_id, $feedback);
 			self::success($keyword);
 		}
 
@@ -395,7 +395,7 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 
 		try
 		{
-			$rest_id = Model_Restaurant::post_add($rest_name, $lat, $lon);
+			$rest_id = Model_V1_Restaurant::post_add($rest_name, $lat, $lon);
 
 			$data = array(
 				'code' 	  => 200,

@@ -13,6 +13,8 @@
 /** @return Array $val */
 class Model_V3_Db_User extends Model_V3_Db
 {
+    //use SingletonTrait;
+    
     /**
      * @var String $table_name
      */

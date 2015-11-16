@@ -1,5 +1,5 @@
 <?php
-class Model_Device extends Model
+class Model_V1_Device extends Model
 {
     //登録履歴確認
     public static function check_register_id($register_id)
@@ -16,9 +16,9 @@ class Model_Device extends Model
             $old_user_id  = $device_data[0]['device_user_id'];
             $endpoint_arn = $device_data[0]['endpoint_arn'];
 
-            Model_User::update_logout($old_user_id);
+            Model_V1_User::update_logout($old_user_id);
             self::delete_device($old_user_id);
-            Model_Sns::delete_endpoint($endpoint_arn);
+            Model_V1_Sns::delete_endpoint($endpoint_arn);
         }
     }
 
@@ -41,7 +41,7 @@ class Model_Device extends Model
         $result = $query -> execute()->as_array();
 
         if (!empty($result)) {
-            Model_Sns::delete_endpoint($result[0]['endpoint_arn']);
+            Model_V1_Sns::delete_endpoint($result[0]['endpoint_arn']);
         }
   	}
 
