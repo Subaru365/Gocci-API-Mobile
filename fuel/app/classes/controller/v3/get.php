@@ -31,10 +31,9 @@ class Controller_V3_Get extends Controller_V3_Gate
 	public function action_nearline()
     {
 		// $req_params is lon, lat(, call, category_id, value_id)
-		$post = Model_V3_Db_Post::getInstance();
+		$post = Model_V3_Post::getInstance();
 
-		$post->setPosition($this->req_params['lon'], $this->req_params['lat']);
-		$this->req_params = $post->getNearPost();
+		$this->req_params = $post->getNearline($this->req_params['lon'], $this->req_params['lat']);
 
 		$this->output_success();
 	}
@@ -43,8 +42,8 @@ class Controller_V3_Get extends Controller_V3_Gate
 	public function action_followline()
 	{
 		//$option is [call, order_id, category_id, value_id, lon, lat]
+		$post 	 = Model_V3_Post::getInstance();
 		$follow  = Model_V3_Db_Follow::getInstance();
-		$post 	 = Model_V3_Db_Post::getInstance();
 
 		$follow_user_id = $follow->getFollowId();
 
@@ -53,7 +52,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 			$this->output();
 		}
 
-		$this->req_params = $post->getFollowPost($follow_user_id);
+		$this->req_params = $post->getFollowline($follow_user_id);
 
 	   	$this->output_success();
 	}
@@ -61,48 +60,48 @@ class Controller_V3_Get extends Controller_V3_Gate
 	public function action_timeline()
     {
     	//$option is [call, order_id, category_id, value_id, lon, lat]
-    	$post = Model_V3_Db_Post::getInstance();
+    	$post = Model_V3_Post::getInstance();
 
-		$this->req_params = $post->getTimePost();
+		$this->req_params = $post->getTimeline();
 
 	   	$this->output_success();
 	}
 
 
-	// //Comment Page
- //    public function action_comment()
- //    {
- //    	//$option is [post_id]
- //    	$post_id 		= self::get_input();
+	//Comment Page
+	public function action_comment()
+	{
+		//$option is [post_id]
+		$post_id 		= self::get_input();
 
-	// 	$post_data   	= Model_V2_Router::comment_post($post_id);
-	//    	$comment_data   = Model_V2_Router::comment($post_id);
+		$post_data   	= Model_V2_Router::comment_post($post_id);
+		$comment_data   = Model_V2_Router::comment($post_id);
 
-	//    	$data = array(
-	//    		"post" 		=> $post_data,
-	//    		"comments" 	=> $comment_data
-	//    	);
+		$data = array(
+			"post" 		=> $post_data,
+			"comments" 	=> $comment_data
+		);
 
-	//    	$this->output_success($data);
-	// }
+		$this->output_success($data);
+	}
 
 
 	//Restaurant Page
 	public function action_rest()
 	{
 		//$option is [rest_id]
-		$rest = Model_V3_Rest::getInstance();
+		$rest = Model_V3_Restaurant::getInstance();
 		$post = Model_V3_Post::getInstance();
 
-		$rest_data 	= $rest->get;
+		$rest_data 	= $rest->getRestData($this->req_params['rest_id']);
 		$post_data 	= $post->getRestPost($this->req_params['rest_id']);
 
-		$data = array(
+		$this->req_params = array(
 			"rest" 	=> $rest_data,
 			"posts" => $post_data
 		);
 
-		$this->output_json($data);
+		$this->output_success();
 	}
 
 

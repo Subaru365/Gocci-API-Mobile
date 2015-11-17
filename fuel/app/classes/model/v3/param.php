@@ -3,7 +3,7 @@
  * Parameter list of uri.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/06)
+ * @version    3.0 (2015/11/17)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -112,12 +112,17 @@ class Model_V3_Param extends Model
 				$this->setReq_user();
 				break;
 
+			case 'v3/get/rest':
+				$this->getReq_Rest();
+				$this->setReq_Rest();
+				break;
+
 
 			case 'v3/get/heatmap':
 				break;
 
 			default:
-				Model_V3_Status::get_status();
+				Model_V3_Status::getStatus();
 				break;
 		}
 	}
@@ -210,6 +215,13 @@ class Model_V3_Param extends Model
 		);
 	}
 
+	private function getReq_rest()
+	{
+		$this->val_param = array(
+			'rest_id' 		=> Input::get('rest_id'),
+		);
+	}
+
 
 
 	private function setReq_login()
@@ -275,7 +287,10 @@ class Model_V3_Param extends Model
 		$this->regex_user_id();
 	}
 
-
+	private function setReq_rest()
+	{
+		$this->regex_rest_id();
+	}
 
 	//======================================================//
 	// Responce Params
@@ -431,6 +446,15 @@ class Model_V3_Param extends Model
 		->add('user_id', 'GET user_id')
 		->add_rule('required')
 		->add_rule('match_pattern', '/^[0-9]+$/');
+	}
+
+	private function regex_rest_id()
+	{
+		$this->Val
+		->add('rest_id', 'GET rest_id')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[0-9]+$/');
+
 	}
 
 	private function regex_username()

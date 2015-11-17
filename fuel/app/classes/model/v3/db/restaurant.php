@@ -1,24 +1,45 @@
 <?php
+/**
+ * DB-Restaurant Model Class.
+ *
+ * @package    Gocci-Mobile
+ * @version    3.0 (2015/11/17)
+ * @author     Subaru365 (a-murata@inase-inc.jp)
+ * @license    MIT License
+ * @copyright  2015 Inase,inc.
+ * @link       https://bitbucket.org/inase/gocci-mobile-api
+ */
 
-class Model_V2_Db_Restaurant extends Model
+class Model_V3_Db_Restaurant extends Model_V3_Db
 {
-	public static function get_data($rest_id)
-	{
-		$query = DB::select(
-			'rest_id',	'restname',	'locality',	'lat',
-			'lon', 		'tell', 	'homepage', 'rest_category'
-		)
-		->from('restaurants')
-		->where('rest_id', "$rest_id");
+	use SingletonTrait;
 
-		$rest_data = $query->execute()->as_array();
-		return $rest_data[0];
+	/**
+	 * @var String $table_name
+	 */
+	private static $table_name = 'restaurants';
+
+	public function getRestData($rest_id)
+	{
+		$this->selectData($rest_id);
+		$result = $this->run();
+		return $result[0];
 	}
 
-
-	public static function put_rest($rest_name, $lat, $lon)
+	private function selectData($rest_id)
 	{
-		$query = DB::insert('restaurants')
+		$this->query = DB::select(
+			'rest_id',	'restname',	'locality',
+			'lat',		'lon', 		'tell',
+			'homepage', 'rest_category'
+		)
+		->from(self::$table_name)
+		->where('rest_id', $rest_id);
+	}
+
+	private function put_rest($rest_name, $lat, $lon)
+	{
+		$this->query = DB::insert(self::$table_name)
 		->set(array(
 			'restname' => "$rest_name",
 			'lat' 	   => "$lat",
@@ -27,24 +48,10 @@ class Model_V2_Db_Restaurant extends Model
 		))
 		->execute();
 
-		$query = DB::select('rest_id')->from('restaurants')
+		$this->query = DB::select('rest_id')->from(self::$table_name)
         ->order_by('rest_id', 'desc')
         ->limit   ('1');
 
         $result  = $query->execute()->as_array();
-        $rest_id = $result[0]['rest_id'];
-
-		return $rest_id;
 	}
-
-	//?
-	// public static function get_near($lon, $lat)
-	// {
-	// 	$query = DB::select('rest_id', 'restname')->from('restaurants')
-	// 	->order_by(DB::expr("GLength(GeomFromText(CONCAT('LineString(${lon} ${lat},', X(lon_lat),' ', Y(lon_lat),')')))"))
-	// 	->limit(30);
-
-	// 	$near_data = $query->execute()->as_array();
-	// 	return $near_data;
-	// }
 }
