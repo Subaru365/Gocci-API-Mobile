@@ -1,9 +1,9 @@
 <?php
 /**
- * DB-Want Class.
+ * DB-Want Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/16)
+ * @version    3.0 (2015/11/17)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -31,6 +31,21 @@ class Model_V3_Db_Want extends Model_V3_Db
 		return $num;
 	}
 
+	public function getMyFlag($rest_id)
+	{
+		$this->selectId(session::get('user_id'));
+		$this->query->and_where('want_rest_id', $rest_id);
+		$result = $this->run();
+
+		if ($result == true) {
+			$flag = 1;
+		}else{
+			$flag = 0;
+		}
+
+		return $flag;
+	}
+
 	//-----------------------------------------------------//
 
 	private function selectId($user_id)
@@ -39,6 +54,7 @@ class Model_V3_Db_Want extends Model_V3_Db
 		->from(self::$table_name)
 		->where('want_user_id', $user_id);
 	}
+
 
 	private function get_data($user_id)
 	{
@@ -55,15 +71,6 @@ class Model_V3_Db_Want extends Model_V3_Db
 		$want_data = $query->execute()->as_array();
 		return $want_data;
 	}
-
-
-	private function get_flag($rest_id)
-	{
-		$query = DB::select('want_id')->from(self::$table_name)
-		->where 	('want_user_id', session::get('user_id'))
-		->and_where ('want_rest_id', "$rest_id");
-	}
-
 
 	//行きたい登録
 	private function put_want($want_rest_id)

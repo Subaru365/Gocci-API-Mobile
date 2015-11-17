@@ -22,32 +22,18 @@ class Model_V3_Db_Post extends Model_V3_Db
 	 */
 	private static $table_name = 'posts';
 
-	/**
-	 * @var Array $position
-	 */
-	private $position = array();
-
-	public function setPosition($lon, $lat)
+	public function getNearPost($lon, $lat)
 	{
-		$this->position['lon'] = $lon;
-		$this->position['lat'] = $lat;
-	}
-
-	public function getNearPost()
-	{
-		$this->selectNearData();
+		$this->selectNearData($lon, $lat);
 		$result = $this->run();
-		$data = $this->decodeData($result);
-		$data = $this->decodeDistance($data);
-		return $data;
+		return $result;
 	}
 
 	public function getTimePost()
 	{
 		$this->selectTimeData();
 		$result = $this->run();
-		$data = $this->decodeData($result);
-		return $data;
+		return $result;
 	}
 
 	public function getFollowPost($user_id)
@@ -55,8 +41,7 @@ class Model_V3_Db_Post extends Model_V3_Db
 		$this->selectTimeData();
 		$this->query->where('post_user_id', 'in', $user_id);
 		$result = $this->run();
-		$data = $this->decodeData($result);		
-		return $data;
+		return $result;
 	}
 
 	public function getPositionPost()
@@ -70,8 +55,14 @@ class Model_V3_Db_Post extends Model_V3_Db
 	{
 		$this->selectUserData($user_id);
 		$result = $this->run();
-		$data = $this->decodeData($result);
-		return $data;
+		return $result;
+	}
+
+	public function getRestPost($rest_id)
+	{
+		$this->selectRestData($rest_id);
+		$result = $this->run();
+		return $result;
 	}
 
 	public function getUserCheerNum($user_id)
@@ -92,15 +83,12 @@ class Model_V3_Db_Post extends Model_V3_Db
 		->and_where('cheer_flag', '1');
 	}
 
-	private function selectNearData()
+	private function selectNearData($lon, $lat)
 	{
-		$lon = $this->position['lon'];
-		$lat = $this->position['lat'];
-
 		$this->query = DB::select(
 			'post_id',		'movie',		'thumbnail',
-			'rest_id', 		'restname',		'post_user_id',
-		 	'cheer_flag',   'post_date',
+			'rest_id', 		'restname',		'user_id',
+		 	'username',		'cheer_flag',   'post_date',
 			DB::expr("GLength(GeomFromText(CONCAT('LineString(
 				${lon} ${lat},', X(lon_lat),' ', Y(lon_lat),')'))) as distance"
 			)
@@ -109,6 +97,9 @@ class Model_V3_Db_Post extends Model_V3_Db
 
 		->join('restaurants', 'INNER')
 		->on('post_rest_id', '=', 'rest_id')
+
+		->join('users', 'INNER')
+		->on('post_user_id', '=', 'user_id')
 
 		->order_by(DB::expr("GLength(GeomFromText(CONCAT('LineString(
 			${lon} ${lat},', X(lon_lat),' ', Y(lon_lat),')')))"))
@@ -123,13 +114,16 @@ class Model_V3_Db_Post extends Model_V3_Db
 	{
 		$this->query = DB::select(
 			'post_id',		'movie',		'thumbnail',
-			'rest_id', 		'restname',		'post_user_id',
-		 	'cheer_flag',   'post_date'
+			'rest_id', 		'restname',		'user_id',
+		 	'username',		'cheer_flag',   'post_date'
 		)
 		->from(self::$table_name)
 
 		->join('restaurants', 'INNER')
 		->on('post_rest_id', '=', 'rest_id')
+
+		->join('users', 'INNER')
+		->on('post_user_id', '=', 'user_id')
 
 		->order_by('post_date','desc')
 
@@ -155,7 +149,7 @@ class Model_V3_Db_Post extends Model_V3_Db
 	{
 		$this->query = DB::select(
 			'post_id',		'movie',		'thumbnail',
-			'category',		'value',		'memo', 		
+			'category',		'value',		'memo',
 			'post_date', 	'cheer_flag',	'rest_id',
 			'restname',
 			DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat')
@@ -177,11 +171,36 @@ class Model_V3_Db_Post extends Model_V3_Db
 	}
 
 
+	private function selectRestData($rest_id)
+	{
+		$this->query = DB::select(
+			'post_id',		'movie',		'thumbnail',
+			'category',		'value',		'memo',
+			'post_date', 	'cheer_flag',	'post_rest_id',
+			'user_id',		'username'
+		)
+		->from(self::$table_name)
+
+		->join('users', 'INNER')
+		->on('post_user_id', '=', 'user_id')
+
+		->join('categories', 'LEFT OUTER')
+		->on('post_category_id', '=', 'category_id')
+
+		->order_by('post_date','desc')
+
+		->where('post_rest_id', $rest_id)
+		->and_where('post_status_flag', '1')
+
+		->limit(20);
+	}
+
+
 	// private function select_data()
 	// {
 	// 	$this->query = DB::select(
 	// 		'post_id',		'movie',		'thumbnail',
-	// 		'category',		'value',		'memo', 		
+	// 		'category',		'value',		'memo',
 	// 		'post_date', 	'cheer_flag',	'user_id',
 	// 		'username', 	'profile_img',	'rest_id',
 	// 		'restname',

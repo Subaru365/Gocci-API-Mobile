@@ -1,6 +1,6 @@
 <?php
 /**
- * Get  Class. Request SignUp, LogIn.
+ * User Model Class.
  *
  * @package    Gocci-Mobile
  * @version    3.0 (2015/11/16)
