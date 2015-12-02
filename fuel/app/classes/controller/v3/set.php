@@ -1,155 +1,218 @@
 <?php
-/*
-* SET API
-*　関数名の内容を保存します。
-*/
+/**
+ * Set Class. This class request session.
+ *
+ * @package    Gocci-Mobile
+ * @version    3.0 (2015/11/25)
+ * @author     Subaru365 (a-murata@inase-inc.jp)
+ * @license    MIT License
+ * @copyright  2015 Inase,inc.
+ * @link       https://bitbucket.org/inase/gocci-mobile-api
+ */
 
-class Controller_V3_Set extends Controller_V2_Mobile_Base
+class Controller_V3_Set extends Controller_V3_Gate
 {
-	public function action_password()
+	public function before()
 	{
-		//Input is $pass
-		Model_User::update_pass($hash_pass);
+		parent::before();
 	}
 
 
-	//SNS Link
+	public function action_password()
+	{
+		//Input is $password
+		$user 	= Model_V3_User::getInstance();
+		$result = $user->setPassword($this->req_params['password']);
+
+		$this->req_params = $result;
+		$this->output_success();
+	}
+
+
 	public function action_sns_link()
 	{
-		//$input is username, provider, token, profile_img
+		//$input is provider, token
+		$user 	= Model_V3_User::getInstance();
+		$result = $user->setSnsLink($this->req_params);
 
-		if (!empty($profile_img))
-		{
-
-		}
-
-		Model_V2_Router::set_sns();
+		$this->output_success();
 	}
 
 
 	public function action_sns_unlink()
 	{
-		//input is user_id, provider, token
+		//input is provider, token
+		$user 	= Model_V3_User::getInstance();
+		$result = $user->setSnsUnLink($this->req_params);
 
-		Model_V2_Router::unset_sns();
+		$this->output_success();
 	}
 
 
-	//Gochi!
 	public function action_gochi()
 	{
 		//Input post_id
+		$gochi = Model_V3_Db_Gochi::getInstance();
+		$post  = Model_V3_Db_Post::getInstance();
 
-			if ($user_id != $target_user_id) {
+		$result			= $gochi->setGochi($this->req_params['post_id']);
+		$post_user_id 	= $post->getPostUserId($this->req_params['post_id']);
 
-			}
+		if (session::get('user_id') != $post_user_id) {
+		//通知外部処理
+			$this->bgpNoticeGochi($this->req_params['post_id'], $post_user_id);
+		}
 
-		Model_V2_Router::set_gochi();
+		$this->req_params['gochi_id'] = $result;
+		$this->output_success();
 	}
 
 
-	//Comment
 	public function action_comment()
 	{
 		//Input post_id, comment, re_user_id
+		$comment = Model_V3_Db_Comment::getInstance();
+		$post    = Model_V3_Db_Post::getInstance();
 
-		if ($user_id != $target_user_id) {
+		$comment_id = $comment->setComment($this->req_params);
 
+		if (empty($this->req_params['re_user_id'])) {
+
+		} else {
+			$re = Model_V3_Db_Re::getInstance();
+			$re->setRe($comment_id, $this->req_params['re_user_id']);
 		}
 
-		Model_V2_Router::set_comment();
+		$post_user_id = $post->getPostUserId($this->req_params['post_id']);
+
+		if (session::get('user_id') != $post_user_id) {
+			//通知外部処理
+
+			if (!empty($this->req_params['re_user_id'])) {
+				//re_user あり
+				$this->bgpNoticeComment($this->req_params, $post_user_id);
+			} else {
+				//re_user なし
+				$this->req_params['re_user_id'] = '';
+				$this->bgpNoticeComment($this->req_params, $post_user_id);
+			}
+
+		} else if (!empty($this->req_params['re_user_id'])) {
+			$this->bgpNoticeComment($this->req_params);
+
+		} else {
+			//通知なし
+		}
+
+		$this->req_params['comment_id'] = $comment_id;
+		$this->output_success();
 	}
 
 
-	//Follow
 	public function action_follow()
 	{
 		//Input target_user_id
+		$follow = Model_V3_Db_Follow::getInstance();
+		$result = $follow->setFollow($this->req_params['user_id']);
 
-		try
-		{
-			$result = Model_Follow::post_follow($user_id, $follow_user_id);
+		$this->bgpNoticeFollow($this->req_params['user_id']);
 
-			$record = Model_Notice::post_data(
-				$keyword, $user_id, $follow_user_id);
-
-		Model_V2_Router::set_follow();
+		$this->req_params['follow_id'] = $result;
+		$this->output_success();
 	}
 
 
-	//Unfollow
 	public function action_unfollow()
 	{
 		//Input target_user_id
+		$follow = Model_V3_Db_Follow::getInstance();
+		$result = $follow->setUnFollow($this->req_params['user_id']);
 
-			$result = Model_Follow::post_unfollow($user_id, $unfollow_user_id);
-			self::success($keyword);
+		$this->bgpNoticeFollow($this->req_params['user_id']);
+
+		$this->output_success();
 	}
 
 
-	//Want
 	public function action_want()
 	{
 		//Input rest_id
-			$result = Model_Want::post_want($user_id, $rest_id);
-			self::success($keyword);
+		$want = Model_V3_Db_Want::getInstance();
+		$result = $want->setWant($this->req_params['rest_id']);
+
+		$this->req_params['want_id'] = $result;
+		$this->output_success();
 	}
 
 
-	//UnWant
 	public function action_unwant()
 	{
-		$rest_id = Input::get('rest_id');
+		//Input rest_id
+		$want = Model_V3_Db_Want::getInstance();
+		$result = $want->setUnWant($this->req_params['rest_id']);
 
-		$result = Model_Want::post_unwant($user_id, $rest_id);
-		self::success($keyword);
-
+		$this->output_success();
 	}
 
 
-	//Post
 	public function action_post()
 	{
-		//Input rest_id, movie_name, category_id, tag_id, value, memo, cheer_flag
+		//Input rest_id, movie_name, category_id, value, memo, cheer_flag
+		$post = Model_V3_Db_Post::getInstance();
 
-		$result = Model_Post::post_data(
-			$user_id, $rest_id, $movie_name,
-			$category_id, $tag_id, $value, $memo, $cheer_flag);
-		self::success($keyword);
+		$post_id = $post->setPostData($this->req_params);
+		$hash_id = Model_V3_Hash::postIdHash($post_id);
+		$post->setHashId($post_id, $hash_id);
+
+		$this->req_params['post_id'] = $post_id;
+		$this->output_success();
 	}
 
 
-	//PostBlock
-	public function action_postblock()
+	public function action_post_block()
 	{
 		//Input post_id
-		$result = Model_Block::post_block($user_id, $post_id);
-		self::success($keyword);
+		$block = Model_V3_Db_Block::getInstance();
+		$result = $block->setBlock($this->req_params['post_id']);
 
+		$this->output_success();
 	}
 
 
-	//PostDelete
-	public function action_postdel()
+	public function action_post_delete()
 	{
 		//Input post_id
+		$post = Model_V3_Db_Post::getInstance();
+		$result = $post->postDelete($this->req_params['post_id']);
 
-		$result = Model_Post::post_delete($post_id);
-		self::success($keyword);
+		$this->output_success();
 	}
 
 
-	//プロフィール編集
 	public function action_username()
 	{
 		//Input username
+		$user = Model_V3_Db_User::getInstance();
+		if ($user->check_name($this->req_params['username'])) {
+			//username 登録済み
+			$this->status = Model_V3_Status::getStatus('ERROR_USERNAME_ALREADY_REGISTERD');
+            $this->output();
+		} else {
+			$result = $user->setMyName($this->req_params['username']);
+		}
 
+		$this->output_success();
 	}
 
 
 	public function action_profile_img()
 	{
 		//Input profile_img
+		$user = Model_V3_Db_User::getInstance();
+		$result = $user->setProfileImg($this->req_params['profile_img']);
+
+		$this->req_params = $result;
+		$this->output_success();
 	}
 
 
@@ -157,8 +220,11 @@ class Controller_V3_Set extends Controller_V2_Mobile_Base
 	public function action_feedback()
 	{
 		//Input feedback
-		$result = Model_Feedback::post_add($user_id, $feedback);
-		self::success($keyword);
+		$feedback = Model_V3_Db_Feedback::getInstance();
+		$result = $feedback->setFeedback($this->req_params['feedback']);
+
+		$this->req_params['feedback_id'] = $result;
+		$this->output_success();
 	}
 
 
@@ -166,6 +232,56 @@ class Controller_V3_Set extends Controller_V2_Mobile_Base
 	public function action_rest()
 	{
 		//Input restname, lat, lon
-		$rest_id = Model_Restaurant::post_add($rest_name, $lat, $lon);
+		$rest = Model_V3_Db_Restaurant::getInstance();
+		$result = $rest->setRestData($this->req_params);
+
+		$this->req_params['rest_id'] = $result;
+		$this->output_success();
 	}
+
+	//======================================================//
+
+
+
+	private function bgpNoticeGochi($post_id, $post_user_id)
+    {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,
+            'http://localhost/v3/bgp/notice_gochi/'
+            .'?user_id='		. session::get('user_id')
+            .'&post_id='    	. "$post_id"
+            .'&post_user_id=' 	. "$post_user_id"
+        );
+        curl_exec($ch);
+        curl_close($ch);
+    }
+
+    private function bgpNoticeComment($params, $post_user_id)
+    {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,
+            'http://localhost/v3/bgp/notice_comment/'
+            .'?user_id='		. session::get('user_id')
+            .'&post_id='     	. "$params[post_id]"
+            .'&post_user_id=' 	. "$post_user_id"
+            .'&re_user_id='	 	. "$params[re_user_id]"
+        );
+        curl_exec($ch);
+        curl_close($ch);
+    }
+
+    private function bgpNoticeFollow($follow_user_id)
+    {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,
+            'http://localhost/v3/bgp/notice_follow/'
+            .'?user_id='		. session::get('user_id')
+            .'&follow_user_id=' . "$follow_user_id"
+        );
+        curl_exec($ch);
+        curl_close($ch);
+    }
 }

@@ -3,7 +3,7 @@
  * Status Code and Message list.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/10/29)
+ * @version    3.0 (2015/11/18)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -14,7 +14,7 @@
 class Model_V3_Db_User extends Model_V3_Db
 {
     use SingletonTrait;
-    
+
     /**
      * @var String $table_name
      */
@@ -41,14 +41,15 @@ class Model_V3_Db_User extends Model_V3_Db
         $result = $this->run();
 
         $last_id = $result[0]['user_id'];
-        return $last_id++;
+        $next_id = $last_id + 1;
+        return $next_id;
     }
 
     public function get_identity($user_id)
     {
         $this->select_identity($user_id);
         $result = $this->run();
-        return $result;
+        return $result[0]['identity_id'];
     }
 
     public function get_password($username)
@@ -56,6 +57,13 @@ class Model_V3_Db_User extends Model_V3_Db
         $this->select_pass($username);
         $result = $this->run();
         return $result;
+    }
+
+    public function getName($user_id)
+    {
+        $this->selectName($user_id);
+        $result = $this->run();
+        return $result[0]['username'];
     }
 
     public function getProfile($user_id)
@@ -72,13 +80,57 @@ class Model_V3_Db_User extends Model_V3_Db
         return $result;
     }
 
-    public function set_data($params)
+    public function setMyName($username)
     {
-        $this->insert_data($params);
+        $this->updateName(session::get('user_id'), $username);
         $result = $this->query->execute();
         return $result;
     }
 
+    public function setMyPassword($hash_pass)
+    {
+        $this->updatePassword(session::get('user_id'), $hash_pass);
+        $result = $this->query->execute();
+        return $result;
+    }
+
+    public function resetBadge()
+    {
+        $this->updateBadge(session::get('user_id'), 0);
+        $this->query->execute();
+    }
+
+    public function setFacebookEnable()
+    {
+        $this->updateFacebookFlag(1);
+        $this->query->execute();
+    }
+
+    public function setTwitterEnable()
+    {
+        $this->updateTwitterFlag(1);
+        $this->query->execute();
+    }
+
+    public function setFacebookDisable()
+    {
+        $this->updateFacebookFlag(0);
+        $this->query->execute();
+    }
+
+    public function setTwitterDisable()
+    {
+        $this->updateTwitterFlag(0);
+        $this->query->execute();
+    }
+
+
+    public function set_data($params)
+    {
+        $this->insert_data($params);
+        $result = $this->query->execute();
+        return $result[0];
+    }
 
 
     //SELECT
@@ -101,11 +153,11 @@ class Model_V3_Db_User extends Model_V3_Db
     }
 
     /** @param Integer $user_id */
-    private function select_name($user_id)
+    private function selectName($user_id)
     {
-        $query = DB::select('username')
+        $this->query = DB::select('username')
         ->from(self::$table_name)
-        ->where('user_id', "$user_id");
+        ->where('user_id', $user_id);
     }
 
     /** @param String $username */
@@ -166,11 +218,11 @@ class Model_V3_Db_User extends Model_V3_Db
     //UPDATE
     //-------------------------------------------------//
 
-    private function update_name($name)
+    private function updateName($id, $name)
     {
         $this->query = DB::update(self::$table_name)
-        ->value('profile_img', "$profile_img")
-        ->where('user_id', session::get('user_id'));
+        ->value('username', $name)
+        ->where('user_id', $id);
     }
 
     private function update_img($profile_img)
@@ -180,24 +232,24 @@ class Model_V3_Db_User extends Model_V3_Db
         ->where('user_id', session::get('user_id'));
     }
 
-    private function update_pass($hash_pass)
+    private function updatePassword($id, $password)
     {
         $this->query = DB::update(self::$table_name)
-        ->value('password', "$hash_pass")
+        ->value('password', "$password")
+        ->where('user_id', $id);
+    }
+
+    private function updateFacebookFlag($flag)
+    {
+        $this->query = DB::update(self::$table_name)
+        ->value('facebook_flag', $flag)
         ->where('user_id', session::get('user_id'));
     }
 
-    private function update_facebook()
+    private function updateTwitterFlag($flag)
     {
         $this->query = DB::update(self::$table_name)
-        ->value('facebook_flag', '1')
-        ->where('user_id', session::get('user_id'));
-    }
-
-    private function update_twitter()
-    {
-        $this->query = DB::update(self::$table_name)
-        ->value('twitter_flag', '1')
+        ->value('twitter_flag', $flag)
         ->where('user_id', session::get('user_id'));
     }
 
@@ -208,11 +260,11 @@ class Model_V3_Db_User extends Model_V3_Db
         ->where('user_id', session::get('user_id'));
     }
 
-    private function update_badge($user_id, $badge_num)
+    private function updateBadge($id, $badge_num)
     {
         $this->query = DB::update(self::$table_name)
         ->value('badge_num', $badge_num)
-        ->where('user_id', $user_id);
+        ->where('user_id', $id);
     }
 
 
@@ -233,11 +285,11 @@ class Model_V3_Db_User extends Model_V3_Db
         ->where('user_id', session::get('user_id'));
     }
 
-    private function delete_login($user_id)
+    private function delete_login($id)
     {
         $this->query = DB::update(self::$table_name)
         ->value('login_flag', '0')
-        ->where('user_id', "$user_id");
+        ->where('user_id', "$id");
     }
 
     private function delete_badge()
@@ -259,15 +311,5 @@ class Model_V3_Db_User extends Model_V3_Db
             'profile_img' => "$params[profile_img]",
             'identity_id' => "$params[identity_id]"
         ));
-    }
-
-
-    //==========================================================================//
-
-
-    private function encryption_pass($pass)
-    {
-        $hash_pass = password_hash($pass, PASSWORD_BCRYPT);
-        return $hash_pass;
     }
 }

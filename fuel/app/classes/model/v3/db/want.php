@@ -46,6 +46,29 @@ class Model_V3_Db_Want extends Model_V3_Db
 		return $flag;
 	}
 
+	public function getData($user_id)
+	{
+		$this->selectData($user_id);
+		$result = $this->run();
+		return $result;
+	}
+
+
+	public function setWant($rest_id)
+	{
+		$this->insertData($rest_id);
+		$result = $this->query->execute();
+		return $result[0];
+	}
+
+
+	public function setUnWant($rest_id)
+	{
+		$this->deleteData($rest_id);
+		$result = $this->query->execute();
+		return $result;
+	}
+
 	//-----------------------------------------------------//
 
 	private function selectId($user_id)
@@ -56,9 +79,9 @@ class Model_V3_Db_Want extends Model_V3_Db
 	}
 
 
-	private function get_data($user_id)
+	private function selectData($user_id)
 	{
-		$query = DB::select(
+		$this->query = DB::select(
 			'rest_id', 'restname', 'locality'
 		)
 		->from(self::$table_name)
@@ -66,34 +89,24 @@ class Model_V3_Db_Want extends Model_V3_Db
 		->join('restaurants', 'INNER')
 		->on  ('want_rest_id', '=', 'rest_id')
 
-		->where('want_user_id', "$user_id");
-
-		$want_data = $query->execute()->as_array();
-		return $want_data;
+		->where('want_user_id', $user_id);
 	}
 
-	//行きたい登録
-	private function put_want($want_rest_id)
+
+	private function insertData($rest_id)
 	{
-		$query = DB::insert(self::$table_name)
+		$this->query = DB::insert(self::$table_name)
 		->set(array(
 			'want_user_id' => session::get('user_id'),
-			'want_rest_id' => "$want_rest_id"
+			'want_rest_id' => $rest_id
 		));
-
-		$result = $query->execute();
-		return $result;
 	}
 
 
-	//行きたい解除
-	private function delete_want($want_rest_id)
+	private function deleteData($rest_id)
 	{
-		$query = DB::delete(self::$table_name)
+		$this->query = DB::delete(self::$table_name)
 		->where     ('want_user_id', session::get('user_id'))
-		->and_where ('want_rest_id', "$want_rest_id");
-
-		$result = $query->execute();
-		return $result;
+		->and_where ('want_rest_id', $rest_id);
 	}
 }

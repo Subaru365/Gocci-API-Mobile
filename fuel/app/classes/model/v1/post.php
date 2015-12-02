@@ -287,7 +287,7 @@ class Model_V1_Post extends Model
 
 	public static function get_position()
 	{
-		$query = DB::select('post_rest_id', DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat'))
+		$query = DB::select('post_rest_id', 'restname', DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat'))
 		->from('posts')
 		->join('restaurants', 'INNER')
 		->on('post_rest_id', '=', 'rest_id')

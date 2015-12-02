@@ -28,9 +28,9 @@ class Controller_V3_Auth extends Controller_V3_Public
         parent::before();
 
         $this->User    = Model_V3_Db_User::getInstance();
-        $this->Device  = new Model_V3_Db_Device();
-        $this->Cognito = new Model_V3_Aws_Cognito();
-        $this->Sns     = new Model_V3_Aws_Sns();
+        $this->Device  = Model_V3_Db_Device::getInstance();
+        $this->Cognito = Model_V3_Aws_Cognito::getInstance();
+        $this->Sns     = Model_V3_Aws_Sns::getInstance();
     }
 
     public function action_login()
@@ -106,7 +106,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         if (!empty($result)) {
             //端末登録あり
             $identity_id  = $this->User->get_identity($result[0]['device_user_id']);
-            $this->status = Model_V3_Status::getStatus('ERROR_REGISTER_ID_ALREADY_REGISTERD', $identity_id[0]);
+            $this->status = Model_V3_Status::getStatus('ERROR_REGISTER_ID_ALREADY_REGISTERD', $identity_id);
             $this->output();
         }
     }
@@ -147,8 +147,8 @@ class Controller_V3_Auth extends Controller_V3_Public
 
         } else if (password_verify($password, $hash_pass[0]['password'])) {
             //認証OK
-            $result = $this->User->get_identity($this->req_params['user_id']);
-            $this->req_params['identity_id'] = $result[0]['identity_id'];
+            $identity_id = $this->User->get_identity($this->req_params['user_id']);
+            $this->req_params['identity_id'] = $identity_id;
 
         } else {
             $this->status = Model_V3_Status::getStatus('ERROR_PASSWORD_WRONG');

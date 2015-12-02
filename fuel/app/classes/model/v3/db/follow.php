@@ -60,6 +60,37 @@ class Model_V3_Db_Follow extends Model_V3_Db
 		return $flag;
 	}
 
+	public function getFollowData($user_id)
+	{
+		$this->selectData();
+		$this->query->where('follow_a_user_id', $user_id);
+		$result = $this->run();
+		return $result;
+	}
+
+	public function getFollowerData($user_id)
+	{
+		$this->selectData();
+		$this->query->where('follow_p_user_id', $user_id);
+		$result = $this->run();
+		return $result;
+	}
+
+	public function setFollow($user_id)
+	{
+		$this->insertData($user_id);
+		$result = $this->query->execute();
+		return $result[0];
+	}
+
+
+	public function setUnFollow($user_id)
+	{
+		$this->deleteData($user_id);
+		$result = $this->query->execute();
+		return $result;
+	}
+
 	//-----------------------------------------------------//
 
 	private function selectFollowId($user_id)
@@ -84,92 +115,30 @@ class Model_V3_Db_Follow extends Model_V3_Db
 		->and_where('follow_p_user_id', $user_id);
 	}
 
-
-	//followしているユーザー情報
-	private function get_follow($target_user_id)
+	private function selectData()
 	{
 		$this->query = DB::select('user_id', 'username', 'profile_img')
 		->from ('follows')
 		->join ('users', 'INNER')
-		->on   ('follow_p_user_id', '=', 'user_id')
-		->where('follow_a_user_id', "$target_user_id");
-
-		$result 		= $this->query->execute()->as_array();
-
-		$follow_list    = self::add_flag($result);
-		return $follow_list;
+		->on   ('follow_p_user_id', '=', 'user_id');
 	}
 
 
-	//フォローされてるユーザー情報
-	private function get_follower($target_user_id)
-	{
-		$this->query = DB::select('user_id', 'username', 'profile_img')
-		->from ('follows')
-		->join ('users', 'INNER')
-		->on   ('follow_a_user_id', '=', 'user_id')
-		->where('follow_p_user_id', "$target_user_id");
-
-		$result			= $this->query->execute()->as_array();
-
-		$follower_list  = self::add_flag($result);
-		return $follower_list;
-	}
-
-
-
-
-
-	//フォロワー数を返す
-	private function get_follower_num($user_id)
-	{
-		$this->query = DB::select('follow_id')
-		->from ('follows')
-		->where('follow_p_user_id', "$user_id");
-
-		$result = $this->query->execute()->as_array();
-
-		$follower_num = count($result);
-		return $follower_num;
-	}
-
-
-	//フォロー登録
-	private function put_data($user_id)
+	private function insertData($user_id)
 	{
 		$this->query = DB::insert('follows')
 		->set(array(
 			'follow_a_user_id' => session::get('user_id'),
-			'follow_p_user_id' => "$target_user_id"
+			'follow_p_user_id' => $user_id
 		));
-
-		$result = $this->query->execute();
-		return $result;
 	}
 
 
-	//フォロー解除
-	private function delete_data($user_id)
+	private function deleteData($user_id)
 	{
 		$this->query = DB::delete('follows')
 		->where     ('follow_a_user_id', session::get('user_id'))
-		->and_where ('follow_p_user_id', "$target_user_id");
-
-		$result = $this->query->execute();
-		return $result;
+		->and_where ('follow_p_user_id', $user_id);
 	}
 
-
-	//------------------------------------------------------------//
-	protected static function add_flag($data)
-	{
-		$num = count($data);
-
-		for ($i=0; $i < $num; $i++) {
-			$data[$i]['profile_img'] = Model_Transcode::decode_profile_img($data[$i]['profile_img']);
-			$data[$i]['follow_flag'] = self::get_flag($data[$i]['user_id']);
-		}
-
-		return $data;
-	}
 }
