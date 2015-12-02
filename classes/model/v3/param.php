@@ -3,7 +3,7 @@
  * Parameter list of uri.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/17)
+ * @version    3.0 (2015/11/26)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -12,6 +12,8 @@
 
 class Model_V3_Param extends Model
 {
+	use SingletonTrait;
+
 	/**
 	 * @var $uri
 	 */
@@ -32,19 +34,17 @@ class Model_V3_Param extends Model
 	 */
 	private $res_param = array();
 
-
 	/**
-	 * @var Instance $Val
+	 * @var Instance $val
 	 */
-	private $Val;
+	private $val;
 
-
-
-
-	public function __construct()
+	private function __construct()
 	{
 		$this->uri = Uri::string();
 	}
+
+
 
 
 	//======================================================//
@@ -56,7 +56,13 @@ class Model_V3_Param extends Model
 		$this->Val = Validation::forge('request');
 
 		$this->setRequest();
-		$this->check($this->val_param);
+
+		if ($this->val_param) {
+			$this->check($this->val_param);
+
+		} else {
+			return true;
+		}
 
 		return $this->safe_param;
 	}
@@ -67,59 +73,183 @@ class Model_V3_Param extends Model
 	{
 		switch ($this->uri) {
 
+			case 'v3/public/update_device':
+				$this->getReq_public_update_device();
+				$this->setReq_public_update_device();
+				break;
+
 			case 'v3/auth/login':
-				$this->getReq_login();
-				$this->setReq_login();
+				$this->getReq_auth_login();
+				$this->setReq_auth_login();
 				break;
 
 			case 'v3/auth/check':
-				$this->getReq_check();
-				$this->setReq_check();
+				$this->getReq_auth_check();
+				$this->setReq_auth_check();
 				break;
 
 			case 'v3/auth/signup':
-				$this->getReq_signup();
-				$this->setReq_signup();
+				$this->getReq_auth_signup();
+				$this->setReq_auth_signup();
 				break;
 
 			case 'v3/auth/sns_login':
-				$this->getReq_sns_login();
-				$this->setReq_sns_login();
+				$this->getReq_auth_sns_login();
+				$this->setReq_auth_sns_login();
 				break;
 
 			case 'v3/auth/pass_login':
-				$this->getReq_pass_login();
-				$this->setReq_pass_login();
+				$this->getReq_auth_pass_login();
+				$this->setReq_auth_pass_login();
 				break;
 
 			case 'v3/get/nearline':
-				$this->getReq_nearline();
-				$this->setReq_nearline();
+				$this->getReq_get_nearline();
+				$this->setReq_get_nearline();
 				break;
 
 			case 'v3/get/followline':
-				$this->getReq_followline();
-				$this->setReq_followline();
+				$this->getReq_get_followline();
+				$this->setReq_get_followline();
 				break;
 
 			case 'v3/get/timeline':
-				$this->getReq_timeline();
-				$this->setReq_timeline();
+				$this->getReq_get_timeline();
+				$this->setReq_get_timeline();
 				break;
 
 			case 'v3/get/user':
-				$this->getReq_user();
-				$this->setReq_user();
+				$this->getReq_get_user();
+				$this->setReq_get_user();
 				break;
 
 			case 'v3/get/rest':
-				$this->getReq_Rest();
-				$this->setReq_Rest();
+				$this->getReq_get_rest();
+				$this->setReq_get_rest();
 				break;
 
+			case 'v3/get/comment':
+				$this->getReq_get_comment();
+				$this->setReq_get_comment();
+				break;
 
 			case 'v3/get/heatmap':
 				break;
+
+			case 'v3/get/notice':
+				break;
+
+			case 'v3/get/follow':
+				$this->getReq_get_follow();
+				$this->setReq_get_follow();
+				break;
+
+			case 'v3/get/follower':
+				$this->getReq_get_follower();
+				$this->setReq_get_follower();
+				break;
+
+			case 'v3/get/want':
+				$this->getReq_get_want();
+				$this->setReq_get_want();
+				break;
+
+			case 'v3/get/user_cheer':
+				$this->getReq_get_user_cheer();
+				$this->setReq_get_user_cheer();
+				break;
+
+			case 'v3/get/near':
+				$this->getReq_get_near();
+				$this->setReq_get_near();
+				break;
+
+			case 'v3/set/password':
+				$this->getReq_set_password();
+				$this->setReq_set_password();
+				break;
+
+			case 'v3/set/register_id':
+				$this->getReq_set_register_id();
+				$this->setReq_set_register_id();
+				break;			
+
+			case 'v3/set/sns_link':
+				$this->getReq_set_sns_link();
+				$this->setReq_set_sns_link();
+				break;
+
+			case 'v3/set/sns_unlink':
+				$this->getReq_set_sns_unlink();
+				$this->setReq_set_sns_unlink();
+				break;
+
+			case 'v3/set/gochi':
+				$this->getReq_set_gochi();
+				$this->setReq_set_gochi();
+				break;
+
+			case 'v3/set/comment':
+				$this->getReq_set_comment();
+				$this->setReq_set_comment();
+				break;
+
+			case 'v3/set/follow':
+				$this->getReq_set_follow();
+				$this->setReq_set_follow();
+				break;
+
+			case 'v3/set/unfollow':
+				$this->getReq_set_unfollow();
+				$this->setReq_set_unfollow();
+				break;
+
+			case 'v3/set/want':
+				$this->getReq_set_want();
+				$this->setReq_set_want();
+				break;
+
+			case 'v3/set/unwant':
+				$this->getReq_set_unwant();
+				$this->setReq_set_unwant();
+				break;
+
+			case 'v3/set/post':
+				$this->getReq_set_post();
+				$this->setReq_set_post();
+				break;
+
+			case 'v3/set/post_block':
+				$this->getReq_set_post_block();
+				$this->setReq_set_post_block();
+				break;
+
+			case 'v3/set/post_delete':
+				$this->getReq_set_post_delete();
+				$this->setReq_set_post_delete();
+				break;
+
+			case 'v3/set/username':
+				$this->getReq_set_username();
+				$this->setReq_set_username();
+				break;
+
+			case 'v3/set/profile_img':
+				$this->getReq_set_profile_img();
+				$this->setReq_set_profile_img();
+				break;
+
+			case 'v3/set/feedback':
+				$this->getReq_set_feedback();
+				$this->setReq_set_feedback();
+				break;
+
+			case 'v3/set/rest':
+				$this->getReq_set_rest();
+				$this->setReq_set_rest();
+				break;
+
+
 
 			default:
 				Model_V3_Status::getStatus();
@@ -128,113 +258,310 @@ class Model_V3_Param extends Model
 	}
 
 
-	// Request Params
+	// Get Request Params
 	//-----------------------------------------------------//
 
-	private function getReq_login()
+	private function getReq_public_update_device()
 	{
 		$this->val_param = array(
-			'identity_id' => Input::get('identity_id'),
+			'user_id' 		=> Input::get('user_id'),
+			'os'			=> Input::get('os'),
+			'ver' 			=> Input::get('ver'),
+			'model'			=> Input::get('model'),
+			'register_id' 	=> Input::get('register_id'),
 		);
 	}
 
-	private function getReq_check()
+	private function getReq_auth_login()
 	{
 		$this->val_param = array(
-			'register_id' => Input::get('register_id'),
+			'identity_id' 	=> Input::get('identity_id'),
 		);
 	}
 
-	private function getReq_signup()
+	private function getReq_auth_check()
 	{
 		$this->val_param = array(
-			'username' 	  => Input::get('username'),
-			'os' 		  => Input::get('os'),
-			'ver'		  => Input::get('ver'),
-			'model' 	  => Input::get('model'),
-			'register_id' => Input::get('register_id'),
+			'register_id' 	=> Input::get('register_id'),
 		);
 	}
 
-	private function getReq_sns_login()
+	private function getReq_auth_signup()
 	{
 		$this->val_param = array(
-			'identity_id' => Input::get('identity_id'),
-			'os' 		  => Input::get('os'),
-			'ver' 		  => Input::get('ver'),
-			'model' 	  => Input::get('model'),
-			'register_id' => Input::get('register_id'),
+			'username' 	  	=> Input::get('username'),
+			'os' 		  	=> Input::get('os'),
+			'ver'		  	=> Input::get('ver'),
+			'model' 	  	=> Input::get('model'),
+			'register_id' 	=> Input::get('register_id'),
 		);
 	}
 
-	private function getReq_pass_login()
+	private function getReq_auth_sns_login()
 	{
 		$this->val_param = array(
-			'username' 	  => Input::get('username'),
-			'password'    => Input::get('password'),
-			'os' 		  => Input::get('os'),
-			'ver' 		  => Input::get('ver'),
-			'model' 	  => Input::get('model'),
-			'register_id' => Input::get('register_id'),
+			'identity_id' 	=> Input::get('identity_id'),
+			'os' 		  	=> Input::get('os'),
+			'ver' 		  	=> Input::get('ver'),
+			'model' 	  	=> Input::get('model'),
+			'register_id' 	=> Input::get('register_id'),
 		);
 	}
 
-	private function getReq_nearline()
+	private function getReq_auth_pass_login()
+	{
+		$this->val_param = array(
+			'username' 	  	=> Input::get('username'),
+			'password'    	=> Input::get('password'),
+			'os' 		  	=> Input::get('os'),
+			'ver' 		  	=> Input::get('ver'),
+			'model' 	 	=> Input::get('model'),
+			'register_id' 	=> Input::get('register_id'),
+		);
+	}
+
+	private function getReq_get_nearline()
 	{
 		$this->val_param = array(
 			'lon' 	     	=> Input::get('lon'),
 			'lat' 	     	=> Input::get('lat'),
 			'category_id'	=> Input::get('category_id'),
-			'valuse_id'  	=> Input::get('valuse_id'),
+			'value_id'  	=> Input::get('value_id'),
 			'page' 	     	=> Input::get('page'),
 		);
 	}
 
-	private function getReq_followline()
+	private function getReq_get_followline()
 	{
 		$this->val_param = array(
 			'category_id'	=> Input::get('category_id'),
-			'valuse_id'  	=> Input::get('valuse_id'),
+			'value_id'  	=> Input::get('value_id'),
 			'page' 	     	=> Input::get('page'),
 		);
 	}
 
-	private function getReq_timeline()
+	private function getReq_get_timeline()
 	{
 		$this->val_param = array(
 			'category_id'	=> Input::get('category_id'),
-			'valuse_id'  	=> Input::get('valuse_id'),
+			'value_id'  	=> Input::get('value_id'),
 			'page' 	     	=> Input::get('page'),
 		);
 	}
 
-	private function getReq_user()
+	private function getReq_get_user()
 	{
 		$this->val_param = array(
 			'user_id' 		=> Input::get('user_id'),
 		);
 	}
 
-	private function getReq_rest()
+	private function getReq_get_rest()
 	{
 		$this->val_param = array(
 			'rest_id' 		=> Input::get('rest_id'),
 		);
 	}
 
+	private function getReq_get_comment()
+	{
+		$this->val_param = array(
+			'post_id'		=> Input::get('post_id'),
+		);
+	}
+
+	private function getReq_get_follow()
+	{
+		$this->val_param = array(
+			'user_id'		=> Input::get('user_id'),
+		);
+	}
+
+	private function getReq_get_follower()
+	{
+		$this->val_param = array(
+			'user_id'		=> Input::get('user_id'),
+		);
+	}
+
+	private function getReq_get_want()
+	{
+		$this->val_param = array(
+			'user_id'		=> Input::get('user_id'),
+		);
+	}
+
+	private function getReq_get_user_cheer()
+	{
+		$this->val_param = array(
+			'user_id' 		=> Input::get('user_id'),
+		);
+	}
+
+	private function getReq_get_near()
+	{
+		$this->val_param = array(
+			'lon' 			=> Input::get('lon'),
+			'lat' 			=> Input::get('lat'),
+		);
+	}
+
+	private function getReq_set_password()
+	{
+		$this->val_param = array(
+			'password' 		=> Input::get('password'),
+		);
+	}
+
+	private function getReq_set_register_id()
+	{
+		$this->val_param = array(
+			'register_id' 	=> Input::get('register_id'),
+		);
+	}
+
+	private function getReq_set_sns_link()
+	{
+		$this->val_param = array(
+			'provider' 		=> Input::get('provider'),
+			'sns_token' 	=> Input::get('sns_token'),
+		);
+	}
+
+	private function getReq_set_sns_unlink()
+	{
+		$this->val_param = array(
+			'provider' 		=> Input::get('provider'),
+			'sns_token' 	=> Input::get('sns_token'),
+		);
+	}
+
+	private function getReq_set_gochi()
+	{
+		$this->val_param = array(
+			'post_id' 		=> Input::get('post_id'),
+		);
+	}
+
+	private function getReq_set_comment()
+	{
+		$this->val_param = array(
+			'post_id' 		=> Input::get('post_id'),
+			'comment' 		=> Input::get('comment'),
+			're_user_id' 	=> Input::get('re_user_id'),
+		);
+	}
+
+	private function getReq_set_follow()
+	{
+		$this->val_param = array(
+			'user_id' 		=> Input::get('user_id'),
+		);
+	}
+
+	private function getReq_set_unfollow()
+	{
+		$this->val_param = array(
+			'user_id' 		=> Input::get('user_id'),
+		);
+	}
+
+	private function getReq_set_want()
+	{
+		$this->val_param = array(
+			'rest_id' 		=> Input::get('rest_id'),
+		);
+	}
+
+	private function getReq_set_unwant()
+	{
+		$this->val_param = array(
+			'rest_id' 		=> Input::get('rest_id'),
+		);
+	}
+
+	private function getReq_set_post()
+	{
+		$this->val_param = array(
+			'rest_id' 		=> Input::get('rest_id'),
+			'movie_name' 	=> Input::get('movie_name'),
+			'category_id' 	=> Input::get('category_id'),
+			'value' 		=> Input::get('value'),
+			'memo' 			=> Input::get('memo'),
+			'cheer_flag' 	=> Input::get('cheer_flag'),
+		);
+	}
+
+	private function getReq_set_post_block()
+	{
+		$this->val_param = array(
+			'post_id' 		=> Input::get('post_id'),
+		);
+	}
+
+	private function getReq_set_post_delete()
+	{
+		$this->val_param = array(
+			'post_id' 		=> Input::get('post_id'),
+		);
+	}
+
+	private function getReq_set_username()
+	{
+		$this->val_param = array(
+			'username' 		=> Input::get('username'),
+		);
+	}
+
+	private function getReq_set_profile_img()
+	{
+		$this->val_param = array(
+			'url' 		=> Input::get('url'),
+		);
+	}
+
+	private function getReq_set_feedback()
+	{
+		$this->val_param = array(
+			'feedback' 		=> Input::get('feedback'),
+		);
+	}
+
+	private function getReq_set_rest()
+	{
+		$this->val_param = array(
+			'restname' 		=> Input::get('restname'),
+			'lon'	 		=> Input::get('lon'),
+			'lat' 			=> Input::get('lat'),
+		);
+	}
 
 
-	private function setReq_login()
+
+	// Set Regex Request Params
+	//-----------------------------------------------------//
+
+	private function setReq_public_update_device()
+	{
+		$this->regex_user_id();
+		$this->regex_os();
+		$this->regex_ver();
+		$this->regex_model();
+		$this->regex_register_id();
+	}
+
+
+	private function setReq_auth_login()
 	{
 		$this->regex_identity_id();
 	}
 
-	private function setReq_check()
+	private function setReq_auth_check()
 	{
 		$this->regex_register_id();
 	}
 
-	private function setReq_signup()
+	private function setReq_auth_signup()
 	{
 		$this->regex_username();
 		$this->regex_os();
@@ -243,7 +570,7 @@ class Model_V3_Param extends Model
 		$this->regex_register_id();
 	}
 
-	private function setReq_sns_login()
+	private function setReq_auth_sns_login()
 	{
 		$this->regex_identity_id();
 		$this->regex_os();
@@ -252,14 +579,14 @@ class Model_V3_Param extends Model
 		$this->regex_register_id();
 	}
 
-	private function setReq_pass_login()
+	private function setReq_auth_pass_login()
 	{
 		$this->regex_username();
 		$this->regex_password();
 		$this->regex_register_id();
 	}
 
-	private function setReq_nearline()
+	private function setReq_get_nearline()
 	{
 		$this->regex_lat();
 		$this->regex_lon();
@@ -268,28 +595,155 @@ class Model_V3_Param extends Model
 		$this->regex_page();
 	}
 
-	private function setReq_followline()
+	private function setReq_get_followline()
 	{
 		$this->regex_category_id();
 		$this->regex_value_id();
 		$this->regex_page();
 	}
 
-	private function setReq_timeline()
+	private function setReq_get_timeline()
 	{
 		$this->regex_category_id();
 		$this->regex_value_id();
 		$this->regex_page();
 	}
 
-	private function setReq_user()
+	private function setReq_get_user()
 	{
 		$this->regex_user_id();
 	}
 
-	private function setReq_rest()
+	private function setReq_get_rest()
 	{
 		$this->regex_rest_id();
+	}
+
+	private function setReq_get_comment()
+	{
+		$this->regex_post_id();
+	}
+
+	private function setReq_get_follow()
+	{
+		$this->regex_user_id();
+	}
+
+	private function setReq_get_follower()
+	{
+		$this->regex_user_id();
+	}
+
+	private function setReq_get_want()
+	{
+		$this->regex_user_id();
+	}
+
+	private function setReq_get_user_cheer()
+	{
+		$this->regex_user_id();
+	}
+
+	private function setReq_get_near()
+	{
+		$this->regex_lon();
+		$this->regex_lat();
+	}
+
+	private function setReq_set_password()
+	{
+		$this->regex_password();
+	}
+
+	private function setReq_set_register_id()
+	{
+		$this->regex_register_id();
+	}
+
+	private function setReq_set_sns_link()
+	{
+		$this->regex_provider();
+		$this->regex_sns_token();
+	}
+
+	private function setReq_set_sns_unlink()
+	{
+		$this->regex_provider();
+		$this->regex_sns_token();
+	}
+
+	private function setReq_set_gochi()
+	{
+		$this->regex_post_id();
+	}
+
+	private function setReq_set_comment()
+	{
+		$this->regex_post_id();
+		$this->regex_comment();
+		$this->regex_re_user_id();
+	}
+
+	private function setReq_set_follow()
+	{
+		$this->regex_user_id();
+	}
+
+	private function setReq_set_unfollow()
+	{
+		$this->regex_user_id();
+	}
+
+	private function setReq_set_want()
+	{
+		$this->regex_rest_id();
+	}
+
+	private function setReq_set_unwant()
+	{
+		$this->regex_rest_id();
+	}
+
+	private function setReq_set_post()
+	{
+		$this->regex_rest_id();
+		$this->regex_movie_name();
+		$this->regex_category_id();
+		$this->regex_value();
+		$this->regex_memo();
+		$this->regex_cheer_flag();
+	}
+
+	private function setReq_set_post_block()
+	{
+		$this->regex_post_id();
+	}
+
+	private function setReq_set_post_delete()
+	{
+		$this->regex_post_id();
+	}
+
+	private function setReq_set_username()
+	{
+		$this->regex_username();
+	}
+
+	private function setReq_set_profile_img()
+	{
+		$this->regex_url();
+	}
+
+	private function setReq_set_feedback()
+	{
+		$this->regex_feedback();
+	}
+
+	private function setReq_set_rest()
+	{
+		$this->regex_restname();
+		$this->regex_lon();
+		$this->regex_lat();
 	}
 
 	//======================================================//
@@ -305,43 +759,43 @@ class Model_V3_Param extends Model
 		return $this->safe_param;
 	}
 
-	//-----------------------------------------------------//
+	// //-----------------------------------------------------//
 
-	private function set_responce()
-	{
-		switch ($this->uri) {
+	// private function set_responce()
+	// {
+	// 	switch ($this->uri) {
 
-			case 'v3/auth/login':
-				$this->set_res_login();
-				break;
+	// 		case 'v3/auth/login':
+	// 			$this->set_res_login();
+	// 			break;
 
-			case 'v3/auth/check':
-				break;
+	// 		case 'v3/auth/check':
+	// 			break;
 
-			case 'v3/auth/signup':
-				$this->set_res_signup();
-				break;
+	// 		case 'v3/auth/signup':
+	// 			$this->set_res_signup();
+	// 			break;
 
-			case 'v3/auth/sns_login':
-				$this->set_res_sns_login();
-				break;
+	// 		case 'v3/auth/sns_login':
+	// 			$this->set_res_sns_login();
+	// 			break;
 
-			case 'v3/auth/pass_login':
-				$this->set_res_pass_login();
-				break;
+	// 		case 'v3/auth/pass_login':
+	// 			$this->set_res_pass_login();
+	// 			break;
 
-			case '/v3/get/nearline':
-				break;
+	// 		case '/v3/get/nearline':
+	// 			break;
 
-			case 'v3/get/heatmap':
-				break;
+	// 		case 'v3/get/heatmap':
+	// 			break;
 
 
-			default:
-				//Model_V3_Status::ERROR_CONNECTION_FAILED();
-				break;
-		}
-	}
+	// 		default:
+	// 			//Model_V3_Status::ERROR_CONNECTION_FAILED();
+	// 			break;
+	// 	}
+	// }
 
 
 	// Responce Params
@@ -396,45 +850,45 @@ class Model_V3_Param extends Model
 	// }
 
 
-	private function set_res_signup()
-	{
-		$this->regex_user_id();
-		$this->regex_username();
-		$this->regex_profile_img();
-		$this->regex_identity_id();
-		$this->regex_badge_num();
-		$this->regex_cognito_token();
-	}
+	// private function set_res_signup()
+	// {
+	// 	$this->regex_user_id();
+	// 	$this->regex_username();
+	// 	$this->regex_profile_img();
+	// 	$this->regex_identity_id();
+	// 	$this->regex_badge_num();
+	// 	$this->regex_cognito_token();
+	// }
 
-	private function set_res_login()
-	{
-		$this->regex_user_id();
-		$this->regex_username();
-		$this->regex_profile_img();
-		$this->regex_identity_id();
-		$this->regex_badge_num();
-		$this->regex_cognito_token();
-	}
+	// private function set_res_login()
+	// {
+	// 	$this->regex_user_id();
+	// 	$this->regex_username();
+	// 	$this->regex_profile_img();
+	// 	$this->regex_identity_id();
+	// 	$this->regex_badge_num();
+	// 	$this->regex_cognito_token();
+	// }
 
-	private function set_res_sns_login()
-	{
-		$this->regex_user_id();
-		$this->regex_username();
-		$this->regex_profile_img();
-		$this->regex_identity_id();
-		$this->regex_badge_num();
-		$this->regex_cognito_token();
-	}
+	// private function set_res_sns_login()
+	// {
+	// 	$this->regex_user_id();
+	// 	$this->regex_username();
+	// 	$this->regex_profile_img();
+	// 	$this->regex_identity_id();
+	// 	$this->regex_badge_num();
+	// 	$this->regex_cognito_token();
+	// }
 
-	private function set_res_pass_login()
-	{
-		$this->regex_user_id();
-		$this->regex_username();
-		$this->regex_profile_img();
-		$this->regex_identity_id();
-		$this->regex_badge_num();
-		$this->regex_cognito_token();
-	}
+	// private function set_res_pass_login()
+	// {
+	// 	$this->regex_user_id();
+	// 	$this->regex_username();
+	// 	$this->regex_profile_img();
+	// 	$this->regex_identity_id();
+	// 	$this->regex_badge_num();
+	// 	$this->regex_cognito_token();
+	// }
 
 	//======================================================//
 	// RegEx methods
@@ -448,13 +902,11 @@ class Model_V3_Param extends Model
 		->add_rule('match_pattern', '/^[0-9]+$/');
 	}
 
-	private function regex_rest_id()
+	private function regex_re_user_id()
 	{
 		$this->Val
-		->add('rest_id', 'GET rest_id')
-		->add_rule('required')
+		->add('re_user_id', 'GET re_user_id')
 		->add_rule('match_pattern', '/^[0-9]+$/');
-
 	}
 
 	private function regex_username()
@@ -462,8 +914,8 @@ class Model_V3_Param extends Model
 		$this->Val
 		->add('username', 'GET username')
 		->add_rule('required')
-		->add_rule('match_pattern', '/^\S{4,20}$/');
-		# /^\S{3,15}$/
+		->add_rule('match_pattern', '/^[\S\s]{4,20}$/');
+		# /^[\S\s]{3,15}$/
 	}
 
 	private function regex_password()
@@ -482,7 +934,7 @@ class Model_V3_Param extends Model
 		->add_rule('match_pattern', '/^us-east-1:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/');
 	}
 
-	private function regex_profile_img()
+	private function regex_url()
 	{
 		$this->Val
 		->add('profile_img', 'GET profile_img')
@@ -506,6 +958,22 @@ class Model_V3_Param extends Model
 		->add_rule('match_pattern', '/^[a-zA-Z0-9_.-]{400,2200}$/');
 	}
 
+	private function regex_provider()
+	{
+		$this->Val
+		->add('provider', 'GET provider')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^(api.twitter.com)|(graph.facebook.com)$/');
+	}
+
+	private function regex_sns_token()
+	{
+		$this->Val
+		->add('sns_token', 'GET sns_token')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^\S{20,4000}$/');
+	}
+
 	private function regex_os()
 	{
 		$this->Val
@@ -519,7 +987,7 @@ class Model_V3_Param extends Model
 		$this->Val
 		->add('ver', 'GET ver')
 		->add_rule('required')
-		->add_rule('match_pattern', '/^\d+\.\d+$/');
+		->add_rule('match_pattern', '/^[0-9.]{0,6}$/');
 	}
 
 	private function regex_model()
@@ -527,7 +995,7 @@ class Model_V3_Param extends Model
 		$this->Val
 		->add('model', 'GET model')
 		->add_rule('required')
-		->add_rule('match_pattern', '/^[a-zA-Z0-9_-]{0,10}$/');
+		->add_rule('match_pattern', '/^[\S\s]{0,50}$/');
 	}
 
 	private function regex_register_id()
@@ -536,6 +1004,22 @@ class Model_V3_Param extends Model
 		->add('register_id', 'GET register_id')
 		->add_rule('required')
 		->add_rule('match_pattern', '/^([a-f0-9]{64})|([a-zA-Z0-9:_-]{140,250})$/');
+	}
+
+	private function regex_rest_id()
+	{
+		$this->Val
+		->add('rest_id', 'GET rest_id')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[0-9]+$/');
+	}
+
+	private function regex_restname()
+	{
+		$this->Val
+		->add('restname', 'GET restname')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[\S\s]{2,30}$/u');
 	}
 
 	private function regex_lon()
@@ -554,6 +1038,22 @@ class Model_V3_Param extends Model
 		->add_rule('match_pattern', '/^[0-9.]+$/');
 	}
 
+	private function regex_post_id()
+	{
+		$this->Val
+		->add('post_id', 'GET post_id')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[0-9]+$/');
+	}
+
+	private function regex_movie_name()
+	{
+		$this->Val
+		->add('movie_name', 'GET movie_name')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[0-9_-]+$/');
+	}
+
 	private function regex_category_id()
 	{
 		$this->Val
@@ -568,6 +1068,13 @@ class Model_V3_Param extends Model
 		->add_rule('match_pattern', '/^[0-9]$/');
 	}
 
+	private function regex_value()
+	{
+		$this->Val
+		->add('value_id', 'GET value_id')
+		->add_rule('match_pattern', '/^[0-9]{0,7}$/');
+	}
+
 	private function regex_page()
 	{
 		$this->Val
@@ -575,20 +1082,51 @@ class Model_V3_Param extends Model
 		->add_rule('match_pattern', '/^[0-9]$/');
 	}
 
+	private function regex_comment()
+	{
+		$this->Val
+		->add('comment', 'GET comment')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[\S\s]{2,140}$/u');
+	}
+
+	private function regex_memo()
+	{
+		$this->Val
+		->add('memo', 'GET memo')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[\S\s]{2,140}$/u');
+	}
+
+	private function regex_feedback()
+	{
+		$this->Val
+		->add('feedback', 'GET feedback')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[\S\s]{4,300}$/u');
+	}
+
+	private function regex_cheer_flag()
+	{
+		$this->Val
+		->add('cheer_flag', 'GET cheer_flag')
+		->add_rule('match_pattern', '/^[01]$/');
+	}
+
 	//======================================================//
 
 	//Valodation Check
 	private function check($val_param)
 	{
-		$Val = $this->Val;
+		$val = $this->Val;
 
-		if($Val->run($val_param)){
+		if($val->run($val_param)){
 		    //OK
 		    $this->safe_param = $val_param;
 
 		}else{
 			//エラー 形式不備
-		    foreach($Val->error() as $key=>$value){
+		    foreach($val->error() as $key=>$value){
 		    	$keys[]		= $key;
 		    	$messages[] = $value;
 		    }

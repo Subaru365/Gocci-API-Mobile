@@ -28,9 +28,9 @@ class Model_V3_Post extends Model
 		$this->post = Model_V3_Db_Post::getInstance();
 	}
 
-	public function getNearline($lon, $lat)
+	public function getNearline($params)
 	{
-		$posts = $this->post->getNearPost($lon, $lat);
+		$posts = $this->post->getNearPost($params);
 		$posts = $this->decodeDistance($posts);
 		$posts = $this->decodeData($posts);
 		$posts = $this->addGochiFlag($posts);
@@ -38,18 +38,18 @@ class Model_V3_Post extends Model
 		return $posts;
 	}
 
-	public function getFollowline($user_id)
+	public function getFollowline($params)
 	{
-		$posts = $this->post->getFollowPost($user_id);
+		$posts = $this->post->getFollowPost($params);
 		$posts = $this->decodeData($posts);
 		$posts = $this->addGochiFlag($posts);
 
 		return $posts;
 	}
 
-	public function getTimeline()
+	public function getTimeline($params)
 	{
-		$posts = $this->post->getTimePost();
+		$posts = $this->post->getTimePost($params);
 		$posts = $this->decodeData($posts);
 		$posts = $this->addGochiFlag($posts);
 
@@ -68,13 +68,45 @@ class Model_V3_Post extends Model
 	public function getRestPost($rest_id)
 	{
 		$posts = $this->post->getRestPost($rest_id);
+		$posts = $this->decodeProfile($posts);
 		$posts = $this->decodeData($posts);
 		$posts = $this->addStatus($posts);
 
 		return $posts;
 	}
 
+	public function getMemo($post_id)
+	{
+		$memo = $this->post->getMemo($post_id);
+		$memo[0]['profile_img']	= Model_V3_Transcode::decode_profile_img($memo[0]['profile_img']);
+		$memo[0]['post_date'] 	= Model_V3_Transcode::decode_date($memo[0]['post_date']);
+
+		return $memo[0];
+	}
+
 	//----------------------------------------------------------------------------//
+
+	private function decodeDistance($data)
+	{
+		$post_num  = count($data);
+
+		for ($i=0; $i < $post_num; $i++) {
+			$dis  		= $data[$i]['distance'];
+			$dis_meter	= $dis * 112120;
+			$data[$i]['distance'] = round($dis_meter);
+		}
+		return $data;
+	}
+
+	private function decodeProfile($data)
+	{
+		$post_num  = count($data);
+
+		for ($i=0; $i < $post_num; $i++) {
+			$data[$i]['profile_img']	= Model_V3_Transcode::decode_profile_img($data[$i]['profile_img']);
+		}
+		return $data;
+	}
 
 	private function decodeData($data)
 	{
@@ -85,18 +117,6 @@ class Model_V3_Post extends Model
 			$data[$i]['hls_movie']  = Model_V3_Transcode::decode_hls_movie($data[$i]['movie']);
 			$data[$i]['thumbnail']  = Model_V3_Transcode::decode_thumbnail($data[$i]['thumbnail']);
 			$data[$i]['post_date']  = Model_V3_Transcode::decode_date($data[$i]['post_date']);
-		}
-		return $data;
-	}
-
-	private function decodeDistance($data)
-	{
-		$post_num  = count($data);
-
-		for ($i=0; $i < $post_num; $i++) {
-			$dis  		= $data[$i]['distance'];
-			$dis_meter	= $dis * 112120;
-			$data[$i]['distance'] = round($dis_meter);
 		}
 		return $data;
 	}

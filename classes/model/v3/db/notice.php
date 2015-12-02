@@ -1,57 +1,80 @@
 <?php
+/**
+ * Db-Notice Model Class.
+ *
+ * @package    Gocci-Mobile
+ * @version    3.0 (2015/11/17)
+ * @author     Subaru365 (a-murata@inase-inc.jp)
+ * @license    MIT License
+ * @copyright  2015 Inase,inc.
+ * @link       https://bitbucket.org/inase/gocci-mobile-api
+ */
 
-class Model_Notice extends Model
+class Model_V3_Db_Notice extends Model_V3_Db
 {
-    public static function get_data()
-    {
-        $query = DB::select(
-    		    'notice_id',  'notice_a_user_id',  'username',  'profile_img',
-            'notice',     'notice_post_id',    'read_flag', 'notice_date'
-        )
-        ->from('notices')
+	use SingletonTrait;
 
-        ->join('users', 'INNER')
-        ->on('notice_a_user_id', '=', 'user_id')
+	/**
+	 * @var String
+	 */
+	private static $table_name = 'notices';
 
-        ->join('posts', 'INNER')
-        ->on('notice_post_id', '=', 'post_id')
+	/**
+	 * @var like OR comment OR follow
+	 */
+	public $type = '';
 
-        ->order_by('notice_date','desc')
 
-        ->limit('15')
-        ->where('notice_p_user_id', session::get('user_id'))
-        ->where('post_status_flag', '1');
+	public function getMyNotice()
+	{
+		$this->selectData(session::get('user_id'));
+		$result = $this->run();
+		return $result;
+	}
 
-        $notice_data = $query->execute()->as_array();
-    		return $notice_data;
+	public function setNotice($a_user_id, $p_user_id, $post_id = 1)
+	{
+		if (!empty($this->notice)) {
+			$this->insertData($a_user_id, $p_user_id, $post_id);
+			$this->query->execute();
+		} else {
+			exit();
+		}
+	}
+
+
+	private function selectData($user_id)
+	{
+		$this->query = DB::select(
+			'notice_id',	'user_id',	'username',
+			'profile_img',	'notice',	'notice_post_id',
+			'notice_date'
+		)
+		->from(self::$table_name)
+
+		->join('users', 'INNER')
+		->on('notice_a_user_id', '=', 'user_id')
+
+		->join('posts', 'INNER')
+		->on('notice_post_id', '=', 'post_id')
+
+		->order_by('notice_date','desc')
+
+		->limit(15)
+
+		->where('notice_p_user_id', $user_id)
+		->where('post_status_flag', '1');
     }
 
 
-    //Notice登録
-    public static function put_data($notice_data)
+    private function insertData($a_user_id, $p_user_id, $post_id)
     {
-       	// if ($keyword == 'gochi!') {
-       	// 	  $notice = 'like';
-
-       	// }elseif ($keyword == 'コメント') {
-       	//   	$notice = 'comment';
-
-        // }elseif ($keyword == 'フォロー') {
-        //     $notice = 'follow';
-
-        // }else{
-       	//   	$notice = 'announce';
-       	// }
-
-       	$query = DB::insert('notices')
-       	->set(array(
-       		  'notice_a_user_id' => session::get('user_id'),
-       		  'notice_p_user_id' => "$notice_data['user_id']",
-       		  'notice'           => "$notice_data['notice']",
-       		  'notice_post_id'   => "$notice_data['post_id']"
-       	))
-       	->execute();
-        
-        return $query;
+    	$this->query = DB::insert(self::$table_name)
+    	->set(array(
+    		'notice' 			=> $this->notice,
+    		'notice_a_user_id'	=> $a_user_id,
+    		'notice_p_user_id'  => $p_user_id,
+    		'notice_post_id' 	=> $post_id,
+    	));
     }
 }

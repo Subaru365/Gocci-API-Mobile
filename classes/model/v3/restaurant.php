@@ -32,9 +32,15 @@ class Model_V3_Restaurant extends Model
 
 		$rest_data = $this->rest->getRestData($rest_id);
 
-		$rest_data['want_flag']		= $want->getMyFlag($rest_id);
-		//$rest_data['cheer_num']     = $post->getRestCheerNum($rest_id);
+		$rest_data['want_flag']	= $want->getMyFlag($rest_id);
 
 		return $rest_data;
 	}
+
+	// public function getWantlist($user_id)
+	// {
+	// 	$want = Model_V3_Db_Want::getInstance();
+
+	// 	$wantlist = $this->
+	// }
 }

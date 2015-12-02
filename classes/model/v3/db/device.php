@@ -3,7 +3,7 @@
  * Status Code and Message list.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/03)
+ * @version    3.0 (2015/11/18)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -12,6 +12,8 @@
 
 class Model_V3_Db_Device extends Model_V3_Db
 {
+    use SingletonTrait;
+
     /**
      * @var String $table_name
      */
@@ -36,12 +38,25 @@ class Model_V3_Db_Device extends Model_V3_Db
     {
         $this->select_user($register_id);
         $result = $this->run();
-        return $result;   
+        return $result;
     }
 
-    public function update_data($params)
+    public function getData($user_id)
     {
-        $this->update_device($params);
+        try {
+            $this->selectData($user_id);
+            $result = $this->run();
+            return $result[0];
+        }
+        catch (Exception $e){
+            error_log($e);
+            exit;
+        }
+    }
+
+    public function updateDevice($params)
+    {
+        $this->updateData($params);
         $result = $this->query->execute();
         return $result;
     }
@@ -59,6 +74,7 @@ class Model_V3_Db_Device extends Model_V3_Db
         $result = $this->query->execute();
         return $result;
     }
+
 
     //SELECT
     //-------------------------------------------------//
@@ -91,20 +107,30 @@ class Model_V3_Db_Device extends Model_V3_Db
         ->where('register_id', "$register_id");
     }
 
+    private function selectData($user_id)
+    {
+        $this->query = DB::select('os', 'endpoint_arn')
+        ->from(self::$table_name)
+        ->where('device_user_id', $user_id);
+    }
+
+
     //UPDATE
     //-------------------------------------------------//
 
-    private function update_device($params)
+    private function updateData($params)
     {
         $this->query = DB::update(self::$table_name)
         ->set(array(
             'os'            => "$params[os]",
+            'ver'           => "$params[ver]",
             'model'         => "$params[model]",
             'register_id'   => "$params[register_id]",
             'endpoint_arn'  => "$params[endpoint_arn]"
         ))
         ->where('device_user_id', "$params[user_id]");
     }
+
 
     //DELETE
     //-------------------------------------------------//
@@ -125,6 +151,7 @@ class Model_V3_Db_Device extends Model_V3_Db
         ->set(array(
             'device_user_id'   => "$params[user_id]",
             'os'               => "$params[os]",
+            'ver'              => "$params[ver]",
             'model'            => "$params[model]",
             'register_id'      => "$params[register_id]",
             'endpoint_arn'     => "$params[endpoint_arn]"

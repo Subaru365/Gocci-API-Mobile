@@ -83,6 +83,10 @@ class Model_V3_Status extends Model
     			$status['message'] = 'Successful API request';
     			break;
 
+            case 'ERROR_SESSION_EXPIRED':
+                $status['message'] = 'Session cookie is not valid anymore';
+                break;
+
             case 'ERROR_REQUEST_PARAMETER_INVALID':
                 $status['message'] = 'Parameter invalid';
                 break;

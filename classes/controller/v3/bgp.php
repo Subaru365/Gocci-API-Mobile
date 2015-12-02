@@ -3,7 +3,7 @@
  * Background Process Class. Access to localhost
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/10/30)
+ * @version    3.0 (2015/11/20)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @license    MIT License
  * @copyright  2015 Inase,inc.
@@ -12,16 +12,6 @@
 
 class Controller_V3_Bgp extends Controller
 {
-    /**
-     * @var Instance $Device
-     */
-    private $Device;
-
-    /**
-     * @var Instance $Sns
-     */
-    private $Sns;
-
     public function before()
     {
         if ($_SERVER['REMOTE_ADDR'] !== '127.0.0.1') {
@@ -34,17 +24,39 @@ class Controller_V3_Bgp extends Controller
     {
         $params = Input::get();
 
-        $this->Device = new Model_V3_Db_Device();
-        $this->Sns    = new Model_V3_Aws_Sns();
+        $device = Model_V3_Db_Device::getInstance();
+        $sns    = Model_V3_Aws_Sns::getInstance();
 
-        $old_endpoint_arn = $this->Device->get_arn($params['user_id']);
-        $this->Sns->delete_data($old_endpoint_arn);
+        $old_endpoint_arn = $device->get_arn($params['user_id']);
+        $sns->delete_data($old_endpoint_arn);
 
-        $params['endpoint_arn'] = $this->Sns->set_device($params);
-
-        $this->Device->update_data($params);
+        $params['endpoint_arn'] = $sns->set_device($params);
+        $device->updateDevice($params);
     }
 
+    public function action_notice_gochi()
+    {
+        $params = Input::get();
+
+        $notice = Model_V3_Notice::getInstance();
+        $notice->pushGochi($params);
+    }
+
+    public function action_notice_comment()
+    {
+        $params = Input::get();
+
+        $notice = Model_V3_Notice::getInstance();
+        $notice->pushComment($params);
+    }
+
+    public function action_notice_follow()
+    {
+        $params = Input::get();
+
+        $notice = Model_V3_Notice::getInstance();
+        $notice->pushFollow($params);
+    }
 
     // //SNS Push
     // public function action_publish()
