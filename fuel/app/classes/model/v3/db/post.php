@@ -134,7 +134,7 @@ class Model_V3_Db_Post extends Model_V3_Db
 	{
 		$this->insertData($params);
 		$result = $this->query->execute();
-		return $result;
+		return $result[0];
 	}
 
 	//-----------------------------------------------------//
@@ -308,7 +308,7 @@ class Model_V3_Db_Post extends Model_V3_Db
 	private function updateHash($post_id, $hash_id)
 	{
 		$this->query = DB::update(self::$table_name)
-		->value('hash_id', $hash_id)
+		->value('post_hash_id', $hash_id)
 		->where('post_id', $post_id);
 	}
 

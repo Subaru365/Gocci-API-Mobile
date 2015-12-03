@@ -29,6 +29,7 @@ class Model_V3_Db_Re extends Model_V3_Db
 
 	public function setRe($comment_id, $re_user_id)
 	{
+		$re_user_id = explode(',', $re_user_id);
 		$num = count($re_user_id);
 
 		for ($i=0; $i < $num; $i++) { 

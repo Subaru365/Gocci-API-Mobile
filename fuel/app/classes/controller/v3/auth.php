@@ -49,7 +49,7 @@ class Controller_V3_Auth extends Controller_V3_Public
 
     public function action_signup()
     {
-        //$req_params is [username, os, ver, model, register_id]
+        //$req_params is [username]
         $this->chk_overlap_register_id($this->req_params['register_id']);
         $this->chk_overlap_username($this->req_params['username']);
 
