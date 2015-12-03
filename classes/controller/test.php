@@ -52,6 +52,18 @@ class Controller_Test extends Controller
         echo $json;
 	}
 
+
+	public function action_func()
+	{
+		$str = "func_hoge";
+		$this->$str();
+	}
+
+	public function func_hoge()
+	{
+		echo "hello!";
+	}
+
 	// public function action_info()
 	// {
 

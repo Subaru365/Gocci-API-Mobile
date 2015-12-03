@@ -160,6 +160,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 		//Input rest_id, movie_name, category_id, value, memo, cheer_flag
 		$post = Model_V3_Db_Post::getInstance();
 
+		$this->req_params = Model_V3_Transcode::encodePostName($this->req_params);
 		$post_id = $post->setPostData($this->req_params);
 		$hash_id = Model_V3_Hash::postIdHash($post_id);
 		$post->setHashId($post_id, $hash_id);
