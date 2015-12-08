@@ -7,6 +7,8 @@ class Controller_Test extends Controller
 {
 	private $test;
 
+	private $user_id = 3;
+
 	public function before()
 	{
 		$this->test = "hoge";
@@ -62,6 +64,7 @@ class Controller_Test extends Controller
 	public function func_hoge()
 	{
 		echo "hello!";
+		echo "$this->user_id";
 	}
 
 	// public function action_info()

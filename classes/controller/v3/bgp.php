@@ -14,26 +14,27 @@ class Controller_V3_Bgp extends Controller
 {
     public function before()
     {
-        if ($_SERVER['REMOTE_ADDR'] !== '127.0.0.1') {
-            error_log('access denied.');
-            exit;
-        }
+        // if ($_SERVER['REMOTE_ADDR'] !== '127.0.0.1') {
+        //     error_log('access denied.');
+        //     exit;
+        // }
     }
 
-    public function action_update_device()
-    {
-        $params = Input::get();
+    // public function action_update_device()
+    // {
+    //     $params = Input::get();
 
-        $device = Model_V3_Db_Device::getInstance();
-        $sns    = Model_V3_Aws_Sns::getInstance();
+    //     $device = Model_V3_Db_Device::getInstance();
+    //     $sns    = Model_V3_Aws_Sns::getInstance();
 
-        $old_endpoint_arn = $device->get_arn($params['user_id']);
-        $sns->delete_data($old_endpoint_arn);
+    //     $old_endpoint_arn = $device->get_arn($params['user_id']);
+    //     $sns->delete_data($old_endpoint_arn);
 
-        $params['endpoint_arn'] = $sns->set_device($params);
-        $device->updateDevice($params);
-    }
+    //     $params['endpoint_arn'] = $sns->set_device($params);
+    //     $device->updateDevice($params);
+    // }
 
+    //input is user_id, post_id, post_user_id
     public function action_notice_gochi()
     {
         $params = Input::get();
@@ -42,6 +43,7 @@ class Controller_V3_Bgp extends Controller
         $notice->pushGochi($params);
     }
 
+    //input is user_id, post_id, post_user_id, re_user_id
     public function action_notice_comment()
     {
         $params = Input::get();
@@ -50,6 +52,7 @@ class Controller_V3_Bgp extends Controller
         $notice->pushComment($params);
     }
 
+    //input is user_id, follow_user_id
     public function action_notice_follow()
     {
         $params = Input::get();

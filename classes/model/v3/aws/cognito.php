@@ -23,14 +23,14 @@ class Model_V3_Aws_Cognito extends Model
     private $client;
 
     /**
-     * @var String $identity_pool_id
+     * @var String $pool_id
      */
-    private static $identity_pool_id;
+    private static $pool_id;
 
     /**
-     * @var String $developer_provider
+     * @var String $dev_provider
      */
-    private static $developer_provider;
+    private static $dev_provider;
 
 
     private function __construct()
@@ -41,21 +41,20 @@ class Model_V3_Aws_Cognito extends Model
         ]);
 
         $config = Config::get('_cognito');
-        self::$identity_pool_id   = $config['IdentityPoolId'];
-        self::$developer_provider = $config['developer_provider'];
+        self::$pool_id      = $config['IdentityPoolId'];
+        self::$dev_provider = $config['developer_provider'];
     }
 
-
-    public function get_token()
+    public function getToken($user_id)
     {
-        $result = $this->my_data();
+        $result = $this->getData($user_id);
         return $result['Token'];
     }
 
-    public function get_data()
+    public function getIid($user_id)
     {
-        $result = $this->my_data();
-        return $result;
+        $result = $this->getData($user_id);
+        return $result['IdentityId'];
     }
 
     public function setSnsAccount($params)
@@ -76,15 +75,12 @@ class Model_V3_Aws_Cognito extends Model
     }
 
 
-    private function my_data()
+    private function getData($user_id)
     {
-        $identity_pool_id   = self::$identity_pool_id;
-        $developer_provider = self::$developer_provider;
-
         $result = $this->client->getOpenIdTokenForDeveloperIdentity([
-            'IdentityPoolId'    => self::$identity_pool_id,
+            'IdentityPoolId'    => self::$pool_id,
             'Logins'            => [
-                self::$developer_provider => session::get('user_id'),
+                self::$dev_provider => "$user_id",
             ],
             'TokenDuration'     => 7200,
         ]);
@@ -94,9 +90,9 @@ class Model_V3_Aws_Cognito extends Model
     private function addSnsAccount($provider, $token)
     {
         $result = $this->client->getOpenIdTokenForDeveloperIdentity([
-            'IdentityPoolId'    => self::$identity_pool_id,
+            'IdentityPoolId'    => self::$pool_id,
             'Logins'            => [
-                self::$developer_provider => session::get('user_id'),
+                self::$dev_provider => session::get('user_id'),
                 $provider => $token,
             ],
         ]);
@@ -128,7 +124,7 @@ class Model_V3_Aws_Cognito extends Model
  //            'IdentityId'        => "$identity_id",
  //            'IdentityPoolId'    => "$config[IdentityPoolId]",
  //            'Logins'            => [
- //                "$config[developer_provider]" => session::get('user_id'),
+ //                "$config[dev_provider]" => session::get('user_id'),
  //            ]
  //        ]);
  //        return $result['Token'];
@@ -145,7 +141,7 @@ class Model_V3_Aws_Cognito extends Model
  //        ([
  //            'IdentityPoolId'    => "$config[IdentityPoolId]",
  //            'Logins'            => [
- //                "$config[developer_provider]" => "$user_id",
+ //                "$config[dev_provider]" => "$user_id",
  //            ]
  //        ]);
 	// 	return $result;
@@ -155,7 +151,7 @@ class Model_V3_Aws_Cognito extends Model
 
  //    public static function delete_sns($identity_id, $provider, $token)
  //    {
- //        $developer_provider = Config::get('_cognito.developer_provider');
+ //        $dev_provider = Config::get('_cognito.dev_provider');
 
  //        $result = $client->unlinkIdentity([
  //            'IdentityId'        => "$identity_id",

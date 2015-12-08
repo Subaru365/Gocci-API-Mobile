@@ -23,7 +23,7 @@ class Model_V3_Aws_Sns extends Model
     /**
      * @var Instance $type
      */
-    public $message;
+    public $type;
 
 
     private function __construct()
@@ -34,30 +34,30 @@ class Model_V3_Aws_Sns extends Model
 		]);
     }
 
-    public function pushAndroid($username, $arn)
+    public function pushAndroid($username, $arn, $id)
     {
-        try {
-            $this->publishAndroid($username, $arn);
-        }
-        catch (Exception $e) {
-            error_log($arn . " Error!\n");
-            exit;
-        }
+        // try {
+            $this->publishAndroid($username, $arn, $id);
+        // }
+        // catch (Exception $e) {
+        //     error_log($arn . " Error!\n");
+        //     exit;
+        // }
     }
 
-    public function pushiOS($username, $arn)
+    public function pushiOS($username, $arn, $id)
     {
-        try {
-            $this->publishiOS($username, $arn);
-        }
-        catch (Exception $e) {
-            error_log($arn . " Error!\n");
-            exit;
-        }
+        // try {
+            $this->publishiOS($username, $arn, $id);
+        // }
+        // catch (Exception $e) {
+        //     error_log($arn . " Error!\n");
+        //     exit;
+        // }
 
     }
 
-    public function set_device($user_data)
+    public function setSns($user_data)
     {
     	if ($user_data['os'] === 'android') {
             $result = self::set_android($user_data);
@@ -67,13 +67,13 @@ class Model_V3_Aws_Sns extends Model
         return $result['EndpointArn'];
     }
 
-    public function delete_data($endpoint_arn)
+    public function deleteSns($endpoint_arn)
     {
         try {
-    	   $this->delete_endpoint($endpoint_arn);
+    	   $this->deleteEndpoint($endpoint_arn);
         }
         catch (Exception $e){
-            error_log($e);
+            error_log($endpoint_arn.$e);
         }
     }
 
@@ -82,9 +82,9 @@ class Model_V3_Aws_Sns extends Model
 		$android_arn = Config::get('_sns.android_ApplicationArn');
 
 		$result = $this->client->createPlatformEndpoint([
-    		'CustomUserData' 			=> 'user_id/'.$params['user_id'],
+    		'CustomUserData' 			=> "user_id / {$params['user_id']}",
     		'PlatformApplicationArn'    => "$android_arn",
-    		'Token'                     => "$params[register_id]",
+    		'Token'                     => "$params[device_token]",
     	]);
     	return $result;
 	}
@@ -94,26 +94,36 @@ class Model_V3_Aws_Sns extends Model
 		$iOS_arn = Config::get('_sns.iOS_ApplicationArn');
 
 		$result = $this->client->createPlatformEndpoint([
-    		'CustomUserData' 			=> 'user_id/'.$params['user_id'],
+    		'CustomUserData' 			=> "user_id / {$params['user_id']}",
     		'PlatformApplicationArn'    => "$iOS_arn",
-    		'Token'                     => "$params[register_id]",
+    		'Token'                     => "$params[device_token]",
     	]);
     	return $result;
 	}
 
 
-	private function publishAndroid($username, $arn)
+	private function publishAndroid($username, $arn, $id)
 	{
-            $message = "$username" . 'さんから' . $this->message . 'されました！';
+        $message = array(
+            'type'      => "$this->type",
+            'id'        => "$id",
+            'username'  => "$username",    
+        );
 
-    	    $result = $this->client->publish([
-                'Message'   => "$message",
-                'TargetArn' => "$arn",
-            ]);
+        $message = json_encode(
+            $message,
+            JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|
+            JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT
+        );
+
+	    $result = $this->client->publish([
+            'Message'   => "$message",
+            'TargetArn' => "$arn",
+        ]);
 	}
 
 
-	private function publishiOS($endpointArn, $alert)
+	private function publishiOS($username, $arn, $id)
 	{
 		$this->client->publish(array(
 
@@ -138,7 +148,7 @@ class Model_V3_Aws_Sns extends Model
         ));
 	}
 
-	private function delete_endpoint($endpoint_arn)
+	private function deleteEndpoint($endpoint_arn)
 	{
 		$this->client->deleteEndpoint([
     		'EndpointArn' => "$endpoint_arn",
