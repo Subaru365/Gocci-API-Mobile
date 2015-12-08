@@ -21,9 +21,9 @@ class Model_V3_Db_User extends Model_V3_Db
     private static $table_name = 'users';
 
 
-    public function check_name($username)
+    public function getIdForName($username)
     {
-        $this->select_id($username);
+        $this->selectIdForName($username);
         $result = $this->run();
         return $result;
     }
@@ -35,26 +35,34 @@ class Model_V3_Db_User extends Model_V3_Db
         return $result;
     }
 
-    public function get_next_user_id()
+    public function getNextId()
     {
-        $this->select_last_id();
+        $this->selectLastUserId();
         $result = $this->run();
 
-        $last_id = $result[0]['user_id'];
-        $next_id = $last_id + 1;
-        return $next_id;
+        $user_id = $result[0]['user_id'];
+        $user_id++;
+        return $user_id;
     }
 
-    public function get_identity($user_id)
+    public function getIdentityID($username)
     {
-        $this->select_identity($user_id);
+        $this->selectIdentityId($username);
         $result = $this->run();
         return $result[0]['identity_id'];
     }
 
-    public function get_password($username)
+    public function getIdentityIdForId($user_id)
     {
-        $this->select_pass($username);
+        $this->selectIdentityIdForId($user_id);
+        $result = $this->run();
+        return $result[0]['identity_id'];
+    }
+
+
+    public function getPassword($username)
+    {
+        $this->selectPassword($username);
         $result = $this->run();
         return $result;
     }
@@ -73,9 +81,9 @@ class Model_V3_Db_User extends Model_V3_Db
         return $result[0];
     }
 
-    public function get_auth_data($identity_id)
+    public function getUser($identity_id)
     {
-        $this->select_auth($identity_id);
+        $this->selectData($identity_id);
         $result = $this->run();
         return $result;
     }
@@ -83,6 +91,13 @@ class Model_V3_Db_User extends Model_V3_Db
     public function setMyName($username)
     {
         $this->updateName(session::get('user_id'), $username);
+        $result = $this->query->execute();
+        return $result;
+    }
+
+    public function setMyProfileImg($profile_img)
+    {
+        $this->updateProfileImg(session::get('user_id'), $profile_img);
         $result = $this->query->execute();
         return $result;
     }
@@ -125,9 +140,9 @@ class Model_V3_Db_User extends Model_V3_Db
     }
 
 
-    public function set_data($params)
+    public function setData($params)
     {
-        $this->insert_data($params);
+        $this->insertData($params);
         $result = $this->query->execute();
         return $result[0];
     }
@@ -137,7 +152,7 @@ class Model_V3_Db_User extends Model_V3_Db
     //-------------------------------------------------//
 
     /** @param String $username */
-    private function select_id($username)
+    private function selectIdForName($username)
     {
         $this->query = DB::select('user_id')
         ->from(self::$table_name)
@@ -161,19 +176,27 @@ class Model_V3_Db_User extends Model_V3_Db
     }
 
     /** @param String $username */
-    private function select_pass($username)
+    private function selectPassword($username)
     {
         $this->query = DB::select('password')
         ->from(self::$table_name)
-        ->where('username', "$username");
+        ->where('username', $username);
     }
 
     /** @param String $username */
-    private function select_identity($user_id)
+    private function selectIdentityId($username)
     {
         $this->query = DB::select('identity_id')
         ->from(self::$table_name)
-        ->where('user_id', "$user_id");
+        ->where('username', $username);
+    }
+
+    /** @param String $username */
+    private function selectIdentityIdForId($user_id)
+    {
+        $this->query = DB::select('identity_id')
+        ->from(self::$table_name)
+        ->where('user_id', $user_id);
     }
 
     private function select_badge($user_id)
@@ -194,20 +217,25 @@ class Model_V3_Db_User extends Model_V3_Db
     /** @param Integer $user_id */
     private function select_prof($user_id)
     {
-        $this->query = DB::select('user_id', 'username', 'profile_img')
+        $this->query = DB::select(
+            'user_id', 'username', 'profile_img'
+        )
         ->from(self::$table_name)
         ->where('user_id', "$user_id");
     }
 
     /** @param String $identity_id */
-    private function select_auth($identity_id)
+    private function selectData($identity_id)
     {
-        $this->query = DB::select('user_id', 'username', 'identity_id', 'profile_img', 'badge_num')
+        $this->query = DB::select(
+            'user_id',      'username',     'identity_id',
+            'profile_img',  'badge_num'
+        )
         ->from(self::$table_name)
-        ->where('identity_id', "$identity_id");
+        ->where('identity_id', $identity_id);
     }
 
-    private function select_last_id()
+    private function selectLastUserId()
     {
         $this->query = DB::select('user_id')
         ->from(self::$table_name)
@@ -222,6 +250,13 @@ class Model_V3_Db_User extends Model_V3_Db
     {
         $this->query = DB::update(self::$table_name)
         ->value('username', $name)
+        ->where('user_id', $id);
+    }
+
+    private function updateProfileImg($id, $profile_img)
+    {
+        $this->query = DB::update(self::$table_name)
+        ->value('profile_img', $profile_img)
         ->where('user_id', $id);
     }
 
@@ -303,13 +338,13 @@ class Model_V3_Db_User extends Model_V3_Db
     //INSERT
     //-------------------------------------------------//
 
-    private function insert_data($params)
+    private function insertData($params)
     {
         $this->query = DB::insert(self::$table_name)
         ->set(array(
             'username'    => "$params[username]",
             'profile_img' => "$params[profile_img]",
-            'identity_id' => "$params[identity_id]"
+            'identity_id' => "$params[identity_id]",
         ));
     }
 }

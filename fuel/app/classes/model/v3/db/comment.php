@@ -74,8 +74,8 @@ class Model_V3_Db_Comment extends Model_V3_Db
 		$this->query = DB::insert(self::$table_name)
 		->set(array(
 			'comment_user_id' => session::get('user_id'),
-			'comment_post_id' => "$params[post_id]",
-			'comment' 	      => "$params[comment]"
+			'comment_post_id' => $params['post_id'],
+			'comment' 	      => $params['comment'],
 		));
 	}
 }

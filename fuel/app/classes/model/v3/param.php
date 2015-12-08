@@ -73,19 +73,9 @@ class Model_V3_Param extends Model
 	{
 		switch ($this->uri) {
 
-			case 'v3/public/update_device':
-				$this->getReq_public_update_device();
-				$this->setReq_public_update_device();
-				break;
-
 			case 'v3/auth/login':
 				$this->getReq_auth_login();
 				$this->setReq_auth_login();
-				break;
-
-			case 'v3/auth/check':
-				$this->getReq_auth_check();
-				$this->setReq_auth_check();
 				break;
 
 			case 'v3/auth/signup':
@@ -93,14 +83,9 @@ class Model_V3_Param extends Model
 				$this->setReq_auth_signup();
 				break;
 
-			case 'v3/auth/sns_login':
-				$this->getReq_auth_sns_login();
-				$this->setReq_auth_sns_login();
-				break;
-
-			case 'v3/auth/pass_login':
-				$this->getReq_auth_pass_login();
-				$this->setReq_auth_pass_login();
+			case 'v3/auth/password':
+				$this->getReq_auth_password();
+				$this->setReq_auth_password();
 				break;
 
 			case 'v3/get/nearline':
@@ -169,10 +154,10 @@ class Model_V3_Param extends Model
 				$this->setReq_set_password();
 				break;
 
-			case 'v3/set/register_id':
-				$this->getReq_set_register_id();
-				$this->setReq_set_register_id();
-				break;			
+			case 'v3/set/device':
+				$this->getReq_set_device();
+				$this->setReq_set_device();
+				break;
 
 			case 'v3/set/sns_link':
 				$this->getReq_set_sns_link();
@@ -249,8 +234,6 @@ class Model_V3_Param extends Model
 				$this->setReq_set_rest();
 				break;
 
-
-
 			default:
 				Model_V3_Status::getStatus();
 				break;
@@ -261,17 +244,6 @@ class Model_V3_Param extends Model
 	// Get Request Params
 	//-----------------------------------------------------//
 
-	private function getReq_public_update_device()
-	{
-		$this->val_param = array(
-			'user_id' 		=> Input::get('user_id'),
-			'os'			=> Input::get('os'),
-			'ver' 			=> Input::get('ver'),
-			'model'			=> Input::get('model'),
-			'register_id' 	=> Input::get('register_id'),
-		);
-	}
-
 	private function getReq_auth_login()
 	{
 		$this->val_param = array(
@@ -279,44 +251,18 @@ class Model_V3_Param extends Model
 		);
 	}
 
-	private function getReq_auth_check()
-	{
-		$this->val_param = array(
-			'register_id' 	=> Input::get('register_id'),
-		);
-	}
-
 	private function getReq_auth_signup()
 	{
 		$this->val_param = array(
 			'username' 	  	=> Input::get('username'),
-			'os' 		  	=> Input::get('os'),
-			'ver'		  	=> Input::get('ver'),
-			'model' 	  	=> Input::get('model'),
-			'register_id' 	=> Input::get('register_id'),
 		);
 	}
 
-	private function getReq_auth_sns_login()
-	{
-		$this->val_param = array(
-			'identity_id' 	=> Input::get('identity_id'),
-			'os' 		  	=> Input::get('os'),
-			'ver' 		  	=> Input::get('ver'),
-			'model' 	  	=> Input::get('model'),
-			'register_id' 	=> Input::get('register_id'),
-		);
-	}
-
-	private function getReq_auth_pass_login()
+	private function getReq_auth_password()
 	{
 		$this->val_param = array(
 			'username' 	  	=> Input::get('username'),
 			'password'    	=> Input::get('password'),
-			'os' 		  	=> Input::get('os'),
-			'ver' 		  	=> Input::get('ver'),
-			'model' 	 	=> Input::get('model'),
-			'register_id' 	=> Input::get('register_id'),
 		);
 	}
 
@@ -406,17 +352,20 @@ class Model_V3_Param extends Model
 		);
 	}
 
+	private function getReq_set_device()
+	{
+		$this->val_param = array(
+			'os'			=> Input::get('os'),
+			'ver' 			=> Input::get('ver'),
+			'model'			=> Input::get('model'),
+			'device_token' 	=> Input::get('device_token'),
+		);
+	}
+
 	private function getReq_set_password()
 	{
 		$this->val_param = array(
 			'password' 		=> Input::get('password'),
-		);
-	}
-
-	private function getReq_set_register_id()
-	{
-		$this->val_param = array(
-			'register_id' 	=> Input::get('register_id'),
 		);
 	}
 
@@ -516,7 +465,7 @@ class Model_V3_Param extends Model
 	private function getReq_set_profile_img()
 	{
 		$this->val_param = array(
-			'url' 		=> Input::get('url'),
+			'profile_img' 	=> Input::get('profile_img'),
 		);
 	}
 
@@ -541,49 +490,20 @@ class Model_V3_Param extends Model
 	// Set Regex Request Params
 	//-----------------------------------------------------//
 
-	private function setReq_public_update_device()
-	{
-		$this->regex_user_id();
-		$this->regex_os();
-		$this->regex_ver();
-		$this->regex_model();
-		$this->regex_register_id();
-	}
-
-
 	private function setReq_auth_login()
 	{
 		$this->regex_identity_id();
 	}
 
-	private function setReq_auth_check()
-	{
-		$this->regex_register_id();
-	}
-
 	private function setReq_auth_signup()
 	{
 		$this->regex_username();
-		$this->regex_os();
-		$this->regex_ver();
-		$this->regex_model();
-		$this->regex_register_id();
 	}
 
-	private function setReq_auth_sns_login()
-	{
-		$this->regex_identity_id();
-		$this->regex_os();
-		$this->regex_ver();
-		$this->regex_model();
-		$this->regex_register_id();
-	}
-
-	private function setReq_auth_pass_login()
+	private function setReq_auth_password()
 	{
 		$this->regex_username();
 		$this->regex_password();
-		$this->regex_register_id();
 	}
 
 	private function setReq_get_nearline()
@@ -650,15 +570,19 @@ class Model_V3_Param extends Model
 		$this->regex_lat();
 	}
 
+	private function setReq_set_device()
+	{
+		$this->regex_os();
+		$this->regex_ver();
+		$this->regex_model();
+		$this->regex_device_token();
+	}
+
 	private function setReq_set_password()
 	{
 		$this->regex_password();
 	}
 
-	private function setReq_set_register_id()
-	{
-		$this->regex_register_id();
-	}
 
 	private function setReq_set_sns_link()
 	{
@@ -731,7 +655,7 @@ class Model_V3_Param extends Model
 
 	private function setReq_set_profile_img()
 	{
-		$this->regex_url();
+		$this->regex_profile_img();
 	}
 
 	private function setReq_set_feedback()
@@ -786,6 +710,14 @@ class Model_V3_Param extends Model
 		->add_rule('required')
 		->add_rule('match_pattern', '/^[\S\s]{4,20}$/');
 		# /^[\S\s]{3,15}$/
+	}
+
+	private function regex_profile_img()
+	{
+		$this->Val
+		->add('profile_img', 'GET profile_img')
+		->add_rule('required')
+		->add_rule('match_pattern', '/^[0-9_-]+$/');
 	}
 
 	private function regex_password()
@@ -868,10 +800,10 @@ class Model_V3_Param extends Model
 		->add_rule('match_pattern', '/^[\S\s]{0,50}$/');
 	}
 
-	private function regex_register_id()
+	private function regex_device_token()
 	{
 		$this->Val
-		->add('register_id', 'GET register_id')
+		->add('device_token', 'GET device_token')
 		->add_rule('required')
 		->add_rule('match_pattern', '/^([a-f0-9]{64})|([a-zA-Z0-9:_-]{140,250})$/');
 	}
@@ -965,7 +897,7 @@ class Model_V3_Param extends Model
 		$this->Val
 		->add('memo', 'GET memo')
 		->add_rule('required')
-		->add_rule('match_pattern', '/^[\S\s]{2,140}$/u');
+		->add_rule('match_pattern', '/^[\S\s]{1,140}$/u');
 	}
 
 	private function regex_feedback()

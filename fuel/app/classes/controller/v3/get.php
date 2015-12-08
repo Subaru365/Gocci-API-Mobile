@@ -120,13 +120,15 @@ class Controller_V3_Get extends Controller_V3_Gate
 	public function action_notice()
     {
     	$notice = Model_V3_Notice::getInstance();
-
     	$data = $notice->getNotice();
 
     	if (empty($data)) {
     		$this->status = Model_V3_Status::getStatus('SUCCESS');
 			$this->output();
     	}
+
+    	$user = Model_V3_Db_User::getInstance();
+    	$user->resetBadge();
 
     	$this->req_params = $data;
 	   	$this->output_success();

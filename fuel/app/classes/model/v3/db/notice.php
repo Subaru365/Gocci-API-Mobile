@@ -34,8 +34,8 @@ class Model_V3_Db_Notice extends Model_V3_Db
 
 	public function setNotice($a_user_id, $p_user_id, $post_id = 1)
 	{
-		if (!empty($this->notice)) {
-			$this->insertData($a_user_id, $p_user_id, $post_id);
+		if (!empty($this->type)) {
+			$this->insertData($this->type, $a_user_id, $p_user_id, $post_id);
 			$this->query->execute();
 		} else {
 			exit();
@@ -67,11 +67,11 @@ class Model_V3_Db_Notice extends Model_V3_Db
     }
 
 
-    private function insertData($a_user_id, $p_user_id, $post_id)
+    private function insertData($notice, $a_user_id, $p_user_id, $post_id)
     {
     	$this->query = DB::insert(self::$table_name)
     	->set(array(
-    		'notice' 			=> $this->notice,
+    		'notice' 			=> $notice,
     		'notice_a_user_id'	=> $a_user_id,
     		'notice_p_user_id'  => $p_user_id,
     		'notice_post_id' 	=> $post_id,

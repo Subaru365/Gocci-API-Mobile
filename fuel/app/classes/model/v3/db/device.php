@@ -20,23 +20,23 @@ class Model_V3_Db_Device extends Model_V3_Db
     private static $table_name = 'devices';
 
 
-    public function check_arn($register_id)
+    public function check_arn($device_token)
     {
-        $this->select_arn2($register_id);
+        $this->select_arn2($device_token);
         $result = $this->run();
         return $result;
     }
 
-    public function get_arn($user_id)
+    public function getEndpointArn($user_id)
     {
-        $this->select_arn($user_id);
+        $this->selectArn($user_id);
         $result = $this->run();
-        return $result[0]['endpoint_arn'];
+        return $result;
     }
 
-    public function get_user($register_id)
+    public function getDeviceUserId($device_token)
     {
-        $this->select_user($register_id);
+        $this->selectUserId($device_token);
         $result = $this->run();
         return $result;
     }
@@ -61,50 +61,50 @@ class Model_V3_Db_Device extends Model_V3_Db
         return $result;
     }
 
-    public function delete_device($register_id)
+    public function deleteDevice($user_id)
     {
-        $this->delete_data($register_id);
+        $this->deleteData($user_id);
         $result = $this->query->execute();
         return $result;
     }
 
-    public function set_data($params)
+    public function setDevice($params)
     {
-        $this->insert_data($params);
+        $this->insertData($params);
         $result = $this->query->execute();
-        return $result;
+        return $result[0];
     }
 
 
     //SELECT
     //-------------------------------------------------//
 
-    private function select_id($register_id)
+    private function select_id($device_token)
     {
         $this->query = DB::select('device_id')
         ->from(self::$table_name)
-        ->where('register_id', "$register_id");
+        ->where('register_id', "$device_token");
     }
 
-    private function select_arn($user_id)
+    private function selectArn($user_id)
     {
         $this->query = DB::select('endpoint_arn')
         ->from(self::$table_name)
-        ->where('device_user_id', "$user_id");
+        ->where('device_user_id', $user_id);
     }
 
-    private function select_arn2($register_id)
+    private function select_arn2($device_token)
     {
         $this->query = DB::select('endpoint_arn')
         ->from(self::$table_name)
-        ->where('register_id', "$register_id");
+        ->where('register_id', "$device_token");
     }
 
-    private function select_user($register_id)
+    private function selectUserId($device_token)
     {
         $this->query = DB::select('device_user_id')
         ->from(self::$table_name)
-        ->where('register_id', "$register_id");
+        ->where('register_id', "$device_token");
     }
 
     private function selectData($user_id)
@@ -122,39 +122,39 @@ class Model_V3_Db_Device extends Model_V3_Db
     {
         $this->query = DB::update(self::$table_name)
         ->set(array(
-            'os'            => "$params[os]",
-            'ver'           => "$params[ver]",
-            'model'         => "$params[model]",
-            'register_id'   => "$params[register_id]",
-            'endpoint_arn'  => "$params[endpoint_arn]"
+            'os'            => $params['os'],
+            'ver'           => $params['ver'],
+            'model'         => $params['model'],
+            'register_id'   => $params['device_token'],
+            'endpoint_arn'  => $params['endpoint_arn'],
         ))
-        ->where('device_user_id', "$params[user_id]");
+        ->where('device_user_id', $params['user_id']);
     }
 
 
     //DELETE
     //-------------------------------------------------//
 
-    private function delete_data($register_id)
+    private function deleteData($user_id)
     {
         $this->query = DB::delete(self::$table_name)
-        ->where('register_id', "$register_id");
+        ->where('device_user_id', $user_id);
     }
 
 
     //INSERT
     //-------------------------------------------------//
 
-    private function insert_data($params)
+    private function insertData($params)
     {
         $this->query = DB::insert(self::$table_name)
         ->set(array(
-            'device_user_id'   => "$params[user_id]",
-            'os'               => "$params[os]",
-            'ver'              => "$params[ver]",
-            'model'            => "$params[model]",
-            'register_id'      => "$params[register_id]",
-            'endpoint_arn'     => "$params[endpoint_arn]"
+            'device_user_id'    => $params['user_id'],
+            'os'                => $params['os'],
+            'ver'               => $params['ver'],
+            'model'             => $params['model'],
+            'register_id'       => $params['device_token'],
+            'endpoint_arn'      => $params['endpoint_arn'],
         ));
     }
 }

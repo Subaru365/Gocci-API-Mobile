@@ -34,20 +34,20 @@ class Model_V3_Notice extends Model
 
 			switch ($val) {
 				case 'like':
-					$sns->message = 'like';
-					$notice->type = 'いいね！';
+					$sns->type = 'like';
+					$notice->type = 'like';
 					break;
 
 				case 'comment':
-					$sns->message = 'comment';
-					$notice->type = 'コメント';
+					$sns->type = 'comment';
+					$notice->type = 'comment';
 					break;
 
 				case 'follow':
-					$sns->message = 'follow';
-					$notice->type = 'フォロー';
+					$sns->type = 'follow';
+					$notice->type = 'follow';
 					break;
-				
+
 				default:
 					exit();
 					break;
@@ -71,43 +71,42 @@ class Model_V3_Notice extends Model
 
 	public function pushGochi($params)
 	{
-		$sns = Model_V3_Aws_Sns::getInstance();
-		$sns->type = 'like';
-		$this->push($params['user_id'], $params['post_user_id']);
+		$this->type = 'like';
 
-		$this->notice->type = 'like';
-		$this->notice->setNotice($params);
+		$this->notice->setNotice($params['user_id'], $params['post_user_id'], $params['post_id']);
+		$this->push($params['user_id'], $params['post_user_id'], $params['post_id']);
 	}
 
 
 	public function pushComment($params)
 	{
-		$sns = Model_V3_Aws_Sns::getInstance();
-		$sns->type = 'comment';
-		$this->push($params['user_id'], $params['post_user_id']);
+		$this->type = 'comment';
 
-		$this->notice->type = 'comment';
-		$this->notice->setNotice($params);
-
-
-		if (empty($params['re_user_id'])) {
+		if ($params['user_id'] !== $params['post_user_id'] && empty($params['re_user_id'])) {
 			//post_userのみに通知
-			$this->push($params['user_id'], $params['post_user_id']);
+			$this->push($params['user_id'], $params['post_user_id'], $params['post_id']);
+			$this->notice->setNotice($params['user_id'], $params['post_user_id'], $params['post_id']);
 
-		} else if (empty($params['post_user_id'])) {
+		} else if ($params['user_id'] === $params['post_user_id']) {
 			//re_userのみに通知
-			$num = count($params['re_user_id']);
+			$re_user_id = explode(',', $params['re_user_id']);
+			$num = count($re_user_id);
+			
 			for ($i=0; $i < $num; $i++) {
-				$this->push($params['user_id'], $params['re_user_id'][$i]);
+				$this->notice->setNotice($params['user_id'], $re_user_id[$i], $params['post_id']);
+				$this->push($params['user_id'], $re_user_id[$i], $params['post_id']);
 			}
 
 		} else {
 			//両方に通知
+			$this->notice->setNotice($params['user_id'], $params['post_user_id'], $params['post_id']);
 			$this->push($params['user_id'], $params['post_user_id']);
 
-			$num = count($params['re_user_id']);
+			$re_user_id = explode(',', $params['re_user_id']);
+			$num = count($re_user_id);
 			for ($i=0; $i < $num; $i++) {
-				$this->push($params['user_id'], $params['re_user_id'][$i]);
+				$this->notice->setNotice($params['user_id'], $re_user_id[$i], $params['post_id']);
+				$this->push($params['user_id'], $re_user_id[$i], $params['post_id']);
 			}
 		}
 	}
@@ -116,8 +115,8 @@ class Model_V3_Notice extends Model
 	{
 		$this->type = 'follow';
 
-		$this->push($params['user_id'], $params['follow_user_id']);
 		$this->notice->setNotice($params['user_id'], $params['follow_user_id']);
+		$this->push($params['user_id'], $params['follow_user_id']);
 	}
 
 
@@ -137,7 +136,7 @@ class Model_V3_Notice extends Model
 	}
 
 
-	private function push($a_user_id, $p_user_id)
+	private function push($a_user_id, $p_user_id, $id = 1)
 	{
 		$user   = Model_V3_Db_User::getInstance();
 		$device = Model_V3_Db_Device::getInstance();
@@ -146,11 +145,16 @@ class Model_V3_Notice extends Model
 		$username    = $user->getName($a_user_id);
 		$device_data = $device->getData($p_user_id);
 
+		if (empty($device_data['endpoint_arn'])) {
+			ellor_log("{$p_user}に通知できませんでした");
+			exit;
+		}
+
 		if ($device_data['os'] ===  'android') {
-			$sns->pushAndroid($username, $device_data['endpoint_arn']);
+			$sns->pushAndroid($username, $device_data['endpoint_arn'], $id);
 
 		} else if ($device_data['os'] === 'iOS') {
-			$sns->pushiOS($username, $device_data['endpoint_arn']);
+			$sns->pushiOS($username, $device_data['endpoint_arn'], $id);
 
 		} else {
 			//Webで利用 通知不必要

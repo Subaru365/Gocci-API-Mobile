@@ -3,10 +3,9 @@
  * Set Class. This class request session.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/25)
+ * @version    3.0.00 (2015/12/08)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @license    MIT License
- * @copyright  2015 Inase,inc.
+ * @copyright  Copyright (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
@@ -15,6 +14,17 @@ class Controller_V3_Set extends Controller_V3_Gate
 	public function before()
 	{
 		parent::before();
+	}
+
+
+	public function action_device()
+	{
+		//$req_params is [os, ver, model, device_token]
+		$device = Model_V3_Device::getInstance();
+
+		$device->updateDevice($this->req_params);
+
+        $this->output_success();
 	}
 
 
@@ -34,16 +44,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 		//$input is provider, token
 		$user 	= Model_V3_User::getInstance();
 		$result = $user->setSnsLink($this->req_params);
-
-		$this->output_success();
-	}
-
-
-	public function action_sns_unlink()
-	{
-		//input is provider, token
-		$user 	= Model_V3_User::getInstance();
-		$result = $user->setSnsUnLink($this->req_params);
 
 		$this->output_success();
 	}
@@ -72,39 +72,23 @@ class Controller_V3_Set extends Controller_V3_Gate
 	{
 		//Input post_id, comment, re_user_id
 		$comment = Model_V3_Db_Comment::getInstance();
-		$post    = Model_V3_Db_Post::getInstance();
-
 		$comment_id = $comment->setComment($this->req_params);
 
-		if (empty($this->req_params['re_user_id'])) {
-
-		} else {
+		if (!empty($this->req_params['re_user_id'])) {
 			$re = Model_V3_Db_Re::getInstance();
 			$re->setRe($comment_id, $this->req_params['re_user_id']);
+		} else {
+			$this->req_params['re_user_id'] = '';
 		}
 
+		$post = Model_V3_Db_Post::getInstance();
 		$post_user_id = $post->getPostUserId($this->req_params['post_id']);
 
-		if (session::get('user_id') != $post_user_id) {
+		if (session::get('user_id') !== $post_user_id || !empty($this->req_params['re_user_id'])) {
 			//通知外部処理
-
-			if (!empty($this->req_params['re_user_id'])) {
-				//re_user あり
-				$this->bgpNoticeComment($this->req_params, $post_user_id);
-			} else {
-				//re_user なし
-				$this->req_params['re_user_id'] = '';
-				$this->bgpNoticeComment($this->req_params, $post_user_id);
-			}
-
-		} else if (!empty($this->req_params['re_user_id'])) {
-			$this->bgpNoticeComment($this->req_params);
-
-		} else {
-			//通知なし
+			$this->bgpNoticeComment($this->req_params, $post_user_id);
 		}
 
-		$this->req_params['comment_id'] = $comment_id;
 		$this->output_success();
 	}
 
@@ -122,18 +106,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 	}
 
 
-	public function action_unfollow()
-	{
-		//Input target_user_id
-		$follow = Model_V3_Db_Follow::getInstance();
-		$result = $follow->setUnFollow($this->req_params['user_id']);
-
-		$this->bgpNoticeFollow($this->req_params['user_id']);
-
-		$this->output_success();
-	}
-
-
 	public function action_want()
 	{
 		//Input rest_id
@@ -141,16 +113,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$result = $want->setWant($this->req_params['rest_id']);
 
 		$this->req_params['want_id'] = $result;
-		$this->output_success();
-	}
-
-
-	public function action_unwant()
-	{
-		//Input rest_id
-		$want = Model_V3_Db_Want::getInstance();
-		$result = $want->setUnWant($this->req_params['rest_id']);
-
 		$this->output_success();
 	}
 
@@ -180,16 +142,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 	}
 
 
-	public function action_post_delete()
-	{
-		//Input post_id
-		$post = Model_V3_Db_Post::getInstance();
-		$result = $post->postDelete($this->req_params['post_id']);
-
-		$this->output_success();
-	}
-
-
 	public function action_username()
 	{
 		//Input username
@@ -210,9 +162,9 @@ class Controller_V3_Set extends Controller_V3_Gate
 	{
 		//Input profile_img
 		$user = Model_V3_Db_User::getInstance();
-		$result = $user->setProfileImg($this->req_params['profile_img']);
+		$result = $user->setMyProfileImg($this->req_params['profile_img']);
 
-		$this->req_params = $result;
+		$this->req_params['profile_img'] = Model_V3_Transcode::decode_profile_img($this->req_params['profile_img']);
 		$this->output_success();
 	}
 
@@ -242,15 +194,14 @@ class Controller_V3_Set extends Controller_V3_Gate
 
 	//======================================================//
 
-
-
 	private function bgpNoticeGochi($post_id, $post_user_id)
     {
+    	$user_id = session::get('user_id');
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL,
             'http://localhost/v3/bgp/notice_gochi/'
-            .'?user_id='		. session::get('user_id')
+            .'?user_id='		. "$user_id"
             .'&post_id='    	. "$post_id"
             .'&post_user_id=' 	. "$post_user_id"
         );
@@ -260,11 +211,12 @@ class Controller_V3_Set extends Controller_V3_Gate
 
     private function bgpNoticeComment($params, $post_user_id)
     {
+    	$user_id = session::get('user_id');
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL,
             'http://localhost/v3/bgp/notice_comment/'
-            .'?user_id='		. session::get('user_id')
+            .'?user_id='		. "$user_id"
             .'&post_id='     	. "$params[post_id]"
             .'&post_user_id=' 	. "$post_user_id"
             .'&re_user_id='	 	. "$params[re_user_id]"
@@ -275,11 +227,12 @@ class Controller_V3_Set extends Controller_V3_Gate
 
     private function bgpNoticeFollow($follow_user_id)
     {
+    	$user_id = session::get('user_id');
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL,
             'http://localhost/v3/bgp/notice_follow/'
-            .'?user_id='		. session::get('user_id')
+            .'?user_id='		. "$user_id"
             .'&follow_user_id=' . "$follow_user_id"
         );
         curl_exec($ch);
