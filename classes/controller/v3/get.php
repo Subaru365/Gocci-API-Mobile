@@ -22,6 +22,11 @@ class Controller_V3_Get extends Controller_V3_Gate
 		parent::before();
 	}
 
+	public function action_version()
+	{
+
+	}
+
 
 	public function action_nearline()
     {
