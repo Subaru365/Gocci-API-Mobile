@@ -164,11 +164,6 @@ class Model_V3_Param extends Model
 				$this->setReq_set_sns_link();
 				break;
 
-			case 'v3/set/sns_unlink':
-				$this->getReq_set_sns_unlink();
-				$this->setReq_set_sns_unlink();
-				break;
-
 			case 'v3/set/gochi':
 				$this->getReq_set_gochi();
 				$this->setReq_set_gochi();
@@ -184,19 +179,9 @@ class Model_V3_Param extends Model
 				$this->setReq_set_follow();
 				break;
 
-			case 'v3/set/unfollow':
-				$this->getReq_set_unfollow();
-				$this->setReq_set_unfollow();
-				break;
-
 			case 'v3/set/want':
 				$this->getReq_set_want();
 				$this->setReq_set_want();
-				break;
-
-			case 'v3/set/unwant':
-				$this->getReq_set_unwant();
-				$this->setReq_set_unwant();
 				break;
 
 			case 'v3/set/post':
@@ -207,11 +192,6 @@ class Model_V3_Param extends Model
 			case 'v3/set/post_block':
 				$this->getReq_set_post_block();
 				$this->setReq_set_post_block();
-				break;
-
-			case 'v3/set/post_delete':
-				$this->getReq_set_post_delete();
-				$this->setReq_set_post_delete();
 				break;
 
 			case 'v3/set/username':
@@ -232,6 +212,26 @@ class Model_V3_Param extends Model
 			case 'v3/set/rest':
 				$this->getReq_set_rest();
 				$this->setReq_set_rest();
+				break;
+
+			case 'v3/unset/sns_link':
+				$this->getReq_unset_sns_link();
+				$this->setReq_unset_sns_link();
+				break;
+
+			case 'v3/unset/post':
+				$this->getReq_unset_post();
+				$this->setReq_unset_post();
+				break;
+
+			case 'v3/unset/follow':
+				$this->getReq_unset_follow();
+				$this->setReq_unset_follow();
+				break;
+
+			case 'v3/unset/want':
+				$this->getReq_unset_want();
+				$this->setReq_unset_want();
 				break;
 
 			default:
@@ -377,7 +377,7 @@ class Model_V3_Param extends Model
 		);
 	}
 
-	private function getReq_set_sns_unlink()
+	private function getReq_unset_sns_link()
 	{
 		$this->val_param = array(
 			'provider' 		=> Input::get('provider'),
@@ -408,7 +408,7 @@ class Model_V3_Param extends Model
 		);
 	}
 
-	private function getReq_set_unfollow()
+	private function getReq_unset_follow()
 	{
 		$this->val_param = array(
 			'user_id' 		=> Input::get('user_id'),
@@ -422,7 +422,7 @@ class Model_V3_Param extends Model
 		);
 	}
 
-	private function getReq_set_unwant()
+	private function getReq_unset_want()
 	{
 		$this->val_param = array(
 			'rest_id' 		=> Input::get('rest_id'),
@@ -448,7 +448,7 @@ class Model_V3_Param extends Model
 		);
 	}
 
-	private function getReq_set_post_delete()
+	private function getReq_unset_post()
 	{
 		$this->val_param = array(
 			'post_id' 		=> Input::get('post_id'),
@@ -590,7 +590,7 @@ class Model_V3_Param extends Model
 		$this->regex_sns_token();
 	}
 
-	private function setReq_set_sns_unlink()
+	private function setReq_unset_sns_link()
 	{
 		$this->regex_provider();
 		$this->regex_sns_token();
@@ -613,7 +613,7 @@ class Model_V3_Param extends Model
 		$this->regex_user_id();
 	}
 
-	private function setReq_set_unfollow()
+	private function setReq_unset_follow()
 	{
 		$this->regex_user_id();
 	}
@@ -623,7 +623,7 @@ class Model_V3_Param extends Model
 		$this->regex_rest_id();
 	}
 
-	private function setReq_set_unwant()
+	private function setReq_unset_want()
 	{
 		$this->regex_rest_id();
 	}
@@ -643,7 +643,7 @@ class Model_V3_Param extends Model
 		$this->regex_post_id();
 	}
 
-	private function setReq_set_post_delete()
+	private function setReq_unset_post()
 	{
 		$this->regex_post_id();
 	}
