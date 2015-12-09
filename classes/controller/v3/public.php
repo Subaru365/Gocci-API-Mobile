@@ -3,13 +3,12 @@
  * API first gate. Check RegEx all input parameter.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/10/30)
+ * @version    3.0.0 (2015/12/09)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @license    MIT License
- * @copyright  2015 Inase,inc.
+ * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
-//header('Content-Type: application/json; charset=UTF-8');
+header('Content-Type: application/json; charset=UTF-8');
 
 class Controller_V3_Public extends Controller
 {

@@ -51,13 +51,13 @@ class Daily
 
 		$this->setMessage($num);
 
-		// $this->sendEmail($data);
+		$this->sendEmail();
 		$this->sendSlack();
 	}
 
 	private function dau()
 	{
-		$query = \DB::select('login_user_id', 'login_date')
+		$query = \DB::select('login_user_id')
 		->from('logins')
 		->where('login_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
 		->distinct(true);
@@ -69,8 +69,7 @@ class Daily
 	{
 		$query = \DB::select('user_id', 'user_date')
 		->from('users')
-		->where('user_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
-		->distinct(true);
+		->where('user_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')));
 
 		return $query->execute()->as_array();
 	}
@@ -104,11 +103,11 @@ class Daily
 
 	private function dayXRetensionRate($day)
 	{
-		$yday = $day + 1;
+		$yday = $day - 1;
 
 		$query1 = \DB::select('login_user_id')
 		->from('logins')
-		->where('login_date', 'between', array(\DB::expr("curdate() - interval $yday day"),  \DB::expr("curdate() - $day")))
+		->where('login_date', 'between', array(\DB::expr("curdate() - interval {$day} day"),  \DB::expr("curdate() - interval {$yday} day")))
 		->distinct(true);
 
 		$dayx_login_user = $query1->execute()->as_array();
@@ -117,10 +116,11 @@ class Daily
 			return $dayx_login_user = 0;
 		}
 
-		$query2 = \DB::select('login_user_id', 'login_date')
+		$query2 = \DB::select('login_user_id')
 		->from('logins')
 		->where('login_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
-		->and_where('login_user_id', 'in', $dayx_login_user[0]);
+		->and_where('login_user_id', 'in', $dayx_login_user[0])
+		->distinct(true);
 
 		return $query2->execute()->as_array();
 	}
@@ -141,7 +141,7 @@ class Daily
 
 		$this->message = ""
 			."\n *Wake up and smell the coffee!*"
-			."\n *Dau       : {$num['dau']}*"
+			."\n *DAU       : {$num['dau']}*"
 			."\n *New User  : {$num['newUser']}*"
 			."\n  gochi     : {$num['gochi']}"
 			."\n  Post      : {$num['post']}"
@@ -155,13 +155,13 @@ class Daily
 		."";
 	}
 
-	private function sendEmail($data)
+	private function sendEmail()
 	{
 		$email = \Email::forge();
 		$email->from('onibi@fuel.php', 'Gocci-Test Server');
 		$email->to('a-murata@inase-inc.jp', 'Akira Murata');
 		$email->subject('Today\'s KPI');
-		$email->body("$data");
+		$email->body("$this->message");
 
 		try {
 			$email->send();
@@ -180,6 +180,7 @@ class Daily
 	{
 		$message 	= $this->message;
 		$color 		= 'danger';
+		$channel    = '@channel';
 
 		$data = array('attachments' => array(array(
 			'text' 		=> $message,

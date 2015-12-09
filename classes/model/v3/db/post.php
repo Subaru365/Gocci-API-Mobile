@@ -3,10 +3,9 @@
  * DB-Post Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/26)
+ * @version    3.0.0 (2015/12/09)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @license    MIT License
- * @copyright  2015 Inase,inc.
+ * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
@@ -36,10 +35,26 @@ class Model_V3_Db_Post extends Model_V3_Db
 
 	public function getNearPost($params)
 	{
-		$this->selectNearData($params['lon'], $params['lat']);
+		$this->selectNearPostRestId($params['lon'], $params['lat']);
 		$this->addOption($params);
-		$result = $this->run();
-		return $result;
+		$result1 = $this->run();
+
+		$num = count($result1);
+		for ($i=0; $i < $num; $i++) { 
+			$rest_ids[$i] = $result1[$i]['post_rest_id'];
+		}
+
+		$this->selectNearPostId($rest_ids);
+		$result2 = $this->run();
+
+		$num = count($result2);
+		for ($i=0; $i < $num; $i++) { 
+			$post_ids[$i] = $result2[$i]['MAX(`post_id`)'];
+		}
+
+		$this->selectNearData($params['lon'], $params['lat'], $post_ids);
+		$result3 = $this->run();
+		return $result3;
 	}
 
 	public function getTimePost($params)
@@ -154,7 +169,7 @@ class Model_V3_Db_Post extends Model_V3_Db
 		->and_where('cheer_flag', '1');
 	}
 
-	private function selectNearData($lon, $lat)
+	private function selectNearData($lon, $lat, $post_ids)
 	{
 		$this->query = DB::select(
 			'post_id',		'movie',		'thumbnail', 	
@@ -162,7 +177,7 @@ class Model_V3_Db_Post extends Model_V3_Db
 			'user_id', 		'username',		'cheer_flag',
 			'post_date',
 			DB::expr("GLength(GeomFromText(CONCAT('LineString(
-				${lon} ${lat},', X(lon_lat),' ', Y(lon_lat),')'))) as distance"
+				{$lon} {$lat},', X(lon_lat),' ', Y(lon_lat),')'))) as distance"
 			)
 		)
 		->from(self::$table_name)
@@ -173,10 +188,8 @@ class Model_V3_Db_Post extends Model_V3_Db
 		->join('users', 'INNER')
 		->on('post_user_id', '=', 'user_id')
 
-		->order_by(DB::expr("GLength(GeomFromText(CONCAT('LineString(
-			${lon} ${lat},', X(lon_lat),' ', Y(lon_lat),')')))"))
-
-		->where('post_status_flag', '1')
+		->where('post_id', 'in', $post_ids)
+		->order_by(DB::expr('FIELD(post_id, '.implode(",", $post_ids).')'))
 
 		->limit($this->limit);
 	}
@@ -206,6 +219,40 @@ class Model_V3_Db_Post extends Model_V3_Db
 	}
 
 
+	private function selectNearPostRestId($lon, $lat)
+	{
+		$this->query = DB::select('post_rest_id')
+		->from(self::$table_name)
+
+		->join('restaurants', 'INNER')
+		->on('post_rest_id', '=', 'rest_id')
+
+		->order_by(DB::expr("GLength(GeomFromText(CONCAT('LineString(
+			{$lon} {$lat},', X(lon_lat),' ', Y(lon_lat),')')))"))
+
+		->where('post_status_flag', '1')
+		
+		->distinct(true)
+		->limit($this->limit);
+	}
+
+
+	private function selectNearPostId($rest_ids)
+	{
+		$this->query = DB::select(DB::expr('MAX(`post_id`)'))
+		->from(self::$table_name)
+
+		->order_by(DB::expr('FIELD(post_rest_id, '.implode(",", $rest_ids).')'))
+		->order_by('post_date','desc')
+
+		->group_by('post_rest_id')
+
+		->where('post_rest_id', 'in', $rest_ids)
+		
+		->distinct(true);
+	}
+
+
 	private function selectPosition()
 	{
 		$this->query = DB::select(
@@ -216,6 +263,8 @@ class Model_V3_Db_Post extends Model_V3_Db
 
 		->join('restaurants', 'INNER')
 		->on('post_rest_id', '=', 'rest_id')
+
+		->where('post_status_flag', '1')
 		
 		->distinct(true)
 		->limit(100000);
@@ -337,13 +386,13 @@ class Model_V3_Db_Post extends Model_V3_Db
 		));
 	}
 
+	//-----------------------------------------------------//
 
 	private function addOption($option)
 	{
 		//カテゴリー絞り込み
 		if (!empty($option['category_id'])) {
-			$this->query
-			->where('category_id', $option['category_id'])
+			$this->query->and_where('category_id', $option['category_id'])
 			->join('categories', 'LEFT OUTER')
 			->on('post_category_id', '=', 'category_id');
 		}
@@ -351,16 +400,16 @@ class Model_V3_Db_Post extends Model_V3_Db
 		//価格絞り込み
 		if (!empty($option['value_id'])) {
 			if ($option['value_id'] == 1) {
-				$this->query->where('value', 'between', array(1, 700));
+				$this->query->and_where('value', 'between', array(1, 700));
 			}
 			if ($option['value_id'] == 2) {
-				$this->query->where('value', 'between', array(500, 1500));
+				$this->query->and_where('value', 'between', array(500, 1500));
 			}
 			if ($option['value_id'] == 3) {
-				$this->query->where('value', 'between', array(1500, 5000));
+				$this->query->and_where('value', 'between', array(1500, 5000));
 			}
 			if ($option['value_id'] == 4) {
-				$this->query->where('value', '>', 3000);
+				$this->query->and_where('value', '>', 3000);
 			}
 		}
 
