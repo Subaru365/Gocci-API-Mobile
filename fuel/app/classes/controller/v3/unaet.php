@@ -19,10 +19,17 @@ class Controller_V3_Unset extends Controller_V3_Gate
 
 	public function action_device()
 	{
-		//$req_params is [os, ver, model, device_token]
+		//$req_params is [device_token]
 		$device = Model_V3_Device::getInstance();
+		$result = $device->getEndpointArn(session::get('user_id'));
 
-		$device->deleteDevice($this->req_params);
+		if (!empty($result)) {
+			$endpoint_arn = $result[0]['endpoint_arn'];
+			$device->deleteDevice(session::get('user_id'));
+
+			$sns = Model_V3_Aws_Sns::getInstance();
+			$sns = deleteSns($endpoint_arn);
+		}
 
         $this->output_success();
 	}
@@ -43,8 +50,6 @@ class Controller_V3_Unset extends Controller_V3_Gate
 		//Input target_user_id
 		$follow = Model_V3_Db_Follow::getInstance();
 		$result = $follow->setUnFollow($this->req_params['user_id']);
-
-		$this->bgpNoticeFollow($this->req_params['user_id']);
 
 		$this->output_success();
 	}

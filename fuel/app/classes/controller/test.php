@@ -57,8 +57,8 @@ class Controller_Test extends Controller
 
 	public function action_func()
 	{
-		$str = "func_hoge";
-		$this->$str();
+		$num = 1;
+		echo "こんにちは ".++$num;
 	}
 
 	public function func_hoge()
