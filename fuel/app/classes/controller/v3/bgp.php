@@ -3,10 +3,9 @@
  * Background Process Class. Access to localhost
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/20)
+ * @version    3.0.0 (2015/12/10)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @license    MIT License
- * @copyright  2015 Inase,inc.
+ * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
@@ -14,10 +13,10 @@ class Controller_V3_Bgp extends Controller
 {
     public function before()
     {
-        // if ($_SERVER['REMOTE_ADDR'] !== '127.0.0.1') {
-        //     error_log('access denied.');
-        //     exit;
-        // }
+        if ($_SERVER['REMOTE_ADDR'] !== '127.0.0.1') {
+            error_log('access denied.');
+            exit;
+        }
     }
 
     // public function action_update_device()

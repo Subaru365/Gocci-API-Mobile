@@ -47,7 +47,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 
 		$this->req_params['follow_user_id'] = $follow->getFollowId();
 
-		if (empty($follow_user_id)) {
+		if (empty($this->req_params['follow_user_id'])) {
 			$this->status = Model_V3_Status::getStatus('SUCCESS');
 			$this->output();
 		}
