@@ -34,7 +34,7 @@ class Controller_V1_Mobile_Background extends Controller
         $movie   = Input::get('movie');
 
         Model_V1_Post::post_publish($movie);
-        Model_V1_Sns::post_publish($user_id, $message);
+        //Model_V1_Sns::post_publish($user_id, $message);
 
         echo '確認ありがとう！';
     }

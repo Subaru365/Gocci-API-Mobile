@@ -43,7 +43,9 @@ class Controller_V3_Auth extends Controller_V3_Public
 
         $params = $user_data[0];
         $params['profile_img']      = Model_V3_Transcode::decode_profile_img($params['profile_img']);
-        $params['cognito_token']    = $cognito->getToken($params['user_id']);
+        $cognito_data               = $cognito->getLoginData($params['user_id']);
+        $params['identity_id']      = $cognito_data['IdentityId'];
+        $params['cognito_token']    = $cognito_data['Token'];
         return $params;
     }
 
@@ -58,7 +60,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         $this->chkOverlapUsername($this->req_params['username']);
         $params = $this->createProfile($this->req_params['username']);
 
-        $user   ->setData($params);
+        $user->setData($params);
 
         $this->req_params['identity_id'] = $params['identity_id'];
         $this->output_success();

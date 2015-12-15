@@ -57,6 +57,12 @@ class Model_V3_Aws_Cognito extends Model
         return $result['IdentityId'];
     }
 
+    public function getLoginData($user_id)
+    {
+        $result = $this->getData($user_id);
+        return $result;
+    }
+
     public function setSnsAccount($params)
     {
         $result = $this->addSnsAccount($params['provider'], $params['sns_token']);

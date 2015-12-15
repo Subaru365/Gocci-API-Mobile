@@ -57,8 +57,19 @@ class Controller_Test extends Controller
 
 	public function action_func()
 	{
-		$num = 1;
-		echo "こんにちは ".++$num;
+		$message = array(
+            'type'      => "follow",
+            'id'        => "3",
+            'username'  => "Akira",    
+        );
+
+        $message = json_encode(
+            $message,
+            JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|
+            JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT
+        );
+
+        echo $message;
 	}
 
 	public function func_hoge()

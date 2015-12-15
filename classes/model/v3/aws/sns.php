@@ -36,24 +36,24 @@ class Model_V3_Aws_Sns extends Model
 
     public function pushAndroid($username, $arn, $id)
     {
-        // try {
+        try {
             $this->publishAndroid($username, $arn, $id);
-        // }
-        // catch (Exception $e) {
-        //     error_log($arn . " Error!\n");
-        //     exit;
-        // }
+        }
+        catch (Exception $e) {
+            error_log($arn . " Error!\n");
+            exit;
+        }
     }
 
     public function pushiOS($username, $arn, $id)
     {
-        // try {
+        try {
             $this->publishiOS($username, $arn, $id);
-        // }
-        // catch (Exception $e) {
-        //     error_log($arn . " Error!\n");
-        //     exit;
-        // }
+        }
+        catch (Exception $e) {
+            error_log($arn . " Error!\n");
+            exit;
+        }
 
     }
 
