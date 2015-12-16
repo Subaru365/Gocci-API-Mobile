@@ -48,9 +48,11 @@ class Controller_V3_Public extends Controller
 
     protected function output_success()
     {
-        //$this->set_responce();
+        if (empty($this->res_params)) {
+            $this->res_params = json_decode('{}');
+        }
 
-        $this->status = Model_V3_Status::getStatus('SUCCESS', $this->req_params);
+        $this->status = Model_V3_Status::getStatus('SUCCESS', $this->res_params);
         $this->output();
     }
 

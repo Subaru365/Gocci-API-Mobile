@@ -33,7 +33,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		// $req_params is lon, lat(, call, category_id, value_id)
 		$post = Model_V3_Post::getInstance();
 
-		$this->req_params = $post->getNearline($this->req_params);
+		$this->res_params['posts'] = $post->getNearline($this->req_params);
 
 		$this->output_success();
 	}
@@ -52,7 +52,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 			$this->output();
 		}
 
-		$this->req_params = $post->getFollowline($this->req_params);
+		$this->res_params['posts'] = $post->getFollowline($this->req_params);
 	   	$this->output_success();
 	}
 
@@ -62,8 +62,7 @@ class Controller_V3_Get extends Controller_V3_Gate
     	//$option is [call, order_id, category_id, value_id, lon, lat]
     	$post = Model_V3_Post::getInstance();
 
-		$this->req_params = $post->getTimeline($this->req_params);
-
+		$this->res_params['posts'] = $post->getTimeline($this->req_params);
 	   	$this->output_success();
 	}
 
@@ -77,7 +76,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$memo_data 		= $post->getMemo($this->req_params['post_id']);
 		$comment_data 	= $comment->getComment($this->req_params['post_id']);
 
-		$this->req_params = array(
+		$this->res_params = array(
 			"memo" 		=> $memo_data,
 			"comments" 	=> $comment_data
 		);
@@ -95,7 +94,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$rest_data 	= $rest->getRestData($this->req_params['rest_id']);
 		$post_data 	= $post->getRestPost($this->req_params['rest_id']);
 
-		$this->req_params = array(
+		$this->res_params = array(
 			"rest" 	=> $rest_data,
 			"posts" => $post_data
 		);
@@ -113,7 +112,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$user_data  = $user->getProfile($this->req_params['user_id']);
         $post_data 	= $post->getUserPost($this->req_params['user_id']);
 
-	   	$this->req_params = array(
+	   	$this->res_params = array(
 	   		"user"	=> $user_data,
 	   		"posts" => $post_data,
 	   	);
@@ -135,7 +134,7 @@ class Controller_V3_Get extends Controller_V3_Gate
     	$user = Model_V3_Db_User::getInstance();
     	$user->resetBadge();
 
-    	$this->req_params = $data;
+    	$this->res_params['notices'] = $data;
 	   	$this->output_success();
 	}
 
@@ -152,7 +151,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 			$this->output();
 		}
 
-		$this->req_params = $data;
+		$this->res_params['users'] = $data;
 	   	$this->output_success();
 	}
 
@@ -169,7 +168,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 			$this->output();
 		}
 
-		$this->req_params = $data;
+		$this->res_params['users'] = $data;
 	   	$this->output_success();
 	}
 
@@ -186,7 +185,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 			$this->output();
 		}
 
-		$this->req_params = $data;
+		$this->res_params['rests'] = $data;
 	   	$this->output_success();
 	}
 
@@ -203,7 +202,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 			$this->output();
 		}
 
-		$this->req_params = $data;
+		$this->res_params['rests'] = $data;
 	   	$this->output_success();
 	}
 
@@ -219,7 +218,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 	public function action_heatmap()
 	{
 		$post = Model_V3_Db_Post::getInstance();
-		$this->req_params = $post->getPositionPost();
+		$this->res_params['rests'] = $post->getPositionPost();
 		$this->output_success();
 	}
 
@@ -227,7 +226,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 	public function action_near()
 	{
 		$rest = Model_V3_Db_Restaurant::getInstance();
-		$this->req_params = $rest->getNearData($this->req_params['lon'], $this->req_params['lat']);
+		$this->req_params['rests'] = $rest->getNearData($this->req_params['lon'], $this->req_params['lat']);
 		$this->output_success();
 	}
 }

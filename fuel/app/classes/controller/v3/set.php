@@ -34,7 +34,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$user 	= Model_V3_User::getInstance();
 		$result = $user->setPassword($this->req_params['password']);
 
-		$this->req_params = $result;
 		$this->output_success();
 	}
 
@@ -63,7 +62,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 			$this->bgpNoticeGochi($this->req_params['post_id'], $post_user_id);
 		}
 
-		$this->req_params['gochi_id'] = $result;
 		$this->output_success();
 	}
 
@@ -101,7 +99,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 
 		$this->bgpNoticeFollow($this->req_params['user_id']);
 
-		$this->req_params['follow_id'] = $result;
 		$this->output_success();
 	}
 
@@ -112,7 +109,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$want = Model_V3_Db_Want::getInstance();
 		$result = $want->setWant($this->req_params['rest_id']);
 
-		$this->req_params['want_id'] = $result;
 		$this->output_success();
 	}
 
@@ -127,7 +123,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$hash_id = Model_V3_Hash::postIdHash($post_id);
 		$post->setHashId($post_id, $hash_id);
 
-		$this->req_params['post_id'] = $post_id;
 		$this->output_success();
 	}
 
@@ -164,7 +159,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$user = Model_V3_Db_User::getInstance();
 		$result = $user->setMyProfileImg($this->req_params['profile_img']);
 
-		$this->req_params['profile_img'] = Model_V3_Transcode::decode_profile_img($this->req_params['profile_img']);
+		$this->res_params['profile_img'] = Model_V3_Transcode::decode_profile_img($this->req_params['profile_img']);
 		$this->output_success();
 	}
 
@@ -176,7 +171,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$feedback = Model_V3_Db_Feedback::getInstance();
 		$result = $feedback->setFeedback($this->req_params['feedback']);
 
-		$this->req_params['feedback_id'] = $result;
 		$this->output_success();
 	}
 
@@ -188,7 +182,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$rest = Model_V3_Db_Restaurant::getInstance();
 		$result = $rest->setRestData($this->req_params);
 
-		$this->req_params['rest_id'] = $result;
+		$this->res_params['rest_id'] = $result;
 		$this->output_success();
 	}
 

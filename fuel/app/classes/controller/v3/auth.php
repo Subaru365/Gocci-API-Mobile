@@ -25,7 +25,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         $params = $this->getLoginData($this->req_params['identity_id']);
         session::set('user_id', $params['user_id']);
 
-        $this->req_params = $params;
+        $this->res_params = $params;
         $this->output_success();
     }
 
@@ -42,6 +42,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         }
 
         $params = $user_data[0];
+        $params['badge_num']        = (int)$params['badge_num'];
         $params['profile_img']      = Model_V3_Transcode::decode_profile_img($params['profile_img']);
         $cognito_data               = $cognito->getLoginData($params['user_id']);
         $params['identity_id']      = $cognito_data['IdentityId'];
@@ -62,7 +63,7 @@ class Controller_V3_Auth extends Controller_V3_Public
 
         $user->setData($params);
 
-        $this->req_params['identity_id'] = $params['identity_id'];
+        $this->res_params['identity_id'] = $params['identity_id'];
         $this->output_success();
     }
 
@@ -96,7 +97,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         //$req_params is [username, password]
         $identity_id = $this->chkPassword($this->req_params['username'], $this->req_params['password']);
 
-        $this->req_params['identity_id'] = $identity_id;
+        $this->res_params['identity_id'] = $identity_id;
         $this->output_success();
     }
 
