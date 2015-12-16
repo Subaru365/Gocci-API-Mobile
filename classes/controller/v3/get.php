@@ -48,7 +48,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$this->req_params['follow_user_id'] = $follow->getFollowId();
 
 		if (empty($this->req_params['follow_user_id'])) {
-			$this->status = Model_V3_Status::getStatus('SUCCESS');
+			$this->status = Model_V3_Status::getStatus('SUCCESS', array('posts'=>json_decode('[]'),));
 			$this->output();
 		}
 
@@ -127,7 +127,7 @@ class Controller_V3_Get extends Controller_V3_Gate
     	$data = $notice->getNotice();
 
     	if (empty($data)) {
-    		$this->status = Model_V3_Status::getStatus('SUCCESS');
+    		$this->status = Model_V3_Status::getStatus('SUCCESS', array('notices'=>json_decode('[]'),));
 			$this->output();
     	}
 
@@ -147,7 +147,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$data = $user->getFollowlist($this->req_params['user_id']);
 
 		if (empty($data)) {
-			$this->status = Model_V3_Status::getStatus('SUCCESS');
+			$this->status = Model_V3_Status::getStatus('SUCCESS', array('users'=>json_decode('[]'),));
 			$this->output();
 		}
 
@@ -164,7 +164,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$data = $user->getFollowerlist($this->req_params['user_id']);
 
 		if (empty($data)) {
-			$this->status = Model_V3_Status::getStatus('SUCCESS');
+			$this->status = Model_V3_Status::getStatus('SUCCESS', array('users'=>json_decode('[]'),));
 			$this->output();
 		}
 
@@ -181,7 +181,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$data = $want->getData($this->req_params['user_id']);
 
 		if (empty($data)) {
-			$this->status = Model_V3_Status::getStatus('SUCCESS');
+			$this->status = Model_V3_Status::getStatus('SUCCESS', array('rests'=>json_decode('[]'),));
 			$this->output();
 		}
 
@@ -198,7 +198,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$data = $post->getUserCheer($this->req_params['user_id']);
 
 		if (empty($data)) {
-			$this->status = Model_V3_Status::getStatus('SUCCESS');
+			$this->status = Model_V3_Status::getStatus('SUCCESS', array('rests'=>json_decode('[]'),));
 			$this->output();
 		}
 
@@ -226,7 +226,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 	public function action_near()
 	{
 		$rest = Model_V3_Db_Restaurant::getInstance();
-		$this->req_params['rests'] = $rest->getNearData($this->req_params['lon'], $this->req_params['lat']);
+		$this->res_params['rests'] = $rest->getNearData($this->req_params['lon'], $this->req_params['lat']);
 		$this->output_success();
 	}
 }
