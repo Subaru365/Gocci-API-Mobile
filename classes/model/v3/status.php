@@ -67,8 +67,7 @@ class Model_V3_Status extends Model
      * @param  Array  $payload
 	 * @return Array  $status
 	 */
-    public static function getStatus(
-        $status_code = 'ERROR_UNKNOWN_ERROR', $payload = array())
+    public static function getStatus($status_code = 'ERROR_UNKNOWN_ERROR', $payload = array())
     {
     	$status = array(
 			'version'   => 3.0,
@@ -76,6 +75,11 @@ class Model_V3_Status extends Model
             'code'      => $status_code,
             'payload'   => $payload
 		);
+
+        if (empty($status['payload'])) {
+            $status['payload'] = json_decode('{}');
+        }
+
 
     	switch ($status_code) {
 
