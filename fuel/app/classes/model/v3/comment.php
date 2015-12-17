@@ -50,7 +50,7 @@ class Model_V3_Comment extends Model
 		for ($i=0; $i < $num; $i++) {
 			$data[$i]['profile_img']	= Model_V3_Transcode::decode_profile_img($data[$i]['profile_img']);
 			$data[$i]['comment_date'] 	= Model_V3_Transcode::decode_date($data[$i]['comment_date']);
-			$data[$i]['re_user'] 		= $this->re->getRe($data[$i]['comment_id']);
+			$data[$i]['re_users'] 		= $this->re->getRe($data[$i]['comment_id']);
 		}
 		return $data;
 	}

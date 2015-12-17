@@ -61,7 +61,7 @@ class Controller_V3_Public extends Controller
     {
         $json = json_encode(
             $this->status,
-            JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|
+            JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|
             JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT
         );
 
