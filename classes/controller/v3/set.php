@@ -24,7 +24,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 
 		$device->updateDevice($this->req_params);
 
-        $this->output_success();
+        $this->outputSuccess();
 	}
 
 
@@ -34,7 +34,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$user 	= Model_V3_User::getInstance();
 		$result = $user->setPassword($this->req_params['password']);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -44,7 +44,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$user 	= Model_V3_User::getInstance();
 		$result = $user->setSnsLink($this->req_params);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -62,14 +62,14 @@ class Controller_V3_Set extends Controller_V3_Gate
 			$this->bgpNoticeGochi($this->req_params['post_id'], $post_user_id);
 		}
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
 	public function action_comment()
 	{
 		//Input post_id, comment, re_user_id
-		$comment = Model_V3_Db_Comment::getInstance();
+		$comment 	= Model_V3_Db_Comment::getInstance();
 		$comment_id = $comment->setComment($this->req_params);
 
 		if (!empty($this->req_params['re_user_id'])) {
@@ -87,7 +87,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 			$this->bgpNoticeComment($this->req_params, $post_user_id);
 		}
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -99,7 +99,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 
 		$this->bgpNoticeFollow($this->req_params['user_id']);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -109,7 +109,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$want = Model_V3_Db_Want::getInstance();
 		$result = $want->setWant($this->req_params['rest_id']);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -123,7 +123,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$hash_id = Model_V3_Hash::postIdHash($post_id);
 		$post->setHashId($post_id, $hash_id);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -133,7 +133,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$block = Model_V3_Db_Block::getInstance();
 		$result = $block->setBlock($this->req_params['post_id']);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -149,7 +149,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 			$result = $user->setMyName($this->req_params['username']);
 		}
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -160,7 +160,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$result = $user->setMyProfileImg($this->req_params['profile_img']);
 
 		$this->res_params['profile_img'] = Model_V3_Transcode::decode_profile_img($this->req_params['profile_img']);
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -171,7 +171,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$feedback = Model_V3_Db_Feedback::getInstance();
 		$result = $feedback->setFeedback($this->req_params['feedback']);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -183,7 +183,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$result = $rest->setRestData($this->req_params);
 
 		$this->res_params['rest_id'] = $result;
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 	//======================================================//

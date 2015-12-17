@@ -3,10 +3,9 @@
  * Authentication Class. Request SignUp, LogIn.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/03)
+ * @version    3.0.0 (2015/11/17)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @license    MIT License
- * @copyright  2015 Inase,inc.
+ * @copyright  2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
@@ -26,7 +25,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         session::set('user_id', $params['user_id']);
 
         $this->res_params = $params;
-        $this->output_success();
+        $this->outputSuccess();
     }
 
 
@@ -37,7 +36,8 @@ class Controller_V3_Auth extends Controller_V3_Public
 
         $user_data  = $user->getUser($identity_id);
         if (empty($user_data)) {
-            $this->status = Model_V3_Status::getStatus('ERROR_IDENTITY_ID_NOT_REGISTERD');
+            $param = Model_V3_Param::getInstance();
+            $param->set_auth_login_ERROR_IDENTITY_ID_NOT_REGISTERD();
             $this->output();
         }
 
@@ -64,7 +64,7 @@ class Controller_V3_Auth extends Controller_V3_Public
         $user->setData($params);
 
         $this->res_params['identity_id'] = $params['identity_id'];
-        $this->output_success();
+        $this->outputSuccess();
     }
 
     private function chkOverlapUsername($username)
@@ -72,7 +72,8 @@ class Controller_V3_Auth extends Controller_V3_Public
         $user = Model_V3_Db_User::getInstance();
 
         if ($user->getIdForName($username)) {
-            $this->status = Model_V3_Status::getStatus('ERROR_USERNAME_ALREADY_REGISTERD');
+            $param = Model_V3_Param::getInstance();
+            $param->set_auth_signup_ERROR_USERNAME_ALREADY_REGISTERD();
             $this->output();
         }
     }
@@ -98,16 +99,22 @@ class Controller_V3_Auth extends Controller_V3_Public
         $identity_id = $this->chkPassword($this->req_params['username'], $this->req_params['password']);
 
         $this->res_params['identity_id'] = $identity_id;
-        $this->output_success();
+        $this->outputSuccess();
     }
 
     private function chkPassword($username, $password)
     {
         $user = Model_V3_Db_User::getInstance();
 
+        if (empty($user->getIdForName($username))) {
+            $param = Model_V3_Param::getInstance();
+            $param->set_auth_password_ERROR_USERNAME_NOT_REGISTERD();
+        }
+
         $hash_pass = $user->getPassword($username);
         if (empty($hash_pass)) {
-            $this->status = Model_V3_Status::getStatus('ERROR_PASSWORD_NOT_REGISTERD');
+            $param = Model_V3_Param::getInstance();
+            $param->set_auth_password_ERROR_PASSWORD_NOT_REGISTERD();
             $this->output();
 
         } else if (password_verify($password, $hash_pass[0]['password'])) {
@@ -116,7 +123,8 @@ class Controller_V3_Auth extends Controller_V3_Public
             return $identity_id;
 
         } else {
-            $this->status = Model_V3_Status::getStatus('ERROR_PASSWORD_WRONG');
+            $param = Model_V3_Param::getInstance();
+            $param->set_auth_password_ERROR_PASSWORD_WRONG();
             $this->output();
         }
     }

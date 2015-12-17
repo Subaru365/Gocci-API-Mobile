@@ -93,7 +93,7 @@ class Model_V3_Post extends Model
 		for ($i=0; $i < $post_num; $i++) {
 			$dis  		= $data[$i]['distance'];
 			$dis_meter	= $dis * 112120;
-			$data[$i]['distance'] = round($dis_meter);
+			$data[$i]['distance'] = round($dis_meter, 0);
 		}
 		return $data;
 	}

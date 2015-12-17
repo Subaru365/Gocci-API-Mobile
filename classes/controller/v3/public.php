@@ -3,7 +3,7 @@
  * API first gate. Check RegEx all input parameter.
  *
  * @package    Gocci-Mobile
- * @version    3.0.0 (2015/12/09)
+ * @version    3.1.0 (2015/12/17)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -27,42 +27,33 @@ class Controller_V3_Public extends Controller
      */
     protected $res_params = array();
 
-    /**
-     * @var Instance $User
-     */
-    protected $User;
-
-    /**
-     * @var Instance $Device
-     */
-    protected $Device;
-
 
     //-----------------------------------------------------//
 
 
 	public function before()
 	{
-        $this->set_request();
+        $this->setRequest();
     }
 
-    protected function output_success()
-    {
-        if (empty($this->res_params)) {
-            $this->res_params = json_decode('{}');
-        }
 
-        $this->status = Model_V3_Status::getStatus('SUCCESS', $this->res_params);
+    protected function outputSuccess()
+    {
+        $param = Model_V3_Param::getInstance();
+        $param->setGlobalCode_SUCCESS($this->res_params);
         $this->output();
     }
 
 
     protected function output()
     {
+        $param = Model_V3_Param::getInstance();
+        $status = $param->status;
+
         $json = json_encode(
-            $this->status,
+            $status,
             JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|
-            JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT
+            JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_QUOT
         );
 
         echo $json;
@@ -70,32 +61,16 @@ class Controller_V3_Public extends Controller
     }
 
 
-    private function set_request()
+    private function setRequest()
     {
         $param  = Model_V3_Param::getInstance();
-        $params = $param->get_request();
+        $params = $param->getRequest(input::get());
 
-        if ($params) {
+        if (!empty($param->status['code'])) {
+            $this->output();
+
+        } else {
             $this->req_params = $params;
-
-        } else {
-            $this->status = Model_V3_Status::getStatus('ERROR_REQUEST_PARAMETER_INVALID');
-            $this->output();
-        }
-    }
-
-
-    private function set_responce()
-    {
-        $param  = Model_V3_Param::getInstance();
-        $params = $param->get_responce($this->req_params);
-
-        if ($params) {
-            $this->res_params = $params;
-
-        } else {
-            $this->status = Model_V3_Status::getStatus('ERROR_RESPONSE_PARAMETER_INVALID');
-            $this->output();
         }
     }
 }
