@@ -3,10 +3,9 @@
  * Get  Class. Request SignUp, LogIn.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/24)
+ * @version    3.0.0 (2015/12/17)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @license    MIT License
- * @copyright  2015 Inase,inc.
+ * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
@@ -35,7 +34,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 
 		$this->res_params['posts'] = $post->getNearline($this->req_params);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -53,7 +52,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		}
 
 		$this->res_params['posts'] = $post->getFollowline($this->req_params);
-	   	$this->output_success();
+	   	$this->outputSuccess();
 	}
 
 
@@ -63,7 +62,7 @@ class Controller_V3_Get extends Controller_V3_Gate
     	$post = Model_V3_Post::getInstance();
 
 		$this->res_params['posts'] = $post->getTimeline($this->req_params);
-	   	$this->output_success();
+	   	$this->outputSuccess();
 	}
 
 
@@ -81,7 +80,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 			"comments" 	=> $comment_data
 		);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -99,7 +98,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 			"posts" => $post_data
 		);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -117,7 +116,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 	   		"posts" => $post_data,
 	   	);
 
-	   	$this->output_success();
+	   	$this->outputSuccess();
 	}
 
 
@@ -135,7 +134,7 @@ class Controller_V3_Get extends Controller_V3_Gate
     	$user->resetBadge();
 
     	$this->res_params['notices'] = $data;
-	   	$this->output_success();
+	   	$this->outputSuccess();
 	}
 
 
@@ -152,7 +151,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		}
 
 		$this->res_params['users'] = $data;
-	   	$this->output_success();
+	   	$this->outputSuccess();
 	}
 
 
@@ -169,7 +168,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		}
 
 		$this->res_params['users'] = $data;
-	   	$this->output_success();
+	   	$this->outputSuccess();
 	}
 
 
@@ -186,7 +185,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		}
 
 		$this->res_params['rests'] = $data;
-	   	$this->output_success();
+	   	$this->outputSuccess();
 	}
 
 
@@ -203,7 +202,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 		}
 
 		$this->res_params['rests'] = $data;
-	   	$this->output_success();
+	   	$this->outputSuccess();
 	}
 
 
@@ -219,7 +218,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 	{
 		$post = Model_V3_Db_Post::getInstance();
 		$this->res_params['rests'] = $post->getPositionPost();
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -227,7 +226,7 @@ class Controller_V3_Get extends Controller_V3_Gate
 	{
 		$rest = Model_V3_Db_Restaurant::getInstance();
 		$this->res_params['rests'] = $rest->getNearData($this->req_params['lon'], $this->req_params['lat']);
-		$this->output_success();
+		$this->outputSuccess();
 	}
 }
 

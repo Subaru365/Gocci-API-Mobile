@@ -1,3 +1,4 @@
+
 <?php
 /**
  * Parameter list of uri.
@@ -13,930 +14,1103 @@ class Model_V3_Param extends Model
 {
     use SingletonTrait;
 
-    /**
-     * @var $uri
-     */
-    private $uri = '';
+    private $uri_path;
 
-    /**
-     * @var Array $val_param
-     */
-    private $val_param = array();
+    private $req_params = array();
 
-    /**
-     * @var Array $safe_param //if validation failed return FALSE
-     */
-    private $safe_param = array();
+    public $status = array();
 
-    /**
-     * @var Array $safe_param //if validation failed return FALSE
-     */
-    private $res_param = array();
-
-    /**
-     * @var Instance $val
-     */
-    private $val;
 
     private function __construct()
     {
-        $this->uri = Uri::string();
+        $this->status = array(
+            'version'   => 3.7,
+            'uri'       => Uri::string(),
+            'code'      => '',
+            'message'   => '',
+            'payload'   => json_decode('{}'),
+        );
     }
 
 
+    // public function __get($name)
+    // {
+    //     if ($name === 'getRequest') {
+    //         if (!empty($this->status['code'])) {
+    //             error_log($this->status['code']);
+    //             return FALSE;
+    //         }
+    //     }
+    // }    
 
-
-    //======================================================//
-    // Request
-    //======================================================//
-
-    public function get_request()
+    public function getRequest($input_params)
     {
-        $this->Val = Validation::forge('request');
+        $uri  = substr(Uri::string(), 3);
+        $this->uri_path     = str_replace("/", "_", $uri);
+        $req_function_name  = "setReqParams_".$this->uri_path;
 
-        $this->setRequest();
+        $this->$req_function_name($input_params);
 
-        if ($this->val_param) {
-            $this->check($this->val_param);
+        return $this->req_params;
+    }
 
-        } else {
-            return true;
+
+    // public function setResponse($params)
+    // {
+    //     $res_function_name = "setPayload{$this->uri_path}";
+
+    //     try {
+    //         $this->$res_function_name($params);
+    //         $this->set_GlobalCode_SUCCESS();
+
+    //     } catch (Excepsion $e){
+    //         error_log($e);
+    //         $this->set_GlobalCode_ERROR_SERVER_SIDE_FAILURE();
+    //     }
+    // }
+
+
+    public function setGlobalCode_SUCCESS($payload)
+    {
+        if (!empty($payload)) {
+            $this->status['payload'] = $payload;
         }
-
-        return $this->safe_param;
-    }
-
-    //-----------------------------------------------------//
-
-    private function setRequest()
-    {
-        switch ($this->uri) {
-
-            case 'v3/auth/login':
-                $this->getReq_auth_login();
-                $this->setReq_auth_login();
-                break;
-
-            case 'v3/auth/signup':
-                $this->getReq_auth_signup();
-                $this->setReq_auth_signup();
-                break;
-
-            case 'v3/auth/password':
-                $this->getReq_auth_password();
-                $this->setReq_auth_password();
-                break;
-
-            case 'v3/get/nearline':
-                $this->getReq_get_nearline();
-                $this->setReq_get_nearline();
-                break;
-
-            case 'v3/get/followline':
-                $this->getReq_get_followline();
-                $this->setReq_get_followline();
-                break;
-
-            case 'v3/get/timeline':
-                $this->getReq_get_timeline();
-                $this->setReq_get_timeline();
-                break;
-
-            case 'v3/get/user':
-                $this->getReq_get_user();
-                $this->setReq_get_user();
-                break;
-
-            case 'v3/get/rest':
-                $this->getReq_get_rest();
-                $this->setReq_get_rest();
-                break;
-
-            case 'v3/get/comment':
-                $this->getReq_get_comment();
-                $this->setReq_get_comment();
-                break;
-
-            case 'v3/get/heatmap':
-                break;
-
-            case 'v3/get/notice':
-                break;
-
-            case 'v3/get/follow':
-                $this->getReq_get_follow();
-                $this->setReq_get_follow();
-                break;
-
-            case 'v3/get/follower':
-                $this->getReq_get_follower();
-                $this->setReq_get_follower();
-                break;
-
-            case 'v3/get/want':
-                $this->getReq_get_want();
-                $this->setReq_get_want();
-                break;
-
-            case 'v3/get/user_cheer':
-                $this->getReq_get_user_cheer();
-                $this->setReq_get_user_cheer();
-                break;
-
-            case 'v3/get/near':
-                $this->getReq_get_near();
-                $this->setReq_get_near();
-                break;
-
-            case 'v3/set/password':
-                $this->getReq_set_password();
-                $this->setReq_set_password();
-                break;
-
-            case 'v3/set/device':
-                $this->getReq_set_device();
-                $this->setReq_set_device();
-                break;
-
-            case 'v3/set/sns_link':
-                $this->getReq_set_sns_link();
-                $this->setReq_set_sns_link();
-                break;
-
-            case 'v3/set/gochi':
-                $this->getReq_set_gochi();
-                $this->setReq_set_gochi();
-                break;
-
-            case 'v3/set/comment':
-                $this->getReq_set_comment();
-                $this->setReq_set_comment();
-                break;
-
-            case 'v3/set/follow':
-                $this->getReq_set_follow();
-                $this->setReq_set_follow();
-                break;
-
-            case 'v3/set/want':
-                $this->getReq_set_want();
-                $this->setReq_set_want();
-                break;
-
-            case 'v3/set/post':
-                $this->getReq_set_post();
-                $this->setReq_set_post();
-                break;
-
-            case 'v3/set/post_block':
-                $this->getReq_set_post_block();
-                $this->setReq_set_post_block();
-                break;
-
-            case 'v3/set/username':
-                $this->getReq_set_username();
-                $this->setReq_set_username();
-                break;
-
-            case 'v3/set/profile_img':
-                $this->getReq_set_profile_img();
-                $this->setReq_set_profile_img();
-                break;
-
-            case 'v3/set/feedback':
-                $this->getReq_set_feedback();
-                $this->setReq_set_feedback();
-                break;
-
-            case 'v3/set/rest':
-                $this->getReq_set_rest();
-                $this->setReq_set_rest();
-                break;
-
-            case 'v3/unset/sns_link':
-                $this->getReq_unset_sns_link();
-                $this->setReq_unset_sns_link();
-                break;
-
-            case 'v3/unset/post':
-                $this->getReq_unset_post();
-                $this->setReq_unset_post();
-                break;
-
-            case 'v3/unset/follow':
-                $this->getReq_unset_follow();
-                $this->setReq_unset_follow();
-                break;
-
-            case 'v3/unset/want':
-                $this->getReq_unset_want();
-                $this->setReq_unset_want();
-                break;
-
-            default:
-                Model_V3_Status::getStatus();
-                break;
-        }
-    }
-
-
-    // Get Request Params
-    //-----------------------------------------------------//
-
-    private function getReq_auth_login()
-    {
-        $this->val_param = array(
-            'identity_id'   => Input::get('identity_id'),
-        );
-    }
-
-    private function getReq_auth_signup()
-    {
-        $this->val_param = array(
-            'username'      => Input::get('username'),
-        );
-    }
-
-    private function getReq_auth_password()
-    {
-        $this->val_param = array(
-            'username'      => Input::get('username'),
-            'password'      => Input::get('password'),
-        );
-    }
-
-    private function getReq_get_nearline()
-    {
-        $this->val_param = array(
-            'lon'           => Input::get('lon'),
-            'lat'           => Input::get('lat'),
-            'category_id'   => Input::get('category_id'),
-            'value_id'      => Input::get('value_id'),
-            'page'          => Input::get('page'),
-        );
-    }
-
-    private function getReq_get_followline()
-    {
-        $this->val_param = array(
-            'category_id'   => Input::get('category_id'),
-            'value_id'      => Input::get('value_id'),
-            'page'          => Input::get('page'),
-        );
-    }
-
-    private function getReq_get_timeline()
-    {
-        $this->val_param = array(
-            'category_id'   => Input::get('category_id'),
-            'value_id'      => Input::get('value_id'),
-            'page'          => Input::get('page'),
-        );
-    }
-
-    private function getReq_get_user()
-    {
-        $this->val_param = array(
-            'user_id'       => Input::get('user_id'),
-        );
-    }
-
-    private function getReq_get_rest()
-    {
-        $this->val_param = array(
-            'rest_id'       => Input::get('rest_id'),
-        );
-    }
-
-    private function getReq_get_comment()
-    {
-        $this->val_param = array(
-            'post_id'       => Input::get('post_id'),
-        );
-    }
-
-    private function getReq_get_follow()
-    {
-        $this->val_param = array(
-            'user_id'       => Input::get('user_id'),
-        );
-    }
-
-    private function getReq_get_follower()
-    {
-        $this->val_param = array(
-            'user_id'       => Input::get('user_id'),
-        );
-    }
-
-    private function getReq_get_want()
-    {
-        $this->val_param = array(
-            'user_id'       => Input::get('user_id'),
-        );
-    }
-
-    private function getReq_get_user_cheer()
-    {
-        $this->val_param = array(
-            'user_id'       => Input::get('user_id'),
-        );
-    }
-
-    private function getReq_get_near()
-    {
-        $this->val_param = array(
-            'lon'           => Input::get('lon'),
-            'lat'           => Input::get('lat'),
-        );
-    }
-
-    private function getReq_set_device()
-    {
-        $this->val_param = array(
-            'os'            => Input::get('os'),
-            'ver'           => Input::get('ver'),
-            'model'         => Input::get('model'),
-            'device_token'  => Input::get('device_token'),
-        );
-    }
-
-    private function getReq_set_password()
-    {
-        $this->val_param = array(
-            'password'      => Input::get('password'),
-        );
-    }
-
-    private function getReq_set_sns_link()
-    {
-        $this->val_param = array(
-            'provider'      => Input::get('provider'),
-            'sns_token'     => Input::get('sns_token'),
-        );
-    }
-
-    private function getReq_unset_sns_link()
-    {
-        $this->val_param = array(
-            'provider'      => Input::get('provider'),
-            'sns_token'     => Input::get('sns_token'),
-        );
-    }
-
-    private function getReq_set_gochi()
-    {
-        $this->val_param = array(
-            'post_id'       => Input::get('post_id'),
-        );
-    }
-
-    private function getReq_set_comment()
-    {
-        $this->val_param = array(
-            'post_id'       => Input::get('post_id'),
-            'comment'       => Input::get('comment'),
-            're_user_id'    => Input::get('re_user_id'),
-        );
-    }
-
-    private function getReq_set_follow()
-    {
-        $this->val_param = array(
-            'user_id'       => Input::get('user_id'),
-        );
-    }
-
-    private function getReq_unset_follow()
-    {
-        $this->val_param = array(
-            'user_id'       => Input::get('user_id'),
-        );
-    }
-
-    private function getReq_set_want()
-    {
-        $this->val_param = array(
-            'rest_id'       => Input::get('rest_id'),
-        );
-    }
-
-    private function getReq_unset_want()
-    {
-        $this->val_param = array(
-            'rest_id'       => Input::get('rest_id'),
-        );
-    }
-
-    private function getReq_set_post()
-    {
-        $this->val_param = array(
-            'rest_id'       => Input::get('rest_id'),
-            'movie_name'    => Input::get('movie_name'),
-            'category_id'   => Input::get('category_id'),
-            'value'         => Input::get('value'),
-            'memo'          => Input::get('memo'),
-            'cheer_flag'    => Input::get('cheer_flag'),
-        );
-    }
-
-    private function getReq_set_post_block()
-    {
-        $this->val_param = array(
-            'post_id'       => Input::get('post_id'),
-        );
-    }
-
-    private function getReq_unset_post()
-    {
-        $this->val_param = array(
-            'post_id'       => Input::get('post_id'),
-        );
-    }
-
-    private function getReq_set_username()
-    {
-        $this->val_param = array(
-            'username'      => Input::get('username'),
-        );
-    }
-
-    private function getReq_set_profile_img()
-    {
-        $this->val_param = array(
-            'profile_img'   => Input::get('profile_img'),
-        );
-    }
-
-    private function getReq_set_feedback()
-    {
-        $this->val_param = array(
-            'feedback'      => Input::get('feedback'),
-        );
-    }
-
-    private function getReq_set_rest()
-    {
-        $this->val_param = array(
-            'restname'      => Input::get('restname'),
-            'lon'           => Input::get('lon'),
-            'lat'           => Input::get('lat'),
-        );
-    }
-
-
-
-    // Set Regex Request Params
-    //-----------------------------------------------------//
-
-    private function setReq_auth_login()
-    {
-        $this->regex_identity_id();
-    }
-
-    private function setReq_auth_signup()
-    {
-        $this->regex_username();
-    }
-
-    private function setReq_auth_password()
-    {
-        $this->regex_username();
-        $this->regex_password();
-    }
-
-    private function setReq_get_nearline()
-    {
-        $this->regex_lat();
-        $this->regex_lon();
-        $this->regex_category_id();
-        $this->regex_value_id();
-        $this->regex_page();
-    }
-
-    private function setReq_get_followline()
-    {
-        $this->regex_category_id();
-        $this->regex_value_id();
-        $this->regex_page();
-    }
-
-    private function setReq_get_timeline()
-    {
-        $this->regex_category_id();
-        $this->regex_value_id();
-        $this->regex_page();
-    }
-
-    private function setReq_get_user()
-    {
-        $this->regex_user_id();
+        $this->status['code'] = 'SUCCESS';
+        $this->status['message'] = "Successful API request";
     }
 
-    private function setReq_get_rest()
-    {
-        $this->regex_rest_id();
-    }
-
-    private function setReq_get_comment()
-    {
-        $this->regex_post_id();
-    }
-
-    private function setReq_get_follow()
-    {
-        $this->regex_user_id();
-    }
-
-    private function setReq_get_follower()
-    {
-        $this->regex_user_id();
-    }
-
-    private function setReq_get_want()
-    {
-        $this->regex_user_id();
-    }
-
-    private function setReq_get_user_cheer()
-    {
-        $this->regex_user_id();
-    }
-
-    private function setReq_get_near()
-    {
-        $this->regex_lon();
-        $this->regex_lat();
-    }
-
-    private function setReq_set_device()
-    {
-        $this->regex_os();
-        $this->regex_ver();
-        $this->regex_model();
-        $this->regex_device_token();
-    }
-
-    private function setReq_set_password()
-    {
-        $this->regex_password();
-    }
-
-
-    private function setReq_set_sns_link()
-    {
-        $this->regex_provider();
-        $this->regex_sns_token();
-    }
-
-    private function setReq_unset_sns_link()
-    {
-        $this->regex_provider();
-        $this->regex_sns_token();
-    }
-
-    private function setReq_set_gochi()
-    {
-        $this->regex_post_id();
-    }
-
-    private function setReq_set_comment()
-    {
-        $this->regex_post_id();
-        $this->regex_comment();
-        $this->regex_re_user_id();
-    }
-
-    private function setReq_set_follow()
-    {
-        $this->regex_user_id();
-    }
-
-    private function setReq_unset_follow()
-    {
-        $this->regex_user_id();
-    }
-
-    private function setReq_set_want()
-    {
-        $this->regex_rest_id();
-    }
-
-    private function setReq_unset_want()
-    {
-        $this->regex_rest_id();
-    }
-
-    private function setReq_set_post()
-    {
-        $this->regex_rest_id();
-        $this->regex_movie_name();
-        $this->regex_category_id();
-        $this->regex_value();
-        $this->regex_memo();
-        $this->regex_cheer_flag();
-    }
-
-    private function setReq_set_post_block()
-    {
-        $this->regex_post_id();
-    }
-
-    private function setReq_unset_post()
-    {
-        $this->regex_post_id();
-    }
-
-    private function setReq_set_username()
-    {
-        $this->regex_username();
-    }
-
-    private function setReq_set_profile_img()
-    {
-        $this->regex_profile_img();
-    }
-
-    private function setReq_set_feedback()
-    {
-        $this->regex_feedback();
-    }
-
-    private function setReq_set_rest()
-    {
-        $this->regex_restname();
-        $this->regex_lon();
-        $this->regex_lat();
-    }
-
-    //======================================================//
-    // Responce Params
-    //======================================================//
-
-    public function get_responce($param)
-    {
-        $this->Val = Validation::forge('responce');
-        $this->val_param = $param;
-        $this->set_responce();
-        $this->check($param);
-        return $this->safe_param;
-    }
-
-
-    //======================================================//
-    // RegEx methods
-    //======================================================//
-
-    private function regex_user_id()
-    {
-        $this->Val
-        ->add('user_id', 'GET user_id')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[0-9]+$/');
-    }
-
-    private function regex_re_user_id()
-    {
-        $this->Val
-        ->add('re_user_id', 'GET re_user_id')
-        ->add_rule('match_pattern', '/^[0-9,]+$/');
-    }
-
-    private function regex_username()
-    {
-        $this->Val
-        ->add('username', 'GET username')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[\S\s]{4,20}$/');
-        # /^[\S\s]{3,15}$/
-    }
-
-    private function regex_profile_img()
-    {
-        $this->Val
-        ->add('profile_img', 'GET profile_img')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[0-9_-]+_img$/');
-    }
-
-    private function regex_password()
-    {
-        $this->Val
-        ->add('password', 'GET password')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^\w{6,25}$/');
-    }
-
-    private function regex_identity_id()
-    {
-        $this->Val
-        ->add('identity_id', 'GET identity_id')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^us-east-1:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/');
-    }
-
-    private function regex_url()
-    {
-        $this->Val
-        ->add('profile_img', 'GET profile_img')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^http\S+$/');
-    }
-
-    private function regex_badge_num()
-    {
-        $this->Val
-        ->add('badge_num', 'GET badge_num')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[0-9]+$/');
-    }
-
-    private function regex_cognito_token()
-    {
-        $this->Val
-        ->add('cognito_token', 'GET cognito_token')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[a-zA-Z0-9_.-]{400,2200}$/');
-    }
-
-    private function regex_provider()
-    {
-        $this->Val
-        ->add('provider', 'GET provider')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^(api.twitter.com)|(graph.facebook.com)$/');
-    }
-
-    private function regex_sns_token()
-    {
-        $this->Val
-        ->add('sns_token', 'GET sns_token')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^\S{20,4000}$/');
-    }
-
-    private function regex_os()
-    {
-        $this->Val
-        ->add('os', 'GET os')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^android$|^iOS$/');
-    }
-
-    private function regex_ver()
-    {
-        $this->Val
-        ->add('ver', 'GET ver')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[0-9.]{0,6}$/');
-    }
-
-    private function regex_model()
-    {
-        $this->Val
-        ->add('model', 'GET model')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[\S\s]{0,50}$/');
-    }
-
-    private function regex_device_token()
-    {
-        $this->Val
-        ->add('device_token', 'GET device_token')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^([a-f0-9]{64})|([a-zA-Z0-9:_-]{140,250})$/');
-    }
-
-    private function regex_rest_id()
-    {
-        $this->Val
-        ->add('rest_id', 'GET rest_id')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[0-9]+$/');
-    }
-
-    private function regex_restname()
-    {
-        $this->Val
-        ->add('restname', 'GET restname')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[\S\s]{2,30}$/u');
-    }
-
-    private function regex_lon()
-    {
-        $this->Val
-        ->add('lon', 'GET lon')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[0-9.]+$/');
-    }
-
-    private function regex_lat()
-    {
-        $this->Val
-        ->add('lat', 'GET lat')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[0-9.]+$/');
-    }
-
-    private function regex_post_id()
-    {
-        $this->Val
-        ->add('post_id', 'GET post_id')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[0-9]+$/');
-    }
-
-    private function regex_movie_name()
-    {
-        $this->Val
-        ->add('movie_name', 'GET movie_name')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[0-9_-]+$/');
-    }
-
-    private function regex_category_id()
-    {
-        $this->Val
-        ->add('category_id', 'GET category_id')
-        ->add_rule('match_pattern', '/^[0-9]$/');
-    }
-
-    private function regex_value_id()
-    {
-        $this->Val
-        ->add('value_id', 'GET value_id')
-        ->add_rule('match_pattern', '/^[0-9]$/');
-    }
-
-    private function regex_value()
-    {
-        $this->Val
-        ->add('value_id', 'GET value_id')
-        ->add_rule('match_pattern', '/^[0-9]{0,7}$/');
-    }
-
-    private function regex_page()
-    {
-        $this->Val
-        ->add('page', 'GET page')
-        ->add_rule('match_pattern', '/^[0-9]$/');
-    }
-
-    private function regex_comment()
-    {
-        $this->Val
-        ->add('comment', 'GET comment')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[\S\s]{2,140}$/u');
-    }
 
-    private function regex_memo()
+    public function setGlobalCode_ERROR_SESSION_EXPIRED()
     {
-        $this->Val
-        ->add('memo', 'GET memo')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[\S\s]{1,140}$/u');
+        $this->status['code'] = 'ERROR_SESSION_EXPIRED';
+        $this->status['message'] = "Session cookie is not valid anymore";
     }
 
-    private function regex_feedback()
-    {
-        $this->Val
-        ->add('feedback', 'GET feedback')
-        ->add_rule('required')
-        ->add_rule('match_pattern', '/^[\S\s]{4,300}$/u');
-    }
 
-    private function regex_cheer_flag()
+    public function setGlobalCode_ERROR_CLIENT_OUTDATED()
     {
-        $this->Val
-        ->add('cheer_flag', 'GET cheer_flag')
-        ->add_rule('match_pattern', '/^[01]$/');
+        $this->status['code'] = 'ERROR_CLIENT_OUTDATED';
+        $this->status['message'] = "The client version is too old for this API. Client update necessary";
     }
 
-    //======================================================//
 
-    //Valodation Check
-    private function check($val_param)
+    private function setReqParams_auth_login($input_params)
     {
-        $val = $this->Val;
-
-        if($val->run($val_param)){
-            //OK
-            $this->safe_param = $val_param;
+        if(!empty($input_params['identity_id'])) {
 
-        }else{
-            //エラー 形式不備
-            foreach($val->error() as $key=>$value){
-                $keys[]     = $key;
-                $messages[] = $value;
+            if(preg_match('/^us-east-1:[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/', $input_params['identity_id'])) {
+                $this->req_params['identity_id'] = $input_params['identity_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_IDENTITY_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'identity_id' is malformed. Should correspond to '^us-east-1:[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$'";
             }
-
-            $key        = implode(", ", $keys);
-            $message    = implode(". ", $messages);
-
-            error_log("$message");
-            $this->safe_param = FALSE;
         }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_IDENTITY_ID_MISSING';
+            $this->status['message'] = "Parameter 'identity_id' does not exist.";
+        }
+
     }
+
+
+    public function set_auth_login_ERROR_IDENTITY_ID_NOT_REGISTERD()
+    {
+        $this->status['code'] = 'ERROR_IDENTITY_ID_NOT_REGISTERD';
+        $this->status['message'] = "The provided identity_id is not bound to any account";
+    }
+
+
+    private function setReqParams_auth_signup($input_params)
+    {
+        if(!empty($input_params['username'])) {
+
+            if(preg_match('/^[^\p{Cntrl}]{1,20}$/', $input_params['username'])) {
+                $this->req_params['username'] = $input_params['username'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_USERNAME_MALFORMED';
+                $this->status['message'] = "Parameter 'username' is malformed. Should correspond to '^[^\p{Cntrl}]{1,20}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_USERNAME_MISSING';
+            $this->status['message'] = "Parameter 'username' does not exist.";
+        }
+
+    }
+
+
+    public function set_auth_signup_ERROR_USERNAME_ALREADY_REGISTERD()
+    {
+        $this->status['code'] = 'ERROR_USERNAME_ALREADY_REGISTERD';
+        $this->status['message'] = "The provided username was already registerd by another user";
+    }
+
+
+    private function setReqParams_auth_password($input_params)
+    {
+        if(!empty($input_params['username'])) {
+
+            if(preg_match('/^[^\p{Cntrl}]{1,20}$/', $input_params['username'])) {
+                $this->req_params['username'] = $input_params['username'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_USERNAME_MALFORMED';
+                $this->status['message'] = "Parameter 'username' is malformed. Should correspond to '^[^\p{Cntrl}]{1,20}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_USERNAME_MISSING';
+            $this->status['message'] = "Parameter 'username' does not exist.";
+        }
+
+        if(!empty($input_params['password'])) {
+
+            if(preg_match('/^[^\p{Cntrl}]{6,25}$/', $input_params['password'])) {
+                $this->req_params['password'] = $input_params['password'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_PASSWORD_MALFORMED';
+                $this->status['message'] = "Parameter 'password' is malformed. Should correspond to '^[^\p{Cntrl}]{6,25}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_PASSWORD_MISSING';
+            $this->status['message'] = "Parameter 'password' does not exist.";
+        }
+
+    }
+
+
+    public function set_auth_password_ERROR_USERNAME_NOT_REGISTERD()
+    {
+        $this->status['code'] = 'ERROR_USERNAME_NOT_REGISTERD';
+        $this->status['message'] = "The entered username does not exist";
+    }
+
+
+    public function set_auth_password_ERROR_PASSWORD_NOT_REGISTERD()
+    {
+        $this->status['code'] = 'ERROR_PASSWORD_NOT_REGISTERD';
+        $this->status['message'] = "The entered password does not exist";
+    }
+
+
+    public function set_auth_password_ERROR_PASSWORD_WRONG()
+    {
+        $this->status['code'] = 'ERROR_PASSWORD_WRONG';
+        $this->status['message'] = "Password wrong";
+    }
+
+
+    private function setReqParams_set_device($input_params)
+    {
+        if(!empty($input_params['device_token'])) {
+
+            if(preg_match('/^([a-f0-9]{64})|([a-zA-Z0-9:_-]{140,250})$/', $input_params['device_token'])) {
+                $this->req_params['device_token'] = $input_params['device_token'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_DEVICE_TOKEN_MALFORMED';
+                $this->status['message'] = "Parameter 'device_token' is malformed. Should correspond to '^([a-f0-9]{64})|([a-zA-Z0-9:_-]{140,250})$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_DEVICE_TOKEN_MISSING';
+            $this->status['message'] = "Parameter 'device_token' does not exist.";
+        }
+
+        if(!empty($input_params['os'])) {
+
+            if(preg_match('/^android$|^iOS$/', $input_params['os'])) {
+                $this->req_params['os'] = $input_params['os'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_OS_MALFORMED';
+                $this->status['message'] = "Parameter 'os' is malformed. Should correspond to '^android$|^iOS$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_OS_MISSING';
+            $this->status['message'] = "Parameter 'os' does not exist.";
+        }
+
+        if(!empty($input_params['ver'])) {
+
+            if(preg_match('/^[0-9.]{1,6}$/', $input_params['ver'])) {
+                $this->req_params['ver'] = $input_params['ver'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_VER_MALFORMED';
+                $this->status['message'] = "Parameter 'ver' is malformed. Should correspond to '^[0-9.]{1,6}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_VER_MISSING';
+            $this->status['message'] = "Parameter 'ver' does not exist.";
+        }
+
+        if(!empty($input_params['model'])) {
+
+            if(preg_match('/^[^\p{Cntrl}]{1,50}$/', $input_params['model'])) {
+                $this->req_params['model'] = $input_params['model'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_MODEL_MALFORMED';
+                $this->status['message'] = "Parameter 'model' is malformed. Should correspond to '^[^\p{Cntrl}]{1,50}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_MODEL_MISSING';
+            $this->status['message'] = "Parameter 'model' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_unset_device($input_params)
+    {
+    }
+
+
+    private function setReqParams_set_password($input_params)
+    {
+        if(!empty($input_params['password'])) {
+
+            if(preg_match('/^[^\p{Cntrl}]{6,25}$/', $input_params['password'])) {
+                $this->req_params['password'] = $input_params['password'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_PASSWORD_MALFORMED';
+                $this->status['message'] = "Parameter 'password' is malformed. Should correspond to '^[^\p{Cntrl}]{6,25}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_PASSWORD_MISSING';
+            $this->status['message'] = "Parameter 'password' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_set_sns_link($input_params)
+    {
+        if(!empty($input_params['provider'])) {
+
+            if(preg_match('/^(api.twitter.com)|(graph.facebook.com)$/', $input_params['provider'])) {
+                $this->req_params['provider'] = $input_params['provider'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_PROVIDER_MALFORMED';
+                $this->status['message'] = "Parameter 'provider' is malformed. Should correspond to '^(api.twitter.com)|(graph.facebook.com)$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_PROVIDER_MISSING';
+            $this->status['message'] = "Parameter 'provider' does not exist.";
+        }
+
+        if(!empty($input_params['sns_token'])) {
+
+            if(preg_match('/^[^\p{Cntrl}]{20,4000}$/', $input_params['sns_token'])) {
+                $this->req_params['sns_token'] = $input_params['sns_token'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_SNS_TOKEN_MALFORMED';
+                $this->status['message'] = "Parameter 'sns_token' is malformed. Should correspond to '^[^\p{Cntrl}]{20,4000}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_SNS_TOKEN_MISSING';
+            $this->status['message'] = "Parameter 'sns_token' does not exist.";
+        }
+
+    }
+
+
+    public function set_set_sns_link_ERROR_SNS_PROVIDER_TOKEN_NOT_VALID()
+    {
+        $this->status['code'] = 'ERROR_SNS_PROVIDER_TOKEN_NOT_VALID';
+        $this->status['message'] = "The provided sns token is invalid or has expired";
+    }
+
+
+    public function set_set_sns_link_ERROR_PROVIDER_UNREACHABLE()
+    {
+        $this->status['code'] = 'ERROR_PROVIDER_UNREACHABLE';
+        $this->status['message'] = "The providers server infrastructure appears to be down";
+    }
+
+
+    private function setReqParams_unset_sns_link($input_params)
+    {
+        if(!empty($input_params['provider'])) {
+
+            if(preg_match('/^(api.twitter.com)|(graph.facebook.com)$/', $input_params['provider'])) {
+                $this->req_params['provider'] = $input_params['provider'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_PROVIDER_MALFORMED';
+                $this->status['message'] = "Parameter 'provider' is malformed. Should correspond to '^(api.twitter.com)|(graph.facebook.com)$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_PROVIDER_MISSING';
+            $this->status['message'] = "Parameter 'provider' does not exist.";
+        }
+
+        if(!empty($input_params['sns_token'])) {
+
+            if(preg_match('/^[^\p{Cntrl}]{20,4000}$/', $input_params['sns_token'])) {
+                $this->req_params['sns_token'] = $input_params['sns_token'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_SNS_TOKEN_MALFORMED';
+                $this->status['message'] = "Parameter 'sns_token' is malformed. Should correspond to '^[^\p{Cntrl}]{20,4000}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_SNS_TOKEN_MISSING';
+            $this->status['message'] = "Parameter 'sns_token' does not exist.";
+        }
+
+    }
+
+
+    public function set_unset_sns_link_ERROR_SNS_PROVIDER_TOKEN_NOT_VALID()
+    {
+        $this->status['code'] = 'ERROR_SNS_PROVIDER_TOKEN_NOT_VALID';
+        $this->status['message'] = "The provided sns token is invalid or has expired";
+    }
+
+
+    public function set_unset_sns_link_ERROR_PROVIDER_UNREACHABLE()
+    {
+        $this->status['code'] = 'ERROR_PROVIDER_UNREACHABLE';
+        $this->status['message'] = "The providers server infrastructure appears to be down";
+    }
+
+
+    private function setReqParams_set_gochi($input_params)
+    {
+        if(!empty($input_params['post_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['post_id'])) {
+                $this->req_params['post_id'] = $input_params['post_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'post_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MISSING';
+            $this->status['message'] = "Parameter 'post_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_set_comment($input_params)
+    {
+        if(!empty($input_params['post_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['post_id'])) {
+                $this->req_params['post_id'] = $input_params['post_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'post_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MISSING';
+            $this->status['message'] = "Parameter 'post_id' does not exist.";
+        }
+
+        if(!empty($input_params['comment'])) {
+
+            if(preg_match('/^(\n|[^\p{Cntrl}]){1,140}$/', $input_params['comment'])) {
+                $this->req_params['comment'] = $input_params['comment'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_COMMENT_MALFORMED';
+                $this->status['message'] = "Parameter 'comment' is malformed. Should correspond to '^(\n|[^\p{Cntrl}]){1,140}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_COMMENT_MISSING';
+            $this->status['message'] = "Parameter 'comment' does not exist.";
+        }
+
+        if(!empty($input_params['re_user_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['re_user_id'])) {
+                $this->req_params['re_user_id'] = $input_params['re_user_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_RE_USER_ID_MALFORMED';
+                $this->status['message'] = "Parameter 're_user_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_RE_USER_ID_MISSING';
+            $this->status['message'] = "Parameter 're_user_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_set_follow($input_params)
+    {
+        if(!empty($input_params['user_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['user_id'])) {
+                $this->req_params['user_id'] = $input_params['user_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'user_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MISSING';
+            $this->status['message'] = "Parameter 'user_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_unset_follow($input_params)
+    {
+        if(!empty($input_params['user_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['user_id'])) {
+                $this->req_params['user_id'] = $input_params['user_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'user_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MISSING';
+            $this->status['message'] = "Parameter 'user_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_set_want($input_params)
+    {
+        if(!empty($input_params['rest_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['rest_id'])) {
+                $this->req_params['rest_id'] = $input_params['rest_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'rest_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MISSING';
+            $this->status['message'] = "Parameter 'rest_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_unset_want($input_params)
+    {
+        if(!empty($input_params['rest_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['rest_id'])) {
+                $this->req_params['rest_id'] = $input_params['rest_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'rest_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MISSING';
+            $this->status['message'] = "Parameter 'rest_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_set_post($input_params)
+    {
+        if(!empty($input_params['rest_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['rest_id'])) {
+                $this->req_params['rest_id'] = $input_params['rest_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'rest_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MISSING';
+            $this->status['message'] = "Parameter 'rest_id' does not exist.";
+        }
+
+        if(!empty($input_params['movie_name'])) {
+
+            if(preg_match('/^[0-9_-]+$/', $input_params['movie_name'])) {
+                $this->req_params['movie_name'] = $input_params['movie_name'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_MOVIE_NAME_MALFORMED';
+                $this->status['message'] = "Parameter 'movie_name' is malformed. Should correspond to '^[0-9_-]+$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_MOVIE_NAME_MISSING';
+            $this->status['message'] = "Parameter 'movie_name' does not exist.";
+        }
+
+        if(!empty($input_params['category_id'])) {
+
+            if(preg_match('/^\d$/', $input_params['category_id'])) {
+                $this->req_params['category_id'] = $input_params['category_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_CATEGORY_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'category_id' is malformed. Should correspond to '^\d$'";
+            }
+        }
+
+        if(!empty($input_params['value'])) {
+
+            if(preg_match('/^\d{0,8}$/', $input_params['value'])) {
+                $this->req_params['value'] = $input_params['value'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_VALUE_MALFORMED';
+                $this->status['message'] = "Parameter 'value' is malformed. Should correspond to '^\d{0,8}$'";
+            }
+        }
+
+        if(!empty($input_params['memo'])) {
+
+            if(preg_match('/^\S{1,140}$/', $input_params['memo'])) {
+                $this->req_params['memo'] = $input_params['memo'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_MEMO_MALFORMED';
+                $this->status['message'] = "Parameter 'memo' is malformed. Should correspond to '^\S{1,140}$'";
+            }
+        }
+
+        if(!empty($input_params['cheer_flag'])) {
+
+            if(preg_match('/^0$|^1$/', $input_params['cheer_flag'])) {
+                $this->req_params['cheer_flag'] = $input_params['cheer_flag'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_CHEER_FLAG_MALFORMED';
+                $this->status['message'] = "Parameter 'cheer_flag' is malformed. Should correspond to '^0$|^1$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_CHEER_FLAG_MISSING';
+            $this->status['message'] = "Parameter 'cheer_flag' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_unset_post($input_params)
+    {
+        if(!empty($input_params['post_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['post_id'])) {
+                $this->req_params['post_id'] = $input_params['post_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'post_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MISSING';
+            $this->status['message'] = "Parameter 'post_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_set_post_block($input_params)
+    {
+        if(!empty($input_params['post_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['post_id'])) {
+                $this->req_params['post_id'] = $input_params['post_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'post_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MISSING';
+            $this->status['message'] = "Parameter 'post_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_set_username($input_params)
+    {
+        if(!empty($input_params['username'])) {
+
+            if(preg_match('/^[^\p{Cntrl}]{1,20}$/', $input_params['username'])) {
+                $this->req_params['username'] = $input_params['username'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_USERNAME_MALFORMED';
+                $this->status['message'] = "Parameter 'username' is malformed. Should correspond to '^[^\p{Cntrl}]{1,20}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_USERNAME_MISSING';
+            $this->status['message'] = "Parameter 'username' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_set_profile_img($input_params)
+    {
+        if(!empty($input_params['profile_img'])) {
+
+            if(preg_match('/^[0-9_-]+_img$/', $input_params['profile_img'])) {
+                $this->req_params['profile_img'] = $input_params['profile_img'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_PROFILE_IMG_MALFORMED';
+                $this->status['message'] = "Parameter 'profile_img' is malformed. Should correspond to '^[0-9_-]+_img$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_PROFILE_IMG_MISSING';
+            $this->status['message'] = "Parameter 'profile_img' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_set_feedback($input_params)
+    {
+        if(!empty($input_params['feedback'])) {
+
+            if(preg_match('/^[^\p{Cntrl}]{1,10000}$/', $input_params['feedback'])) {
+                $this->req_params['feedback'] = $input_params['feedback'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_FEEDBACK_MALFORMED';
+                $this->status['message'] = "Parameter 'feedback' is malformed. Should correspond to '^[^\p{Cntrl}]{1,10000}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_FEEDBACK_MISSING';
+            $this->status['message'] = "Parameter 'feedback' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_set_rest($input_params)
+    {
+        if(!empty($input_params['restname'])) {
+
+            if(preg_match('/^[^\p{Cntrl}]{1,80}$/', $input_params['restname'])) {
+                $this->req_params['restname'] = $input_params['restname'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_RESTNAME_MALFORMED';
+                $this->status['message'] = "Parameter 'restname' is malformed. Should correspond to '^[^\p{Cntrl}]{1,80}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_RESTNAME_MISSING';
+            $this->status['message'] = "Parameter 'restname' does not exist.";
+        }
+
+        if(!empty($input_params['lat'])) {
+
+            if(preg_match('/^\d{1,3}.\d{1,20}$/', $input_params['lat'])) {
+                $this->req_params['lat'] = $input_params['lat'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_LAT_MALFORMED';
+                $this->status['message'] = "Parameter 'lat' is malformed. Should correspond to '^\d{1,3}.\d{1,20}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_LAT_MISSING';
+            $this->status['message'] = "Parameter 'lat' does not exist.";
+        }
+
+        if(!empty($input_params['lon'])) {
+
+            if(preg_match('/^\d{1,3}.\d{1,20}$/', $input_params['lon'])) {
+                $this->req_params['lon'] = $input_params['lon'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_LON_MALFORMED';
+                $this->status['message'] = "Parameter 'lon' is malformed. Should correspond to '^\d{1,3}.\d{1,20}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_LON_MISSING';
+            $this->status['message'] = "Parameter 'lon' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_get_nearline($input_params)
+    {
+        if(!empty($input_params['lat'])) {
+
+            if(preg_match('/^\d{1,3}\.\d{1,20}$/', $input_params['lat'])) {
+                $this->req_params['lat'] = $input_params['lat'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_LAT_MALFORMED';
+                $this->status['message'] = "Parameter 'lat' is malformed. Should correspond to '^\d{1,3}\.\d{1,20}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_LAT_MISSING';
+            $this->status['message'] = "Parameter 'lat' does not exist.";
+        }
+
+        if(!empty($input_params['lon'])) {
+
+            if(preg_match('/^\d{1,3}\.\d{1,20}$/', $input_params['lon'])) {
+                $this->req_params['lon'] = $input_params['lon'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_LON_MALFORMED';
+                $this->status['message'] = "Parameter 'lon' is malformed. Should correspond to '^\d{1,3}\.\d{1,20}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_LON_MISSING';
+            $this->status['message'] = "Parameter 'lon' does not exist.";
+        }
+
+        if(!empty($input_params['page'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['page'])) {
+                $this->req_params['page'] = $input_params['page'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_PAGE_MALFORMED';
+                $this->status['message'] = "Parameter 'page' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        if(!empty($input_params['category_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['category_id'])) {
+                $this->req_params['category_id'] = $input_params['category_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_CATEGORY_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'category_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        if(!empty($input_params['value_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['value_id'])) {
+                $this->req_params['value_id'] = $input_params['value_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_VALUE_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'value_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+    }
+
+
+    private function setReqParams_get_followline($input_params)
+    {
+        if(!empty($input_params['page'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['page'])) {
+                $this->req_params['page'] = $input_params['page'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_PAGE_MALFORMED';
+                $this->status['message'] = "Parameter 'page' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        if(!empty($input_params['category_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['category_id'])) {
+                $this->req_params['category_id'] = $input_params['category_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_CATEGORY_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'category_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        if(!empty($input_params['value_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['value_id'])) {
+                $this->req_params['value_id'] = $input_params['value_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_VALUE_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'value_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+    }
+
+
+    private function setReqParams_get_timeline($input_params)
+    {
+        if(!empty($input_params['page'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['page'])) {
+                $this->req_params['page'] = $input_params['page'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_PAGE_MALFORMED';
+                $this->status['message'] = "Parameter 'page' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        if(!empty($input_params['category_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['category_id'])) {
+                $this->req_params['category_id'] = $input_params['category_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_CATEGORY_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'category_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        if(!empty($input_params['value_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['value_id'])) {
+                $this->req_params['value_id'] = $input_params['value_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_VALUE_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'value_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+    }
+
+
+    private function setReqParams_get_user($input_params)
+    {
+        if(!empty($input_params['user_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['user_id'])) {
+                $this->req_params['user_id'] = $input_params['user_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'user_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MISSING';
+            $this->status['message'] = "Parameter 'user_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_get_rest($input_params)
+    {
+        if(!empty($input_params['rest_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['rest_id'])) {
+                $this->req_params['rest_id'] = $input_params['rest_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'rest_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MISSING';
+            $this->status['message'] = "Parameter 'rest_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_get_comment($input_params)
+    {
+        if(!empty($input_params['post_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['post_id'])) {
+                $this->req_params['post_id'] = $input_params['post_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'post_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MISSING';
+            $this->status['message'] = "Parameter 'post_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_get_follow($input_params)
+    {
+        if(!empty($input_params['user_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['user_id'])) {
+                $this->req_params['user_id'] = $input_params['user_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'user_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MISSING';
+            $this->status['message'] = "Parameter 'user_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_get_follower($input_params)
+    {
+        if(!empty($input_params['user_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['user_id'])) {
+                $this->req_params['user_id'] = $input_params['user_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'user_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MISSING';
+            $this->status['message'] = "Parameter 'user_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_get_want($input_params)
+    {
+        if(!empty($input_params['user_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['user_id'])) {
+                $this->req_params['user_id'] = $input_params['user_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'user_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MISSING';
+            $this->status['message'] = "Parameter 'user_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_get_user_cheer($input_params)
+    {
+        if(!empty($input_params['user_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['user_id'])) {
+                $this->req_params['user_id'] = $input_params['user_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'user_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MISSING';
+            $this->status['message'] = "Parameter 'user_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_get_rest_cheer($input_params)
+    {
+        if(!empty($input_params['rest_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['rest_id'])) {
+                $this->req_params['rest_id'] = $input_params['rest_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'rest_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MISSING';
+            $this->status['message'] = "Parameter 'rest_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_get_notice($input_params)
+    {
+    }
+
+
+    private function setReqParams_get_near($input_params)
+    {
+        if(!empty($input_params['lat'])) {
+
+            if(preg_match('/^\d{1,3}.\d{1,20}$/', $input_params['lat'])) {
+                $this->req_params['lat'] = $input_params['lat'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_LAT_MALFORMED';
+                $this->status['message'] = "Parameter 'lat' is malformed. Should correspond to '^\d{1,3}.\d{1,20}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_LAT_MISSING';
+            $this->status['message'] = "Parameter 'lat' does not exist.";
+        }
+
+        if(!empty($input_params['lon'])) {
+
+            if(preg_match('/^\d{1,3}.\d{1,20}$/', $input_params['lon'])) {
+                $this->req_params['lon'] = $input_params['lon'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_LON_MALFORMED';
+                $this->status['message'] = "Parameter 'lon' is malformed. Should correspond to '^\d{1,3}.\d{1,20}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_LON_MISSING';
+            $this->status['message'] = "Parameter 'lon' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_get_heatmap($input_params)
+    {
+    }
+
+
 }
+
