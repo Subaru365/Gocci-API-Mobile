@@ -141,7 +141,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 	{
 		//Input username
 		$user = Model_V3_Db_User::getInstance();
-		if ($user->check_name($this->req_params['username'])) {
+		if ($user->getIdForName($this->req_params['username'])) {
 			//username 登録済み
 			$this->status = Model_V3_Status::getStatus('ERROR_USERNAME_ALREADY_REGISTERD');
             $this->output();

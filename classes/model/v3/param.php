@@ -716,7 +716,7 @@ class Model_V3_Param extends Model
         $this->Val
         ->add('profile_img', 'GET profile_img')
         ->add_rule('required')
-        ->add_rule('match_pattern', '/^[0-9_-]+$/');
+        ->add_rule('match_pattern', '/^[0-9_-]+_img$/');
     }
 
     private function regex_password()

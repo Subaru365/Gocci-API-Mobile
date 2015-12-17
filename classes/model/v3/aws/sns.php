@@ -54,7 +54,6 @@ class Model_V3_Aws_Sns extends Model
             error_log($arn . " Error!\n");
             exit;
         }
-
     }
 
     public function setSns($user_data)
