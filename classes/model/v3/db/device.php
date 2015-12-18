@@ -3,7 +3,7 @@
  * Status Code and Message list.
  *
  * @package    Gocci-Mobile
- * @version    3.0.00 (2015/12/19)
+ * @version    3.0.0 (2015/12/19)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -63,6 +63,13 @@ class Model_V3_Db_Device extends Model_V3_Db
     public function deleteDevice($user_id)
     {
         $this->deleteData($user_id);
+        $result = $this->query->execute();
+        return $result;
+    }
+
+    public function deleteDeviceForArn($arn)
+    {
+        $this->deleteDataForArn($arn);
         $result = $this->query->execute();
         return $result;
     }
@@ -140,6 +147,11 @@ class Model_V3_Db_Device extends Model_V3_Db
         ->where('device_user_id', $user_id);
     }
 
+    private function deleteDataForArn($arn)
+    {
+        $this->query = DB::delete(self::$table_name)
+        ->where('endpoint_arn', $arn);
+    }
 
     //INSERT
     //-------------------------------------------------//

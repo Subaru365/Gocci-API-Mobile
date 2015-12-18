@@ -57,26 +57,9 @@ class Controller_Test extends Controller
 
 	public function action_func()
 	{
-		$message = array(
-            'type'      => "follow",
-            'id'        => "3",
-            'username'  => "Akira",    
-        );
-
-        $message = json_encode(
-            $message,
-            JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|
-            JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT
-        );
-
-        echo $message;
+		echo mb_internal_encoding();
 	}
 
-	public function func_hoge()
-	{
-		echo "hello!";
-		echo "$this->user_id";
-	}
 
 	// public function action_info()
 	// {

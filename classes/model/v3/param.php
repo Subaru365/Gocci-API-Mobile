@@ -4,7 +4,7 @@
  * Parameter list of uri.
  *
  * @package    Gocci-Mobile
- * @version    3.0.0 (2015/12/09)
+ * @version    3.0.0 (2015/12/18)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -41,7 +41,8 @@ class Model_V3_Param extends Model
     //             return FALSE;
     //         }
     //     }
-    // }    
+    // }
+
 
     public function getRequest($input_params)
     {
@@ -125,11 +126,11 @@ class Model_V3_Param extends Model
     {
         if(!empty($input_params['username'])) {
 
-            if(preg_match('/^[^\p{Cntrl}]{1,20}$/', $input_params['username'])) {
+            if(preg_match('/^[^\p{Cc}]{1,20}$/u', $input_params['username'])) {
                 $this->req_params['username'] = $input_params['username'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_USERNAME_MALFORMED';
-                $this->status['message'] = "Parameter 'username' is malformed. Should correspond to '^[^\p{Cntrl}]{1,20}$'";
+                $this->status['message'] = "Parameter 'username' is malformed. Should correspond to '^[^\p{Cc}]{1,20}$'";
             }
         }
 
@@ -152,11 +153,11 @@ class Model_V3_Param extends Model
     {
         if(!empty($input_params['username'])) {
 
-            if(preg_match('/^[^\p{Cntrl}]{1,20}$/', $input_params['username'])) {
+            if(preg_match('/^[^\p{Cc}]{1,20}$/u', $input_params['username'])) {
                 $this->req_params['username'] = $input_params['username'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_USERNAME_MALFORMED';
-                $this->status['message'] = "Parameter 'username' is malformed. Should correspond to '^[^\p{Cntrl}]{1,20}$'";
+                $this->status['message'] = "Parameter 'username' is malformed. Should correspond to '^[^\p{Cc}]{1,20}$'";
             }
         }
 
@@ -167,11 +168,11 @@ class Model_V3_Param extends Model
 
         if(!empty($input_params['password'])) {
 
-            if(preg_match('/^[^\p{Cntrl}]{6,25}$/', $input_params['password'])) {
+            if(preg_match('/^[^\p{Cc}]{6,25}$/u', $input_params['password'])) {
                 $this->req_params['password'] = $input_params['password'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_PASSWORD_MALFORMED';
-                $this->status['message'] = "Parameter 'password' is malformed. Should correspond to '^[^\p{Cntrl}]{6,25}$'";
+                $this->status['message'] = "Parameter 'password' is malformed. Should correspond to '^[^\p{Cc}]{6,25}$'";
             }
         }
 
@@ -253,11 +254,11 @@ class Model_V3_Param extends Model
 
         if(!empty($input_params['model'])) {
 
-            if(preg_match('/^[^\p{Cntrl}]{1,50}$/', $input_params['model'])) {
+            if(preg_match('/^[^\p{Cc}]{1,50}$/u', $input_params['model'])) {
                 $this->req_params['model'] = $input_params['model'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_MODEL_MALFORMED';
-                $this->status['message'] = "Parameter 'model' is malformed. Should correspond to '^[^\p{Cntrl}]{1,50}$'";
+                $this->status['message'] = "Parameter 'model' is malformed. Should correspond to '^[^\p{Cc}]{1,50}$'";
             }
         }
 
@@ -278,11 +279,11 @@ class Model_V3_Param extends Model
     {
         if(!empty($input_params['password'])) {
 
-            if(preg_match('/^[^\p{Cntrl}]{6,25}$/', $input_params['password'])) {
+            if(preg_match('/^[^\p{Cc}]{6,25}$/u', $input_params['password'])) {
                 $this->req_params['password'] = $input_params['password'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_PASSWORD_MALFORMED';
-                $this->status['message'] = "Parameter 'password' is malformed. Should correspond to '^[^\p{Cntrl}]{6,25}$'";
+                $this->status['message'] = "Parameter 'password' is malformed. Should correspond to '^[^\p{Cc}]{6,25}$'";
             }
         }
 
@@ -313,11 +314,11 @@ class Model_V3_Param extends Model
 
         if(!empty($input_params['sns_token'])) {
 
-            if(preg_match('/^[^\p{Cntrl}]{20,4000}$/', $input_params['sns_token'])) {
+            if(preg_match('/^[^\p{Cc}]{20,4000}$/u', $input_params['sns_token'])) {
                 $this->req_params['sns_token'] = $input_params['sns_token'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_SNS_TOKEN_MALFORMED';
-                $this->status['message'] = "Parameter 'sns_token' is malformed. Should correspond to '^[^\p{Cntrl}]{20,4000}$'";
+                $this->status['message'] = "Parameter 'sns_token' is malformed. Should correspond to '^[^\p{Cc}]{20,4000}$'";
             }
         }
 
@@ -362,11 +363,11 @@ class Model_V3_Param extends Model
 
         if(!empty($input_params['sns_token'])) {
 
-            if(preg_match('/^[^\p{Cntrl}]{20,4000}$/', $input_params['sns_token'])) {
+            if(preg_match('/^[^\p{Cc}]{20,4000}$/u', $input_params['sns_token'])) {
                 $this->req_params['sns_token'] = $input_params['sns_token'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_SNS_TOKEN_MALFORMED';
-                $this->status['message'] = "Parameter 'sns_token' is malformed. Should correspond to '^[^\p{Cntrl}]{20,4000}$'";
+                $this->status['message'] = "Parameter 'sns_token' is malformed. Should correspond to '^[^\p{Cc}]{20,4000}$'";
             }
         }
 
@@ -431,11 +432,11 @@ class Model_V3_Param extends Model
 
         if(!empty($input_params['comment'])) {
 
-            if(preg_match('/^(\n|[^\p{Cntrl}]){1,140}$/', $input_params['comment'])) {
+            if(preg_match('/^(\n|[^\p{Cc}]){1,140}$/u', $input_params['comment'])) {
                 $this->req_params['comment'] = $input_params['comment'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_COMMENT_MALFORMED';
-                $this->status['message'] = "Parameter 'comment' is malformed. Should correspond to '^(\n|[^\p{Cntrl}]){1,140}$'";
+                $this->status['message'] = "Parameter 'comment' is malformed. Should correspond to '^(\n|[^\p{Cc}]){1,140}$'";
             }
         }
 
@@ -452,11 +453,6 @@ class Model_V3_Param extends Model
                 $this->status['code']    = 'ERROR_PARAMETER_RE_USER_ID_MALFORMED';
                 $this->status['message'] = "Parameter 're_user_id' is malformed. Should correspond to '^\d{1,9}$'";
             }
-        }
-
-        else {
-            $this->status['code']    = 'ERROR_PARAMETER_RE_USER_ID_MISSING';
-            $this->status['message'] = "Parameter 're_user_id' does not exist.";
         }
 
     }
@@ -584,6 +580,10 @@ class Model_V3_Param extends Model
             }
         }
 
+        else {
+            $this->req_params['category_id'] = 1;
+        }
+
         if(!empty($input_params['value'])) {
 
             if(preg_match('/^\d{0,8}$/', $input_params['value'])) {
@@ -594,6 +594,10 @@ class Model_V3_Param extends Model
             }
         }
 
+        else {
+            $this->req_params['value'] = 0;
+        }
+
         if(!empty($input_params['memo'])) {
 
             if(preg_match('/^\S{1,140}$/', $input_params['memo'])) {
@@ -602,6 +606,10 @@ class Model_V3_Param extends Model
                 $this->status['code']    = 'ERROR_PARAMETER_MEMO_MALFORMED';
                 $this->status['message'] = "Parameter 'memo' is malformed. Should correspond to '^\S{1,140}$'";
             }
+        }
+
+        else {
+            $this->req_params['memo'] = 'none';
         }
 
         if(!empty($input_params['cheer_flag'])) {
@@ -615,10 +623,8 @@ class Model_V3_Param extends Model
         }
 
         else {
-            $this->status['code']    = 'ERROR_PARAMETER_CHEER_FLAG_MISSING';
-            $this->status['message'] = "Parameter 'cheer_flag' does not exist.";
+            $this->req_params['cheer_flag'] = 0;
         }
-
     }
 
 
@@ -666,11 +672,11 @@ class Model_V3_Param extends Model
     {
         if(!empty($input_params['username'])) {
 
-            if(preg_match('/^[^\p{Cntrl}]{1,20}$/', $input_params['username'])) {
+            if(preg_match('/^[^\p{Cc}]{1,20}$/u', $input_params['username'])) {
                 $this->req_params['username'] = $input_params['username'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_USERNAME_MALFORMED';
-                $this->status['message'] = "Parameter 'username' is malformed. Should correspond to '^[^\p{Cntrl}]{1,20}$'";
+                $this->status['message'] = "Parameter 'username' is malformed. Should correspond to '^[^\p{Cc}]{1,20}$'";
             }
         }
 
@@ -679,6 +685,13 @@ class Model_V3_Param extends Model
             $this->status['message'] = "Parameter 'username' does not exist.";
         }
 
+    }
+
+
+    public function set_set_username_ERROR_USERNAME_ALREADY_REGISTERD()
+    {
+        $this->status['code'] = 'ERROR_USERNAME_ALREADY_REGISTERD';
+        $this->status['message'] = "The provided username was already registerd by another user";
     }
 
 
@@ -706,11 +719,11 @@ class Model_V3_Param extends Model
     {
         if(!empty($input_params['feedback'])) {
 
-            if(preg_match('/^[^\p{Cntrl}]{1,10000}$/', $input_params['feedback'])) {
+            if(preg_match('/^[^\p{Cc}]{1,10000}$/u', $input_params['feedback'])) {
                 $this->req_params['feedback'] = $input_params['feedback'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_FEEDBACK_MALFORMED';
-                $this->status['message'] = "Parameter 'feedback' is malformed. Should correspond to '^[^\p{Cntrl}]{1,10000}$'";
+                $this->status['message'] = "Parameter 'feedback' is malformed. Should correspond to '^[^\p{Cc}]{1,10000}$'";
             }
         }
 
@@ -726,11 +739,11 @@ class Model_V3_Param extends Model
     {
         if(!empty($input_params['restname'])) {
 
-            if(preg_match('/^[^\p{Cntrl}]{1,80}$/', $input_params['restname'])) {
+            if(preg_match('/^[^\p{Cc}]{1,80}$/u', $input_params['restname'])) {
                 $this->req_params['restname'] = $input_params['restname'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_RESTNAME_MALFORMED';
-                $this->status['message'] = "Parameter 'restname' is malformed. Should correspond to '^[^\p{Cntrl}]{1,80}$'";
+                $this->status['message'] = "Parameter 'restname' is malformed. Should correspond to '^[^\p{Cc}]{1,80}$'";
             }
         }
 

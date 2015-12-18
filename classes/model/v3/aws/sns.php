@@ -3,10 +3,9 @@
  * Aws-Sns Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/10/29)
+ * @version    3.0.0 (2015/12/18)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @license    MIT License
- * @copyright  2015 Inase,inc.
+ * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 use Aws\Sns\SnsClient;
@@ -41,6 +40,9 @@ class Model_V3_Aws_Sns extends Model
         }
         catch (Exception $e) {
             error_log($arn . " Error!\n");
+            $device = Model_V3_Db_Device::getInstance();
+            $device->deleteDeviceForArn($arn);
+            $this->deleteEndpoint($arn);
             exit;
         }
     }
@@ -52,6 +54,9 @@ class Model_V3_Aws_Sns extends Model
         }
         catch (Exception $e) {
             error_log($arn . " Error!\n");
+            $device = Model_V3_Db_Device::getInstance();
+            $device->deleteDeviceForArn($arn);
+            $this->deleteEndpoint($arn);
             exit;
         }
     }
@@ -106,7 +111,7 @@ class Model_V3_Aws_Sns extends Model
         $message = array(
             'type'      => "$this->type",
             'id'        => "$id",
-            'username'  => "$username",    
+            'username'  => "$username",
         );
 
         $message = json_encode(

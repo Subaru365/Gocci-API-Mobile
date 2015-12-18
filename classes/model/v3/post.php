@@ -30,7 +30,17 @@ class Model_V3_Post extends Model
 
 	public function getNearline($params)
 	{
-		$posts = $this->post->getNearPost($params);
+		$result = $this->post->getNearPostRestId($params);
+
+		if (empty($result)) {
+			return '';
+		}
+		$num = count($result);
+		for ($i=0; $i < $num; $i++) {
+			$rest_ids[$i] = $result[$i]['post_rest_id'];
+		}
+
+		$posts = $this->post->getNearPost($rest_ids, $params);
 		$posts = $this->decodeDistance($posts);
 		$posts = $this->decodeData($posts);
 		$posts = $this->addGochiFlag($posts);

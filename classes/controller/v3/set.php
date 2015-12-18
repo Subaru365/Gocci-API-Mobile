@@ -3,9 +3,9 @@
  * Set Class. This class request session.
  *
  * @package    Gocci-Mobile
- * @version    3.0.00 (2015/12/08)
+ * @version    3.0.0 (2015/12/18)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @copyright  Copyright (C) 2015 Akira Murata
+ * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
@@ -143,7 +143,8 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$user = Model_V3_Db_User::getInstance();
 		if ($user->getIdForName($this->req_params['username'])) {
 			//username 登録済み
-			$this->status = Model_V3_Status::getStatus('ERROR_USERNAME_ALREADY_REGISTERD');
+			$param = Model_V3_Param::getInstance();
+			$param->set_set_username_ERROR_USERNAME_ALREADY_REGISTERD();
             $this->output();
 		} else {
 			$result = $user->setMyName($this->req_params['username']);
@@ -194,7 +195,7 @@ class Controller_V3_Set extends Controller_V3_Gate
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL,
-            'http://localhost/v3/bgp/notice_gochi/'
+            'http://localhost:3000/v3/bgp/notice_gochi/'
             .'?user_id='		. "$user_id"
             .'&post_id='    	. "$post_id"
             .'&post_user_id=' 	. "$post_user_id"
@@ -209,7 +210,7 @@ class Controller_V3_Set extends Controller_V3_Gate
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL,
-            'http://localhost/v3/bgp/notice_comment/'
+            'http://localhost:3000/v3/bgp/notice_comment/'
             .'?user_id='		. "$user_id"
             .'&post_id='     	. "$params[post_id]"
             .'&post_user_id=' 	. "$post_user_id"
@@ -225,7 +226,7 @@ class Controller_V3_Set extends Controller_V3_Gate
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL,
-            'http://localhost/v3/bgp/notice_follow/'
+            'http://localhost:3000/v3/bgp/notice_follow/'
             .'?user_id='		. "$user_id"
             .'&follow_user_id=' . "$follow_user_id"
         );

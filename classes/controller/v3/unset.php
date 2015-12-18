@@ -3,9 +3,9 @@
  * UnSet Class. This class request session.
  *
  * @package    Gocci-Mobile
- * @version    3.0.00 (2015/12/08)
+ * @version    3.0.00 (2015/12/18)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @copyright  Copyright (C) 2015 Akira Murata
+ * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
@@ -31,7 +31,7 @@ class Controller_V3_Unset extends Controller_V3_Gate
 			$sns = deleteSns($endpoint_arn);
 		}
 
-        $this->output_success();
+        $this->outputSuccess();
 	}
 
 
@@ -41,7 +41,7 @@ class Controller_V3_Unset extends Controller_V3_Gate
 		$user 	= Model_V3_User::getInstance();
 		$result = $user->setSnsUnLink($this->req_params);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -51,7 +51,7 @@ class Controller_V3_Unset extends Controller_V3_Gate
 		$follow = Model_V3_Db_Follow::getInstance();
 		$result = $follow->setUnFollow($this->req_params['user_id']);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -61,7 +61,7 @@ class Controller_V3_Unset extends Controller_V3_Gate
 		$want = Model_V3_Db_Want::getInstance();
 		$result = $want->setUnWant($this->req_params['rest_id']);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 
 
@@ -71,6 +71,6 @@ class Controller_V3_Unset extends Controller_V3_Gate
 		$post = Model_V3_Db_Post::getInstance();
 		$result = $post->postDelete($this->req_params['post_id']);
 
-		$this->output_success();
+		$this->outputSuccess();
 	}
 }
