@@ -74,6 +74,7 @@ class Model_V3_User extends Model
 	public function setSnsLink($params)
 	{
 		$cognito = Model_V3_Aws_Cognito::getinstance();
+		$params['identity_id'] = $this->user->getIdentityIdForId(session::get('user_id'));		
 		$cognito->setSnsAccount($params);
 
 		if ($params['provider'] === 'graph.facebook.com') {
