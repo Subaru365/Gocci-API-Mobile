@@ -11,13 +11,13 @@
 
 class Controller_V3_Bgp extends Controller
 {
-    public function before()
-    {
-        if ($_SERVER['REMOTE_ADDR'] !== '127.0.0.1') {
-            error_log('access denied.');
-            exit;
-        }
-    }
+    // public function before()
+    // {
+    //     if ($_SERVER['REMOTE_ADDR'] !== '127.0.0.1') {
+    //         error_log('access denied.');
+    //         exit;
+    //     }
+    // }
 
     // public function action_update_device()
     // {
@@ -76,19 +76,20 @@ class Controller_V3_Bgp extends Controller
     // }
 
 
-    // //Post有効化
-    // public function action_post_publish()
-    // {
-    //     $message = '投稿が完了しました！';
+    //Post有効化
+    public function action_post_publish()
+    {
+        $post   = Model_V3_Db_Post::getInstance();
+        $notice = Model_V3_Notice::getInstance();
 
-    //     $user_id = Input::get('user_id');
-    //     $movie   = Input::get('movie');
+        $user_id = Input::get('user_id');
+        $movie   = Input::get('movie');
 
-    //     Model_Post::post_publish($movie);
-    //     Model_Sns::post_publish($user_id, $message);
+        $post->postEnable($movie);
+        $notice->pushPostComplete($user_id);
 
-    //     echo '確認ありがとう！';
-    // }
+        echo 'SUCCESS!';
+    }
 
 
     // //Post有効化

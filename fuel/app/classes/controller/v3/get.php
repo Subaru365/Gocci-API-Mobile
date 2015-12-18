@@ -21,11 +21,6 @@ class Controller_V3_Get extends Controller_V3_Gate
 		parent::before();
 	}
 
-	public function action_version()
-	{
-
-	}
-
 
 	public function action_nearline()
     {
@@ -33,6 +28,12 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$post = Model_V3_Post::getInstance();
 
 		$this->res_params['posts'] = $post->getNearline($this->req_params);
+
+		if (empty($this->res_params['posts'])) {
+			$param = Model_V3_Param::getInstance();
+			$param->setGlobalCode_SUCCESS(array('posts'=>array()));
+			$this->output();
+		}
 
 		$this->outputSuccess();
 	}
@@ -47,7 +48,8 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$this->req_params['follow_user_id'] = $follow->getFollowId();
 
 		if (empty($this->req_params['follow_user_id'])) {
-			$this->status = Model_V3_Status::getStatus('SUCCESS', array('posts'=>json_decode('[]'),));
+			$param = Model_V3_Param::getInstance();
+			$param->setGlobalCode_SUCCESS(array('posts'=>array()));
 			$this->output();
 		}
 
@@ -126,7 +128,8 @@ class Controller_V3_Get extends Controller_V3_Gate
     	$data = $notice->getNotice();
 
     	if (empty($data)) {
-    		$this->status = Model_V3_Status::getStatus('SUCCESS', array('notices'=>json_decode('[]'),));
+    		$param = Model_V3_Param::getInstance();
+    		$param->setGlobalCode_SUCCESS(array('notices'=>array()));
 			$this->output();
     	}
 
@@ -146,7 +149,8 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$data = $user->getFollowlist($this->req_params['user_id']);
 
 		if (empty($data)) {
-			$this->status = Model_V3_Status::getStatus('SUCCESS', array('users'=>json_decode('[]'),));
+			$param = Model_V3_Param::getInstance();
+			$param->setGlobalCode_SUCCESS(array('users'=>array()));
 			$this->output();
 		}
 
@@ -163,7 +167,8 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$data = $user->getFollowerlist($this->req_params['user_id']);
 
 		if (empty($data)) {
-			$this->status = Model_V3_Status::getStatus('SUCCESS', array('users'=>json_decode('[]'),));
+			$param = Model_V3_Param::getInstance();
+			$param->setGlobalCode_SUCCESS(array('users'=>array()));
 			$this->output();
 		}
 
@@ -180,7 +185,8 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$data = $want->getData($this->req_params['user_id']);
 
 		if (empty($data)) {
-			$this->status = Model_V3_Status::getStatus('SUCCESS', array('rests'=>json_decode('[]'),));
+			$param = Model_V3_Param::getInstance();
+			$param->setGlobalCode_SUCCESS(array('rests'=>array()));
 			$this->output();
 		}
 
@@ -197,7 +203,8 @@ class Controller_V3_Get extends Controller_V3_Gate
 		$data = $post->getUserCheer($this->req_params['user_id']);
 
 		if (empty($data)) {
-			$this->status = Model_V3_Status::getStatus('SUCCESS', array('rests'=>json_decode('[]'),));
+			$param = Model_V3_Param::getInstance();
+			$param->setGlobalCode_SUCCESS(array('rests'=>array()));
 			$this->output();
 		}
 

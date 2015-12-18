@@ -3,10 +3,9 @@
  * DB-Restaurant Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/20)
+ * @version    3.0.0 (2015/12/18)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @license    MIT License
- * @copyright  2015 Inase,inc.
+ * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 

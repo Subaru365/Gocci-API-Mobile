@@ -3,10 +3,9 @@
  * Notice Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/20)
+ * @version    3.0.0 (2015/11/20)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @license    MIT License
- * @copyright  2015 Inase,inc.
+ * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
@@ -91,7 +90,7 @@ class Model_V3_Notice extends Model
 			//re_userのみに通知
 			$re_user_id = explode(',', $params['re_user_id']);
 			$num = count($re_user_id);
-			
+
 			for ($i=0; $i < $num; $i++) {
 				$this->notice->setNotice($params['user_id'], $re_user_id[$i], $params['post_id']);
 				$this->push($params['user_id'], $re_user_id[$i], $params['post_id']);
@@ -117,6 +116,13 @@ class Model_V3_Notice extends Model
 
 		$this->notice->setNotice($params['user_id'], $params['follow_user_id']);
 		$this->push($params['user_id'], $params['follow_user_id']);
+	}
+
+	public function pushPostComplete($user_id)
+	{
+		$sns = Model_V3_Aws_Sns::getInstance();
+		$sns->type = 'post_complete';
+		$this->push($user_id, $user_id);
 	}
 
 
@@ -146,7 +152,7 @@ class Model_V3_Notice extends Model
 		$device_data = $device->getData($p_user_id);
 
 		if (empty($device_data['endpoint_arn'])) {
-			ellor_log("{$p_user}に通知できませんでした");
+			error_log("{$p_user_id}に通知できませんでした");
 			exit;
 		}
 
