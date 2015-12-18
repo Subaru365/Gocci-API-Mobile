@@ -8,7 +8,7 @@
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
-header('Content-Type: application/json; charset=UTF-8');
+// header('Content-Type: application/json; charset=UTF-8');
 
 class Controller_V3_Public extends Controller
 {

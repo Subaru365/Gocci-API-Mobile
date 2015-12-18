@@ -65,13 +65,13 @@ class Model_V3_Aws_Cognito extends Model
 
     public function setSnsAccount($params)
     {
-        $result = $this->addSnsAccount($params['provider'], $params['sns_token']);
+        $result = $this->addSnsAccount($params['identity_id'], $params['provider'], $params['sns_token']);
         return $result;
     }
 
     public function unsetSnsAccount($params)
     {
-        $result = $this->deleteSnsAccount($params);
+        $result = $this->deleteSnsAccount($params['identity_id'], $params['provider'], $params['sns_token']);
         return $result;
     }
 
@@ -93,24 +93,25 @@ class Model_V3_Aws_Cognito extends Model
         return $result;
     }
 
-    private function addSnsAccount($provider, $token)
+    private function addSnsAccount($identity_id, $provider, $token)
     {
         $result = $this->client->getOpenIdTokenForDeveloperIdentity([
+            'IdentityId'        => $identity_id,
             'IdentityPoolId'    => self::$pool_id,
             'Logins'            => [
-                self::$dev_provider => session::get('user_id'),
                 $provider => $token,
             ],
         ]);
     }
 
-    public function deleteSnsAccount($params)
+    public function deleteSnsAccount($identity_id, $provider, $token)
     {
         $result = $this->client->unlinkIdentity([
-            'IdentityId'        => $params['identity_id'],
+            'IdentityId'        => $identity_id,
             'Logins'            => [
-                $params['provider']  => $params['sns_token']],
-            'LoginsToRemove'    => [$params['provider']],
+                $provider  => $token,
+            ],
+            'LoginsToRemove'    => [$provider],
         ]);
     }
 
