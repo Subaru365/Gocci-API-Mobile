@@ -32,18 +32,6 @@ class Model_V3_Param extends Model
         );
     }
 
-
-    // public function __get($name)
-    // {
-    //     if ($name === 'getRequest') {
-    //         if (!empty($this->status['code'])) {
-    //             error_log($this->status['code']);
-    //             return FALSE;
-    //         }
-    //     }
-    // }
-
-
     public function getRequest($input_params)
     {
         $uri  = substr(Uri::string(), 3);
@@ -54,22 +42,6 @@ class Model_V3_Param extends Model
 
         return $this->req_params;
     }
-
-
-    // public function setResponse($params)
-    // {
-    //     $res_function_name = "setPayload{$this->uri_path}";
-
-    //     try {
-    //         $this->$res_function_name($params);
-    //         $this->set_GlobalCode_SUCCESS();
-
-    //     } catch (Excepsion $e){
-    //         error_log($e);
-    //         $this->set_GlobalCode_ERROR_SERVER_SIDE_FAILURE();
-    //     }
-    // }
-
 
     public function setGlobalCode_SUCCESS($payload)
     {
@@ -557,7 +529,7 @@ class Model_V3_Param extends Model
 
         if(!empty($input_params['movie_name'])) {
 
-            if(preg_match('/^[0-9_-]+$/', $input_params['movie_name'])) {
+            if(preg_match('/^\d{4}(-\d{2}){5}_\d{1,9}$/', $input_params['movie_name'])) {
                 $this->req_params['movie_name'] = $input_params['movie_name'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_MOVIE_NAME_MALFORMED';
@@ -955,6 +927,26 @@ class Model_V3_Param extends Model
         else {
             $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MISSING';
             $this->status['message'] = "Parameter 'rest_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_get_post($input_params)
+    {
+        if(!empty($input_params['post_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['post_id'])) {
+                $this->req_params['post_id'] = $input_params['post_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'post_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MISSING';
+            $this->status['message'] = "Parameter 'post_id' does not exist.";
         }
 
     }

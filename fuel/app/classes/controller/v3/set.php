@@ -122,6 +122,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$post_id = $post->setPostData($this->req_params);
 		$hash_id = Model_V3_Hash::postIdHash($post_id);
 		$post->setHashId($post_id, $hash_id);
+		$this->res_params['post_id'] = $post_id;
 
 		$this->outputSuccess();
 	}
