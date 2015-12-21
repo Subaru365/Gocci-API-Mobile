@@ -41,6 +41,7 @@ class Model_V3_Post extends Model
 
 		$posts = $this->post->getNearPost($rest_ids, $params);
 		$posts = $this->decodeDistance($posts);
+		$posts = $this->decodeProfile($posts);
 		$posts = $this->decodeData($posts);
 		$posts = $this->addGochiFlag($posts);
 
@@ -50,6 +51,7 @@ class Model_V3_Post extends Model
 	public function getFollowline($params)
 	{
 		$posts = $this->post->getFollowPost($params);
+		$posts = $this->decodeProfile($posts);
 		$posts = $this->decodeData($posts);
 		$posts = $this->addGochiFlag($posts);
 
@@ -59,6 +61,7 @@ class Model_V3_Post extends Model
 	public function getTimeline($params)
 	{
 		$posts = $this->post->getTimePost($params);
+		$posts = $this->decodeProfile($posts);
 		$posts = $this->decodeData($posts);
 		$posts = $this->addGochiFlag($posts);
 
@@ -125,7 +128,6 @@ class Model_V3_Post extends Model
 			$data[$i]['mp4_movie'] 		= Model_V3_Transcode::decode_mp4_movie($data[$i]['movie']);
 			$data[$i]['hls_movie']   	= Model_V3_Transcode::decode_hls_movie($data[$i]['movie']);
 			$data[$i]['thumbnail']   	= Model_V3_Transcode::decode_thumbnail($data[$i]['thumbnail']);
-			$data[$i]['profile_img'] 	= Model_V3_Transcode::decode_profile_img($data[$i]['profile_img']);
 			$data[$i]['post_date']  	= Model_V3_Transcode::decode_date($data[$i]['post_date']);
 		}
 		return $data;
