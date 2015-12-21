@@ -3,7 +3,7 @@
  * DB-Post Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.0.0 (2015/12/18)
+ * @version    3.2.0 (2015/12/20)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -99,6 +99,13 @@ class Model_V3_Db_Post extends Model_V3_Db
 		return $result;
 	}
 
+	public function getMovie($post_id)
+	{
+		$this->selectMovie($post_id);
+		$result = $this->run();
+		return $result[0]['movie'];
+	}
+
 	public function getPostUserId($post_id)
 	{
 		$this->selectUserId($post_id);
@@ -172,6 +179,13 @@ class Model_V3_Db_Post extends Model_V3_Db
 		->where('post_id', $post_id);
 	}
 
+	private function selectMovie($post_id)
+	{
+		$this->query = DB::select('movie')
+		->from(self::$table_name)
+		->where('post_id', $post_id);
+	}
+
 	private function selectCheer($user_id)
 	{
 		$this->query = DB::select('post_id')
@@ -185,8 +199,8 @@ class Model_V3_Db_Post extends Model_V3_Db
 		$this->query = DB::select(
 			'post_id',		'movie',		'thumbnail',
 			'value', 		'rest_id', 		'restname',
-			'user_id', 		'username',		'cheer_flag',
-			'post_date',
+			'user_id', 		'username',		'profile_img',
+			'cheer_flag',	'post_date',
 			DB::expr("GLength(GeomFromText(CONCAT('LineString(
 				{$lon} {$lat},', X(lon_lat),' ', Y(lon_lat),')'))) as distance"
 			)
@@ -211,8 +225,8 @@ class Model_V3_Db_Post extends Model_V3_Db
 		$this->query = DB::select(
 			'post_id',		'movie',		'thumbnail',
 			'value', 		'rest_id', 		'restname',
-			'user_id', 		'username',		'cheer_flag',
-			'post_date'
+			'user_id', 		'username',		'profile_img',		
+			'cheer_flag',	'post_date'
 		)
 		->from(self::$table_name)
 
@@ -288,7 +302,7 @@ class Model_V3_Db_Post extends Model_V3_Db
 			'post_id',		'movie',		'thumbnail',
 			'category',		'value',		'memo',
 			'post_date', 	'cheer_flag',	'rest_id',
-			'restname',
+			'restname',     'locality',
 			DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat')
 		)
 		->from(self::$table_name)

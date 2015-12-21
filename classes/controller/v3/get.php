@@ -3,7 +3,7 @@
  * Get  Class. Request SignUp, LogIn.
  *
  * @package    Gocci-Mobile
- * @version    3.0.0 (2015/12/17)
+ * @version    3.1.0 (2015/12/20)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -65,6 +65,16 @@ class Controller_V3_Get extends Controller_V3_Gate
 
 		$this->res_params['posts'] = $post->getTimeline($this->req_params);
 	   	$this->outputSuccess();
+	}
+
+
+	public function action_post()
+	{
+		$post = Model_V3_Db_Post::getInstance();
+
+		$result = $post->getMovie($this->req_params['post_id']);
+		$this->res_params['mp4_movie'] = Model_V3_Transcode::decode_mp4_movie($result);
+		$this->outputSuccess();
 	}
 
 

@@ -20,7 +20,7 @@ class Controller_V3_Unset extends Controller_V3_Gate
 	public function action_device()
 	{
 		//$req_params is [device_token]
-		$device = Model_V3_Device::getInstance();
+		$device = Model_V3_Db_Device::getInstance();
 		$result = $device->getEndpointArn(session::get('user_id'));
 
 		if (!empty($result)) {
@@ -28,7 +28,7 @@ class Controller_V3_Unset extends Controller_V3_Gate
 			$device->deleteDevice(session::get('user_id'));
 
 			$sns = Model_V3_Aws_Sns::getInstance();
-			$sns = deleteSns($endpoint_arn);
+			$sns->deleteSns($endpoint_arn);
 		}
 
         $this->outputSuccess();

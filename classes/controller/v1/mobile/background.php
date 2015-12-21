@@ -24,37 +24,6 @@ class Controller_V1_Mobile_Background extends Controller
         }
     }
 
-
-    //Post有効化
-    public function action_post_publish()
-    {
-        $message = '投稿が完了しました！';
-
-        $user_id = Input::get('user_id');
-        $movie   = Input::get('movie');
-
-        Model_V1_Post::post_publish($movie);
-        //Model_V1_Sns::post_publish($user_id, $message);
-
-        echo '確認ありがとう！';
-    }
-
-
-    //Post有効化
-    public function action_post_reject()
-    {
-        $message = 'ごめんなさい！料理の動画を撮って下さい';
-
-        $user_id = Input::get('user_id');
-        $movie   = Input::get('movie');
-
-        Model_V1_Post::post_reject($movie);
-        Model_V1_Sns::post_publish($user_id, $message);
-
-        echo '拒否しました。確認ありがとう！';
-    }
-
-
     //Register_id更新
     public function action_update_register_id()
     {

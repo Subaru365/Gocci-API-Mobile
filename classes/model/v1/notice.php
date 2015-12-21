@@ -69,7 +69,7 @@ class Model_V1_Notice extends Model
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL,
-            'http://localhost/v1/mobile/background/publish/'
+            'http://localhost:3000/v1/mobile/background/publish/'
             .'?keyword='   . "$keyword"
             .'&a_user_id=' . "$a_user_id"
             .'&p_user_id=' . "$p_user_id"
@@ -82,7 +82,7 @@ class Model_V1_Notice extends Model
     // web notice
     public static function web_notice_insert($keyword, $a_user_id, $p_user_id, $post_id = 1)
     {
-	if ($keyword == 'gochi!') {
+        if ($keyword == 'gochi!') {
                   $notice = 'like';
 
         }elseif ($keyword == 'コメント') {
@@ -103,11 +103,6 @@ class Model_V1_Notice extends Model
                   'notice_post_id'   => "$post_id"
         ))
         ->execute();
-
-
-
-
-
     }
 
 }
