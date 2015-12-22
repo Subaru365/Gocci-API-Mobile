@@ -38,7 +38,7 @@ class Model_V3_Aws_Sns extends Model
         try {
             $this->publishAndroid($username, $arn, $id);
         }
-        catch (Exception $e) {
+        catch (Throwable $e) {
             error_log($arn . " Error!\n");
             $device = Model_V3_Db_Device::getInstance();
             $device->deleteDeviceForArn($arn);
@@ -52,7 +52,7 @@ class Model_V3_Aws_Sns extends Model
         try {
             $this->publishiOS($username, $arn, $id);
         }
-        catch (Exception $e) {
+        catch (Throwable $e) {
             error_log($arn . " Error!\n");
             $device = Model_V3_Db_Device::getInstance();
             $device->deleteDeviceForArn($arn);
@@ -76,7 +76,7 @@ class Model_V3_Aws_Sns extends Model
         try {
     	   $this->deleteEndpoint($endpoint_arn);
         }
-        catch (Exception $e){
+        catch (Throwable $e){
             error_log($endpoint_arn.$e);
         }
     }
@@ -129,6 +129,12 @@ class Model_V3_Aws_Sns extends Model
 
 	private function publishiOS($username, $arn, $id)
 	{
+         $message = array(
+            'type'      => "$this->type",
+            'id'        => "$id",
+            'username'  => "$username",
+        );
+
 		$this->client->publish(array(
 
         	'TargetArn' => $endpointArn,
@@ -139,7 +145,7 @@ class Model_V3_Aws_Sns extends Model
 	        	'APNS_SANDBOX' => json_encode(array
 	          	(
 	                'aps' => array(
-	                    'alert' => $alert,
+	                    'alert' => $message,
 	                    'sound' => 'default',
 	                    'badge' => 1
 	            	),
