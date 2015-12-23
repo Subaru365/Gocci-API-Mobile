@@ -92,17 +92,16 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 	{
 		$keyword = 'gochi!';
 		$user_id = session::get('user_id');
-		$post_id = Input::get('post_id');
-
+		$params['post_id'] = Input::get('post_id');
 
 		try
 		{
-			$target_user_id = Model_V1_Gochi::post_gochi(
-				$user_id, $post_id);
+			$params['post_user_id'] = Model_V1_Gochi::post_gochi($user_id, $params['post_id']);
 
 			if ($user_id != $target_user_id) {
-				$record = Model_V1_Notice::post_data(
-					$keyword, $user_id, $target_user_id, $post_id);
+				$notice = Model_V3_Notice::getInstance();
+				$notice->setGochi($params);
+				// $record = Model_V1_Notice::post_data($keyword, $user_id, $target_user_id, $post_id);
 			}
 
 			self::success($keyword);
@@ -121,36 +120,55 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 	{
 		$keyword    = 'コメント';
 		$user_id    = session::get('user_id');
-		$post_id    = Input::get('post_id');
-		$comment    = Input::get('comment');
-		$re_user_id = Input::get('re_user_id');
+		$params['post_id']    = Input::get('post_id');
+		$params['comment']    = Input::get('comment');
+		$params['re_user_id'] = Input::get('re_user_id');
 
-		try
-		{
-			$comment_id = Model_V1_Comment::post_comment($user_id, $post_id, $comment);
-			$target_user_id = Model_V1_Post::get_user($post_id);
+		$comment 	= Model_V3_Db_Comment::getInstance();
+		$post 		= Model_V3_Db_Post::getInstance();
 
-			if ($user_id != $target_user_id) {
-				Model_V1_Notice::post_data($keyword, $user_id, $target_user_id, $post_id);
-			}
+		$comment_id = $comment->setComment($params);
 
-			if (!empty($re_user_id)) {
-				$re_user_id = explode(',', $re_user_id);
-				$num = count($re_user_id);
-
-				for ($i=0; $i < $num; $i++) {
-					Model_V1_Re::post_data($comment_id, $re_user_id[$i]);
-					Model_V1_Notice::post_data($keyword, $user_id, $re_user_id[$i], $post_id);
-				}
-			}
-			self::success($keyword);
+		if (!empty($params['re_user_id'])) {
+			$re = Model_V3_Db_Re::getInstance();
+			$re->setRe($comment_id, $params['re_user_id']);
+		} else {
+			$params['re_user_id'] = '';
 		}
 
-		catch(\Database_Exception $e)
-		{
-			self::failed($keyword);
-			error_log($e);
+		$params['post_user_id'] = $post->getPostUserId($params['post_id']);
+
+		if (session::get('user_id') !== $params['post_user_id'] || !empty($params['re_user_id'])) {
+			$notice = Model_V3_Notice::getInstance();
+			$notice->setComment($params);
 		}
+
+		// try
+		// {
+		// 	$comment_id = Model_V1_Comment::post_comment($user_id, $post_id, $comment);
+		// 	$target_user_id = Model_V1_Post::get_user($post_id);
+
+		// 	if ($user_id != $target_user_id) {
+		// 		Model_V1_Notice::post_data($keyword, $user_id, $target_user_id, $post_id);
+		// 	}
+
+		// 	if (!empty($re_user_id)) {
+		// 		$re_user_id = explode(',', $re_user_id);
+		// 		$num = count($re_user_id);
+
+		// 		for ($i=0; $i < $num; $i++) {
+		// 			Model_V1_Re::post_data($comment_id, $re_user_id[$i]);
+		// 			Model_V1_Notice::post_data($keyword, $user_id, $re_user_id[$i], $post_id);
+		// 		}
+		// 	}
+				self::success($keyword);
+		// }
+
+		// catch(\Database_Exception $e)
+		// {
+		// 	self::failed($keyword);
+		// 	error_log($e);
+		// }
 	}
 
 
@@ -165,8 +183,8 @@ class Controller_V1_Mobile_Post extends Controller_V1_Mobile_Base
 		{
 			$result = Model_V1_Follow::post_follow($user_id, $follow_user_id);
 
-			$record = Model_V1_Notice::post_data(
-				$keyword, $user_id, $follow_user_id);
+			$notice = Model_V3_Notice::getInstance();
+			$notice->setFollow($follow_user_id);
 
 			self::success($keyword);
 		}

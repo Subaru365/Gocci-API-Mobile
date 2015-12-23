@@ -3,10 +3,9 @@
  * Db-Notice Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/17)
+ * @version    3.0.0 (2015/12/23)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @license    MIT License
- * @copyright  2015 Inase,inc.
+ * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
@@ -38,6 +37,7 @@ class Model_V3_Db_Notice extends Model_V3_Db
 			$this->insertData($this->type, $a_user_id, $p_user_id, $post_id);
 			$this->query->execute();
 		} else {
+			error_log($this->type);
 			exit();
 		}
 	}

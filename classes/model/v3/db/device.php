@@ -3,7 +3,7 @@
  * Status Code and Message list.
  *
  * @package    Gocci-Mobile
- * @version    3.0.0 (2015/12/19)
+ * @version    3.0.0 (2015/12/23)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -42,15 +42,9 @@ class Model_V3_Db_Device extends Model_V3_Db
 
     public function getData($user_id)
     {
-        try {
-            $this->selectData($user_id);
-            $result = $this->run();
-            return $result[0];
-        }
-        catch (Exception $e){
-            error_log($e);
-            exit;
-        }
+        $this->selectData($user_id);
+        $result = $this->run();
+        return $result;
     }
 
     public function updateDevice($params)

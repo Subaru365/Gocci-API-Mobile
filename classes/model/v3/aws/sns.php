@@ -43,7 +43,6 @@ class Model_V3_Aws_Sns extends Model
             $device = Model_V3_Db_Device::getInstance();
             $device->deleteDeviceForArn($arn);
             $this->deleteEndpoint($arn);
-            exit;
         }
     }
 
@@ -57,7 +56,6 @@ class Model_V3_Aws_Sns extends Model
             $device = Model_V3_Db_Device::getInstance();
             $device->deleteDeviceForArn($arn);
             $this->deleteEndpoint($arn);
-            exit;
         }
     }
 
@@ -137,7 +135,7 @@ class Model_V3_Aws_Sns extends Model
 
 		$this->client->publish(array(
 
-        	'TargetArn' => $endpointArn,
+        	'TargetArn' => $arn,
         	'MessageStructure' => 'json',
 
         	'Message' => json_encode(array

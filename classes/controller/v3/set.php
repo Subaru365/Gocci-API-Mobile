@@ -3,7 +3,7 @@
  * Set Class. This class request session.
  *
  * @package    Gocci-Mobile
- * @version    3.0.0 (2015/12/18)
+ * @version    3.0.1 (2015/12/23)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -21,7 +21,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 	{
 		//$req_params is [os, ver, model, device_token]
 		$device = Model_V3_Device::getInstance();
-
 		$device->updateDevice($this->req_params);
 
         $this->outputSuccess();
@@ -51,15 +50,16 @@ class Controller_V3_Set extends Controller_V3_Gate
 	public function action_gochi()
 	{
 		//Input post_id
-		$gochi = Model_V3_Db_Gochi::getInstance();
-		$post  = Model_V3_Db_Post::getInstance();
+		$gochi  = Model_V3_Db_Gochi::getInstance();
+		$post   = Model_V3_Db_Post::getInstance();
+		$params = $this->req_params;
 
-		$result			= $gochi->setGochi($this->req_params['post_id']);
-		$post_user_id 	= $post->getPostUserId($this->req_params['post_id']);
+		$result	= $gochi->setGochi($params['post_id']);
+		$params['post_user_id'] = $post->getPostUserId($params['post_id']);
 
-		if (session::get('user_id') != $post_user_id) {
-		//通知外部処理
-			$this->bgpNoticeGochi($this->req_params['post_id'], $post_user_id);
+		if (session::get('user_id') != $params['post_user_id']) {
+			$notice = Model_V3_Notice::getInstance();
+			$notice->setGochi($params);
 		}
 
 		$this->outputSuccess();
@@ -70,21 +70,23 @@ class Controller_V3_Set extends Controller_V3_Gate
 	{
 		//Input post_id, comment, re_user_id
 		$comment 	= Model_V3_Db_Comment::getInstance();
-		$comment_id = $comment->setComment($this->req_params);
+		$post 		= Model_V3_Db_Post::getInstance();
+		$params 	= $this->req_params;
 
-		if (!empty($this->req_params['re_user_id'])) {
+		$comment_id = $comment->setComment($params);
+
+		if (!empty($params['re_user_id'])) {
 			$re = Model_V3_Db_Re::getInstance();
-			$re->setRe($comment_id, $this->req_params['re_user_id']);
+			$re->setRe($comment_id, $params['re_user_id']);
 		} else {
-			$this->req_params['re_user_id'] = '';
+			$params['re_user_id'] = '';
 		}
 
-		$post = Model_V3_Db_Post::getInstance();
-		$post_user_id = $post->getPostUserId($this->req_params['post_id']);
+		$params['post_user_id'] = $post->getPostUserId($params['post_id']);
 
-		if (session::get('user_id') !== $post_user_id || !empty($this->req_params['re_user_id'])) {
-			//通知外部処理
-			$this->bgpNoticeComment($this->req_params, $post_user_id);
+		if (session::get('user_id') !== $params['post_user_id'] || !empty($params['re_user_id'])) {
+			$notice = Model_V3_Notice::getInstance();
+			$notice->setComment($params);
 		}
 
 		$this->outputSuccess();
@@ -93,11 +95,12 @@ class Controller_V3_Set extends Controller_V3_Gate
 
 	public function action_follow()
 	{
-		//Input target_user_id
+		//Input user_id
 		$follow = Model_V3_Db_Follow::getInstance();
+		$notice = Model_V3_Notice::getInstance();
 		$result = $follow->setFollow($this->req_params['user_id']);
 
-		$this->bgpNoticeFollow($this->req_params['user_id']);
+		$notice->setFollow($this->req_params['user_id']);
 
 		$this->outputSuccess();
 	}
@@ -143,7 +146,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 		//Input username
 		$user = Model_V3_Db_User::getInstance();
 		if ($user->getIdForName($this->req_params['username'])) {
-			//username 登録済み
 			$param = Model_V3_Param::getInstance();
 			$param->set_set_username_ERROR_USERNAME_ALREADY_REGISTERD();
             $this->output();
@@ -187,51 +189,4 @@ class Controller_V3_Set extends Controller_V3_Gate
 		$this->res_params['rest_id'] = $result;
 		$this->outputSuccess();
 	}
-
-	//======================================================//
-
-	private function bgpNoticeGochi($post_id, $post_user_id)
-    {
-    	$user_id = session::get('user_id');
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL,
-            'http://localhost:3000/v3/bgp/notice_gochi/'
-            .'?user_id='		. "$user_id"
-            .'&post_id='    	. "$post_id"
-            .'&post_user_id=' 	. "$post_user_id"
-        );
-        curl_exec($ch);
-        curl_close($ch);
-    }
-
-    private function bgpNoticeComment($params, $post_user_id)
-    {
-    	$user_id = session::get('user_id');
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL,
-            'http://localhost:3000/v3/bgp/notice_comment/'
-            .'?user_id='		. "$user_id"
-            .'&post_id='     	. "$params[post_id]"
-            .'&post_user_id=' 	. "$post_user_id"
-            .'&re_user_id='	 	. "$params[re_user_id]"
-        );
-        curl_exec($ch);
-        curl_close($ch);
-    }
-
-    private function bgpNoticeFollow($follow_user_id)
-    {
-    	$user_id = session::get('user_id');
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL,
-            'http://localhost:3000/v3/bgp/notice_follow/'
-            .'?user_id='		. "$user_id"
-            .'&follow_user_id=' . "$follow_user_id"
-        );
-        curl_exec($ch);
-        curl_close($ch);
-    }
 }

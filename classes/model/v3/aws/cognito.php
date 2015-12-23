@@ -3,10 +3,9 @@
  * Aws-Cognito model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/24)
+ * @version    3.01.0 (2015/12/23)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @license    MIT License
- * @copyright  2015 Inase,inc.
+ * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
@@ -47,31 +46,48 @@ class Model_V3_Aws_Cognito extends Model
 
     public function getToken($user_id)
     {
-        $result = $this->getData($user_id);
+        $result = $this->getData(self::$dev_provider, $user_id);
         return $result['Token'];
     }
 
     public function getIid($user_id)
     {
-        $result = $this->getData($user_id);
+        $result = $this->getData(self::$dev_provider, $user_id);
         return $result['IdentityId'];
     }
 
     public function getLoginData($user_id)
     {
-        $result = $this->getData($user_id);
+        $result = $this->getData(self::$dev_provider, $user_id);
         return $result;
     }
 
     public function setSnsAccount($params)
     {
-        $result = $this->addSnsAccount($params['identity_id'], $params['provider'], $params['sns_token']);
+        //var_dump($params);
+        try {
+            $result = $this->addSnsAccount($params['identity_id'], $params['provider'], $params['sns_token']);
+        } catch (Throwable $e) {
+            $result = $this->getId($params['provider'], $params['sns_token']);
+            if (!empty($result)) {
+                $result = $this->deleteSnsAccount($result['IdentityId'], $params['provider'], $params['sns_token']);                
+                // var_dump($result['IdentityId']);
+            }
+        }
         return $result;
     }
 
     public function unsetSnsAccount($params)
     {
-        $result = $this->deleteSnsAccount($params['identity_id'], $params['provider'], $params['sns_token']);
+        try {
+            $result = $this->deleteSnsAccount($params['identity_id'], $params['provider'], $params['sns_token']);
+        } catch (Throwable $e) {
+            $result = $this->getId($params['provider'], $params['sns_token']);
+            if (!empty($result)) {
+                $result = $this->deleteSnsAccount($result['IdentityId'], $params['provider'], $params['sns_token']);                
+                // var_dump($result['IdentityId']);
+            }
+        }
         return $result;
     }
 
@@ -81,13 +97,19 @@ class Model_V3_Aws_Cognito extends Model
     }
 
 
-    private function getData($user_id)
+    private function getId($provider, $token)
+    {
+        $result = $this->client->getId([
+            'IdentityPoolId'    => self::$pool_id,
+            'Logins'            => array("$provider" => "$token",),
+        ]);
+    }
+
+    private function getData($provider, $token)
     {
         $result = $this->client->getOpenIdTokenForDeveloperIdentity([
             'IdentityPoolId'    => self::$pool_id,
-            'Logins'            => [
-                self::$dev_provider => "$user_id",
-            ],
+            'Logins'            => array("$provider" => "$token",),
             'TokenDuration'     => 7200,
         ]);
         return $result;
@@ -96,22 +118,21 @@ class Model_V3_Aws_Cognito extends Model
     private function addSnsAccount($identity_id, $provider, $token)
     {
         $result = $this->client->getOpenIdTokenForDeveloperIdentity([
-            'IdentityId'        => $identity_id,
             'IdentityPoolId'    => self::$pool_id,
-            'Logins'            => [
-                $provider => $token,
-            ],
+            'IdentityId'        => "$identity_id",
+            'Logins'            => array(
+                self::$dev_provider => session::get('user_id'),
+                "$provider" => "$token",
+            ),
         ]);
     }
 
     public function deleteSnsAccount($identity_id, $provider, $token)
     {
         $result = $this->client->unlinkIdentity([
-            'IdentityId'        => $identity_id,
-            'Logins'            => [
-                $provider  => $token,
-            ],
-            'LoginsToRemove'    => [$provider],
+            'IdentityId'        => "$identity_id",
+            'Logins'            => array("$provider"  => "$token",),
+            'LoginsToRemove'    => array("$provider",),
         ]);
     }
 
@@ -121,49 +142,4 @@ class Model_V3_Aws_Cognito extends Model
             'IdentityIdsToDelete' => ["$identity_id"],
         ]);
     }
-
-
- //    private function get_cognito()
- //    {
- //        $config = Config::get('_cognito');
-
- //        $result = self::$client->getOpenIdTokenForDeveloperIdentity([
- //            'IdentityId'        => "$identity_id",
- //            'IdentityPoolId'    => "$config[IdentityPoolId]",
- //            'Logins'            => [
- //                "$config[dev_provider]" => session::get('user_id'),
- //            ]
- //        ]);
- //        return $result['Token'];
- //    }
-
-
-	// public static function set_data()
-	// {
- //       $client = self::set_client();
-	// 	$config  = Config::get('_cognito');
- //        $user_id = session::get('user_id');
-
- //        $result = $client->getOpenIdTokenForDeveloperIdentity
- //        ([
- //            'IdentityPoolId'    => "$config[IdentityPoolId]",
- //            'Logins'            => [
- //                "$config[dev_provider]" => "$user_id",
- //            ]
- //        ]);
-	// 	return $result;
-	// }
-
-
-
- //    public static function delete_sns($identity_id, $provider, $token)
- //    {
- //        $dev_provider = Config::get('_cognito.dev_provider');
-
- //        $result = $client->unlinkIdentity([
- //            'IdentityId'        => "$identity_id",
- //            'Logins'            => ["$provider" => "$token"],
- //            'LoginsToRemove'    => ["$provider"],
- //        ]);
- //    }
 }

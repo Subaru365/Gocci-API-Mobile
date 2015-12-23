@@ -3,7 +3,7 @@
  * Notice Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.0.0 (2015/11/20)
+ * @version    3.0.0 (2015/12/23)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -56,6 +56,7 @@ class Model_V3_Notice extends Model
 		}
 	}
 
+
 	public function getNotice()
 	{
 		$user = Model_V3_Db_User::getInstance();
@@ -68,8 +69,9 @@ class Model_V3_Notice extends Model
 	}
 
 
-	public function pushGochi($params)
+	public function setGochi($params)
 	{
+		$params['user_id'] = session::get('user_id');
 		$this->type = 'like';
 
 		$this->notice->setNotice($params['user_id'], $params['post_user_id'], $params['post_id']);
@@ -77,8 +79,9 @@ class Model_V3_Notice extends Model
 	}
 
 
-	public function pushComment($params)
+	public function setComment($params)
 	{
+		$params['user_id'] = session::get('user_id');
 		$this->type = 'comment';
 
 		if ($params['user_id'] !== $params['post_user_id'] && empty($params['re_user_id'])) {
@@ -110,12 +113,12 @@ class Model_V3_Notice extends Model
 		}
 	}
 
-	public function pushFollow($params)
+	public function setFollow($follow_user_id)
 	{
 		$this->type = 'follow';
 
-		$this->notice->setNotice($params['user_id'], $params['follow_user_id']);
-		$this->push($params['user_id'], $params['follow_user_id']);
+		$this->notice->setNotice(session::get('user_id'), $follow_user_id);
+		$this->push(session::get('user_id'), $follow_user_id);
 	}
 
 	public function pushPostComplete($user_id)
@@ -151,19 +154,20 @@ class Model_V3_Notice extends Model
 		$username    = $user->getName($a_user_id);
 		$device_data = $device->getData($p_user_id);
 
-		if (empty($device_data['endpoint_arn'])) {
-			error_log("{$p_user_id}に通知できませんでした");
-			exit;
-		}
+		if (!empty($device_data[0]['endpoint_arn'])) {
 
-		if ($device_data['os'] ===  'android') {
-			$sns->pushAndroid($username, $device_data['endpoint_arn'], $id);
+			if ($device_data[0]['os'] ===  'android') {
+				$sns->pushAndroid($username, $device_data[0]['endpoint_arn'], $id);
 
-		} else if ($device_data['os'] === 'iOS') {
-			$sns->pushiOS($username, $device_data['endpoint_arn'], $id);
+			} else if ($device_data[0]['os'] === 'iOS') {
+				$sns->pushiOS($username, $device_data[0]['endpoint_arn'], $id);
+
+			} else {
+				//Webで利用 通知不必要
+			}
 
 		} else {
-			//Webで利用 通知不必要
+			error_log("{$p_user_id}に通知できませんでした");
 		}
 	}
 }
