@@ -3,7 +3,7 @@
  * Aws-Sns Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.0.0 (2015/12/18)
+ * @version    3.1.0 (2015/12/23)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -46,10 +46,11 @@ class Model_V3_Aws_Sns extends Model
         }
     }
 
-    public function pushiOS($username, $arn, $id)
+    public function pushiOS($username, $arn, $id, $badge)
     {
         try {
-            $this->publishiOS($username, $arn, $id);
+            $payload = makePayload($params);
+            $this->publishiOS($params, $payload);
         }
         catch (Throwable $e) {
             error_log($arn . " Error!\n");
@@ -125,28 +126,82 @@ class Model_V3_Aws_Sns extends Model
 	}
 
 
-	private function publishiOS($username, $arn, $id)
+	private function makePayload($params)
 	{
-         $message = array(
-            'type'      => "$this->type",
-            'id'        => "$id",
-            'username'  => "$username",
-        );
+        switch ($this->type) {
+            
+            case 'like':
+                $alert   = $params['username'].'さんにゴッチされました！';
+                $payload = array(
+                    'user_id'   => "$params[user_id]",
+                    'username'  => "$params[username]",
+                );
+                break;
+            
+            case 'comment':
+                $alert   = $params['username'].'さんからコメントされました！';
+                $payload = array(
+                    'user_id'   => "$params[user_id]",
+                    'username'  => "$params[username]",
+                    'post_id'   => "$params[post_id]",
+                    'comment'   => "$params[comment]",
+                );
+                break;
 
+            case 'follow':
+                $alert   = $params['username'].'さんからフォローされました！';
+                $payload = array(
+                    'user_id'   => "$params[user_id]",
+                    'username'  => "$params[username]",
+                );
+                break;
+
+            case 'post_complete':
+                $alert   = '投稿が完了しました！'.$params['restname'];
+                $payload = array(
+                    'post_id'   => "$params[post_id]",
+                    'rest_id'   => "$params[rest_id]",
+                    'restname'  => "$params[restname]",
+                );                
+                break;
+
+            case 'announcement':
+                $alert   = '';
+                $payload = array(
+                    'head'      => "",
+                    'bosy'      => "$params[message]",
+                );
+                break;
+        }
+
+        return $payload;
+    }
+
+
+    private function publishiOS($arn, $badge, $alert, $payload)
+    {
 		$this->client->publish(array(
 
-        	'TargetArn' => $arn,
+        	'TargetArn' => $params['arn'],
         	'MessageStructure' => 'json',
 
         	'Message' => json_encode(array
 	        (
 	        	'APNS_SANDBOX' => json_encode(array
 	          	(
+                    //'background' => array();
+
 	                'aps' => array(
-	                    'alert' => $message,
-	                    'sound' => 'default',
-	                    'badge' => 1
+	                    'alert'    => "$alert",
+	                    'sound'    => 'default',
+	                    'badge'    => $badge,
 	            	),
+
+                    'foreground' => array(
+                        'badge'    => $badge,
+                        'type'     => "$this->type",
+                        'payload'  => $payload,
+                    ),
 	            // カスタム
 	         	//'custom_text' => "$message",
 	        	)

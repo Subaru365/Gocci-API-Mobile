@@ -3,7 +3,7 @@
  * Status Code and Message list.
  *
  * @package    Gocci-Mobile
- * @version    3.0.0 (2015/12/17)
+ * @version    3.1.0 (2015/12/23)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -71,6 +71,13 @@ class Model_V3_Db_User extends Model_V3_Db
         $this->selectName($user_id);
         $result = $this->run();
         return $result[0]['username'];
+    }
+
+    public function getBadge($user_id)
+    {
+        $this->selectBadgeNum($user_id);
+        $result = $this->run();
+        return $result[0]['badge_num'];
     }
 
     public function getProfile($user_id)
@@ -198,7 +205,7 @@ class Model_V3_Db_User extends Model_V3_Db
         ->where('user_id', $user_id);
     }
 
-    private function select_badge($user_id)
+    private function selectBadgeNum($user_id)
     {
         $this->query = DB::select('badge_num')
         ->from(self::$table_name)

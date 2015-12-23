@@ -419,12 +419,16 @@ class Model_V3_Param extends Model
 
         if(!empty($input_params['re_user_id'])) {
 
-            if(preg_match('/^\d{1,9}$/', $input_params['re_user_id'])) {
+            if(preg_match('/^[0-9,]{1,9}$/', $input_params['re_user_id'])) {
                 $this->req_params['re_user_id'] = $input_params['re_user_id'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_RE_USER_ID_MALFORMED';
                 $this->status['message'] = "Parameter 're_user_id' is malformed. Should correspond to '^\d{1,9}$'";
             }
+        }
+
+        else {
+            $this->req_params['re_user_id'] = '';
         }
 
     }

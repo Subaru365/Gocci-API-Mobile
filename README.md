@@ -6,9 +6,9 @@ Use to clone PROJECT_DIR/fuel/app
 ##Operating Environment
 
 * Fuel PHP 1.8-dev-inase custom
-* >= PHP 7.0
+* PHP 7.0
 
-###Develop
+##Develop
 
 * Version   - 3.0
 * author    - Subaru365

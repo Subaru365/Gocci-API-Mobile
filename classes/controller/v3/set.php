@@ -78,8 +78,6 @@ class Controller_V3_Set extends Controller_V3_Gate
 		if (!empty($params['re_user_id'])) {
 			$re = Model_V3_Db_Re::getInstance();
 			$re->setRe($comment_id, $params['re_user_id']);
-		} else {
-			$params['re_user_id'] = '';
 		}
 
 		$params['post_user_id'] = $post->getPostUserId($params['post_id']);

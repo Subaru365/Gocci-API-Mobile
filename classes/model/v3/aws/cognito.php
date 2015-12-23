@@ -3,7 +3,7 @@
  * Aws-Cognito model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.01.0 (2015/12/23)
+ * @version    3.1.0 (2015/12/23)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -71,7 +71,6 @@ class Model_V3_Aws_Cognito extends Model
             $result = $this->getId($params['provider'], $params['sns_token']);
             if (!empty($result)) {
                 $result = $this->deleteSnsAccount($result['IdentityId'], $params['provider'], $params['sns_token']);                
-                // var_dump($result['IdentityId']);
             }
         }
         return $result;
@@ -85,7 +84,6 @@ class Model_V3_Aws_Cognito extends Model
             $result = $this->getId($params['provider'], $params['sns_token']);
             if (!empty($result)) {
                 $result = $this->deleteSnsAccount($result['IdentityId'], $params['provider'], $params['sns_token']);                
-                // var_dump($result['IdentityId']);
             }
         }
         return $result;

@@ -84,12 +84,12 @@ class Model_V3_Notice extends Model
 		$params['user_id'] = session::get('user_id');
 		$this->type = 'comment';
 
-		if ($params['user_id'] !== $params['post_user_id'] && empty($params['re_user_id'])) {
+		if ($params['user_id'] != $params['post_user_id'] && empty($params['re_user_id'])) {
 			//post_userのみに通知
 			$this->push($params['user_id'], $params['post_user_id'], $params['post_id']);
 			$this->notice->setNotice($params['user_id'], $params['post_user_id'], $params['post_id']);
 
-		} else if ($params['user_id'] === $params['post_user_id']) {
+		} else if ($params['user_id'] == $params['post_user_id']) {
 			//re_userのみに通知
 			$re_user_id = explode(',', $params['re_user_id']);
 			$num = count($re_user_id);
@@ -160,7 +160,8 @@ class Model_V3_Notice extends Model
 				$sns->pushAndroid($username, $device_data[0]['endpoint_arn'], $id);
 
 			} else if ($device_data[0]['os'] === 'iOS') {
-				$sns->pushiOS($username, $device_data[0]['endpoint_arn'], $id);
+				$badge = $user->getBadge($p_user_id);
+				$sns->pushiOS($username, $device_data[0]['endpoint_arn'], $id, $badge);
 
 			} else {
 				//Webで利用 通知不必要
