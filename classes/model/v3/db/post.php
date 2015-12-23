@@ -273,6 +273,7 @@ class Model_V3_Db_Post extends Model_V3_Db
 		->group_by('post_rest_id')
 
 		->where('post_rest_id', 'in', $rest_ids)
+		->and_where('post_status_flag', '1')
 
 		->distinct(true);
 	}
