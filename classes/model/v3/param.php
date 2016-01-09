@@ -730,7 +730,7 @@ class Model_V3_Param extends Model
 
         if(!empty($input_params['lat'])) {
 
-            if(preg_match('/^\d{1,3}.\d{1,20}$/', $input_params['lat'])) {
+            if(preg_match('/^-?\d{1,3}.\d{1,20}$/', $input_params['lat'])) {
                 $this->req_params['lat'] = $input_params['lat'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_LAT_MALFORMED';
@@ -745,7 +745,7 @@ class Model_V3_Param extends Model
 
         if(!empty($input_params['lon'])) {
 
-            if(preg_match('/^\d{1,3}.\d{1,20}$/', $input_params['lon'])) {
+            if(preg_match('/^-?\d{1,3}.\d{1,20}$/', $input_params['lon'])) {
                 $this->req_params['lon'] = $input_params['lon'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_LON_MALFORMED';
@@ -765,7 +765,7 @@ class Model_V3_Param extends Model
     {
         if(!empty($input_params['lat'])) {
 
-            if(preg_match('/^\d{1,3}\.\d{1,20}$/', $input_params['lat'])) {
+            if(preg_match('/^-?\d{1,3}\.\d{1,20}$/', $input_params['lat'])) {
                 $this->req_params['lat'] = $input_params['lat'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_LAT_MALFORMED';
@@ -780,7 +780,7 @@ class Model_V3_Param extends Model
 
         if(!empty($input_params['lon'])) {
 
-            if(preg_match('/^\d{1,3}\.\d{1,20}$/', $input_params['lon'])) {
+            if(preg_match('/^-?\d{1,3}\.\d{1,20}$/', $input_params['lon'])) {
                 $this->req_params['lon'] = $input_params['lon'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_LON_MALFORMED';
