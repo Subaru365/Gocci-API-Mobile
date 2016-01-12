@@ -3,7 +3,7 @@
  * Aws-Sns Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.1.0 (2015/12/23)
+ * @version    3.1.1 (2016/1/12)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -49,8 +49,8 @@ class Model_V3_Aws_Sns extends Model
     public function pushiOS($username, $arn, $id, $badge)
     {
         try {
-            $payload = makePayload($params);
-            $this->publishiOS($params, $payload);
+            $alert = makePayload($username);
+            $this->publishiOS($arn, $badge, $alert);
         }
         catch (Throwable $e) {
             error_log($arn . " Error!\n");
@@ -126,59 +126,59 @@ class Model_V3_Aws_Sns extends Model
 	}
 
 
-	private function makePayload($params)
+	private function makePayload($username)
 	{
         switch ($this->type) {
-            
+
             case 'like':
-                $alert   = $params['username'].'さんにゴッチされました！';
-                $payload = array(
-                    'user_id'   => "$params[user_id]",
-                    'username'  => "$params[username]",
-                );
+                $alert   = $username.'さんにゴッチされました！';
+                // $payload = array(
+                //     'user_id'   => "$params[user_id]",
+                //     'username'  => "$params[username]",
+                // );
                 break;
-            
+
             case 'comment':
-                $alert   = $params['username'].'さんからコメントされました！';
-                $payload = array(
-                    'user_id'   => "$params[user_id]",
-                    'username'  => "$params[username]",
-                    'post_id'   => "$params[post_id]",
-                    'comment'   => "$params[comment]",
-                );
+                $alert   = $username.'さんからコメントされました！';
+                // $payload = array(
+                //     'user_id'   => "$params[user_id]",
+                //     'username'  => "$params[username]",
+                //     'post_id'   => "$params[post_id]",
+                //     'comment'   => "$params[comment]",
+                // );
                 break;
 
             case 'follow':
-                $alert   = $params['username'].'さんからフォローされました！';
-                $payload = array(
-                    'user_id'   => "$params[user_id]",
-                    'username'  => "$params[username]",
-                );
+                $alert   = $username.'さんからフォローされました！';
+                // $payload = array(
+                //     'user_id'   => "$params[user_id]",
+                //     'username'  => "$params[username]",
+                // );
                 break;
 
             case 'post_complete':
-                $alert   = '投稿が完了しました！'.$params['restname'];
-                $payload = array(
-                    'post_id'   => "$params[post_id]",
-                    'rest_id'   => "$params[rest_id]",
-                    'restname'  => "$params[restname]",
-                );                
+                $alert   = '投稿が完了しました！';
+                // $payload = array(
+                //     'post_id'   => "$params[post_id]",
+                //     'rest_id'   => "$params[rest_id]",
+                //     'restname'  => "$params[restname]",
+                // );
                 break;
 
             case 'announcement':
                 $alert   = '';
-                $payload = array(
-                    'head'      => "",
-                    'bosy'      => "$params[message]",
-                );
+                // $payload = array(
+                //     'head'      => "",
+                //     'bosy'      => "$params[message]",
+                // );
                 break;
         }
 
-        return $payload;
+        return $alert;
     }
 
 
-    private function publishiOS($arn, $badge, $alert, $payload)
+    private function publishiOS($arn, $badge, $alert)
     {
 		$this->client->publish(array(
 
@@ -197,11 +197,11 @@ class Model_V3_Aws_Sns extends Model
 	                    'badge'    => $badge,
 	            	),
 
-                    'foreground' => array(
-                        'badge'    => $badge,
-                        'type'     => "$this->type",
-                        'payload'  => $payload,
-                    ),
+                    // 'foreground' => array(
+                    //     'badge'    => $badge,
+                    //     'type'     => "$this->type",
+                    //     'payload'  => $payload,
+                    // ),
 	            // カスタム
 	         	//'custom_text' => "$message",
 	        	)

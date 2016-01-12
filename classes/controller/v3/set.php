@@ -82,7 +82,7 @@ class Controller_V3_Set extends Controller_V3_Gate
 
 		$params['post_user_id'] = $post->getPostUserId($params['post_id']);
 
-		if (session::get('user_id') !== $params['post_user_id'] || !empty($params['re_user_id'])) {
+		if (session::get('user_id') != $params['post_user_id'] || !empty($params['re_user_id'])) {
 			$notice = Model_V3_Notice::getInstance();
 			$notice->setComment($params);
 		}
