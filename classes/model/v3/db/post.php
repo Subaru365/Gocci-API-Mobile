@@ -3,7 +3,7 @@
  * DB-Post Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.2.0 (2015/12/20)
+ * @version    3.2.1 (2016/1/12)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -113,6 +113,14 @@ class Model_V3_Db_Post extends Model_V3_Db
 		return $result[0]['post_user_id'];
 	}
 
+	public function getNumForUser($user_id)
+	{
+		$this->selectIdForUser($user_id);
+		$result = $this->run();
+		$num = count($result);
+		return $num;
+	}
+
 	public function getUserCheerNum($user_id)
 	{
 		$this->selectCheer($user_id);
@@ -172,6 +180,13 @@ class Model_V3_Db_Post extends Model_V3_Db
 
 	//-----------------------------------------------------//
 
+	private function selectIdForUser($user_id)
+	{
+		$this->query = DB::select('post_id')
+		->from(self::$table_name)
+		->where('post_user_id', $user_id);
+	}
+
 	private function selectUserId($post_id)
 	{
 		$this->query = DB::select('post_user_id')
@@ -225,7 +240,7 @@ class Model_V3_Db_Post extends Model_V3_Db
 		$this->query = DB::select(
 			'post_id',		'movie',		'thumbnail',
 			'value', 		'rest_id', 		'restname',
-			'user_id', 		'username',		'profile_img',		
+			'user_id', 		'username',		'profile_img',
 			'cheer_flag',	'post_date'
 		)
 		->from(self::$table_name)
@@ -317,9 +332,7 @@ class Model_V3_Db_Post extends Model_V3_Db
 		->order_by('post_date','desc')
 
 		->where('post_user_id', $user_id)
-		->and_where('post_status_flag', '1')
-
-		->limit($this->limit);
+		->and_where('post_status_flag', '1');
 	}
 
 

@@ -3,10 +3,9 @@
  * User Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.0 (2015/11/16)
+ * @version    3.0.1 (2016/1/12)
  * @author     Subaru365 (a-murata@inase-inc.jp)
- * @license    MIT License
- * @copyright  2015 Inase,inc.
+ * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
@@ -28,6 +27,7 @@ class Model_V3_User extends Model
 	public function getProfile($user_id)
 	{
 		$follow 	= Model_V3_Db_Follow::getInstance();
+		$gochi		= Model_V3_Db_Gochi::getInstance();
 		$post   	= Model_V3_Db_Post::getInstance();
 		$want   	= Model_V3_Db_Want::getInstance();
 
@@ -38,6 +38,8 @@ class Model_V3_User extends Model
 		$profile['follow_num'] 		= $follow->getFollowNum($user_id);
         $profile['follower_num'] 	= $follow->getFollowerNum($user_id);
         $profile['follow_flag']   	= $follow->getFollowFlag($user_id);
+        $profile['post_num']   		= $post->getNumForUser($user_id);
+        $profile['gochi_num']   	= $gochi->getNumForUser($user_id);
         $profile['cheer_num']     	= $post->getUserCheerNum($user_id);
         $profile['want_num']      	= $want->getWantNum($user_id);
 
@@ -74,7 +76,7 @@ class Model_V3_User extends Model
 	public function setSnsLink($params)
 	{
 		$cognito = Model_V3_Aws_Cognito::getinstance();
-		$params['identity_id'] = $this->user->getIdentityIdForId(session::get('user_id'));		
+		$params['identity_id'] = $this->user->getIdentityIdForId(session::get('user_id'));
 		$cognito->setSnsAccount($params);
 
 		if ($params['provider'] === 'graph.facebook.com') {

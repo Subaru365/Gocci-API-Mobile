@@ -62,16 +62,14 @@ class Model_V3_Db_Follow extends Model_V3_Db
 
 	public function getFollowData($user_id)
 	{
-		$this->selectData();
-		$this->query->where('follow_a_user_id', $user_id);
+		$this->selectActiveData($user_id);
 		$result = $this->run();
 		return $result;
 	}
 
 	public function getFollowerData($user_id)
 	{
-		$this->selectData();
-		$this->query->where('follow_p_user_id', $user_id);
+		$this->selectPassiveData($user_id);
 		$result = $this->run();
 		return $result;
 	}
@@ -115,14 +113,23 @@ class Model_V3_Db_Follow extends Model_V3_Db
 		->and_where('follow_p_user_id', $user_id);
 	}
 
-	private function selectData()
+	private function selectPassiveData($user_id)
 	{
 		$this->query = DB::select('user_id', 'username', 'profile_img')
 		->from ('follows')
 		->join ('users', 'INNER')
-		->on   ('follow_p_user_id', '=', 'user_id');
+		->on   ('follow_a_user_id', '=', 'user_id')
+		->where('follow_p_user_id', $user_id);
 	}
 
+	private function selectActiveData($user_id)
+	{
+		$this->query = DB::select('user_id', 'username', 'profile_img')
+		->from ('follows')
+		->join ('users', 'INNER')
+		->on   ('follow_p_user_id', '=', 'user_id')
+		->where('follow_a_user_id', $user_id);
+	}
 
 	private function insertData($user_id)
 	{
