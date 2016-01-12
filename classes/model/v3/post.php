@@ -75,6 +75,7 @@ class Model_V3_Post extends Model
 	{
 		$posts = $this->post->getUserPost($user_id);
 		$posts = $this->decodeData($posts);
+		$posts = $this->cutDate($posts);
 		$posts = $this->addStatus($posts);
 
 		return $posts;
@@ -146,6 +147,15 @@ class Model_V3_Post extends Model
 		return $data;
 	}
 
+	private function cutDate($data)
+	{
+		$post_num  = count($data);
+
+		for ($i=0; $i < $post_num; $i++) {
+			$data[$i]['post_date']  	= substr($data[$i]['post_date'], 0, 10);
+		}
+		return $data;
+	}
 
 	private function addGochiFlag($posts)
 	{
