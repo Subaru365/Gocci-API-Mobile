@@ -184,7 +184,17 @@ class Model_V3_Db_Post extends Model_V3_Db
 	{
 		$this->query = DB::select('post_id')
 		->from(self::$table_name)
-		->where('post_user_id', $user_id);
+		->where('post_user_id', $user_id)
+		->and_where('post_status_flag', '1');
+	}
+
+	private function selectCheer($user_id)
+	{
+		$this->query = DB::select('post_id')
+		->from(self::$table_name)
+		->where('post_user_id', $user_id)
+		->and_where('cheer_flag', '1')
+		->and_where('post_status_flag', '1');
 	}
 
 	private function selectUserId($post_id)
@@ -199,14 +209,6 @@ class Model_V3_Db_Post extends Model_V3_Db
 		$this->query = DB::select('movie')
 		->from(self::$table_name)
 		->where('post_id', $post_id);
-	}
-
-	private function selectCheer($user_id)
-	{
-		$this->query = DB::select('post_id')
-		->from(self::$table_name)
-		->where('post_user_id', $user_id)
-		->and_where('cheer_flag', '1');
 	}
 
 	private function selectNearData($lon, $lat, $post_ids)
