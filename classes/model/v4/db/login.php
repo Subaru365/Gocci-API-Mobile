@@ -9,7 +9,7 @@
  * @link       https://bitbucket.org/inase/gocci-mobile-api
  */
 
-class Model_V4_Db_Login extends Model_V3_Db
+class Model_V4_Db_Login extends Model_V4_Db
 {
 	use SingletonTrait;
 

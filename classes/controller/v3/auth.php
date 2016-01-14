@@ -23,6 +23,8 @@ class Controller_V3_Auth extends Controller_V3_Public
         //req_params is [identity_id]
         $params = $this->getLoginData($this->req_params['identity_id']);
         session::set('user_id', $params['user_id']);
+        $login = Model_V3_Db_Login::getInstance();
+        $login->setLogin();
 
         $this->res_params = $params;
         $this->outputSuccess();
