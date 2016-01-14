@@ -3,7 +3,7 @@
  * Daily Cron Code. 
  *
  * @package    Gocci-Mobile
- * @version    3.0.0 (2015/12/09)
+ * @version    3.1.0 (2016/1/14)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -60,6 +60,7 @@ class Daily
 		$query = \DB::select('login_user_id')
 		->from('logins')
 		->where('login_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
+		->and_where('attribute', 'general')
 		->distinct(true);
 
 		return $query->execute()->as_array();
@@ -69,7 +70,8 @@ class Daily
 	{
 		$query = \DB::select('user_id', 'user_date')
 		->from('users')
-		->where('user_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')));
+		->where('user_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
+		->and_where('attribute', 'general');
 
 		return $query->execute()->as_array();
 	}
@@ -78,7 +80,8 @@ class Daily
 	{
 		$query = \DB::select('gochi_user_id', 'gochi_post_id', 'gochi_date')
 		->from('gochis')
-		->where('gochi_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')));
+		->where('gochi_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
+		->and_where('attribute', 'general');
 
 		return $query->execute()->as_array();
 	}
@@ -87,7 +90,8 @@ class Daily
 	{
 		$query = \DB::select('post_id', 'post_user_id', 'post_date')
 		->from('posts')
-		->where('post_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')));
+		->where('post_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
+		->and_where('attribute', 'general');
 
 		return $query->execute()->as_array();
 	}
@@ -96,7 +100,8 @@ class Daily
 	{
 		$query = \DB::select('comment_id', 'comment_user_id', 'comment_post_id', 'comment_date')
 		->from('comments')
-		->where('comment_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')));
+		->where('comment_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
+		->and_where('attribute', 'general');
 
 		return $query->execute()->as_array();
 	}
@@ -108,6 +113,7 @@ class Daily
 		$query1 = \DB::select('login_user_id')
 		->from('logins')
 		->where('login_date', 'between', array(\DB::expr("curdate() - interval {$day} day"),  \DB::expr("curdate() - interval {$yday} day")))
+		->and_where('attribute', 'general')
 		->distinct(true);
 
 		$dayx_login_user = $query1->execute()->as_array();
@@ -120,6 +126,7 @@ class Daily
 		->from('logins')
 		->where('login_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
 		->and_where('login_user_id', 'in', $dayx_login_user[0])
+		->and_where('attribute', 'general')
 		->distinct(true);
 
 		return $query2->execute()->as_array();
