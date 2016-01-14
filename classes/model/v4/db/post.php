@@ -297,7 +297,7 @@ class Model_V4_Db_Post extends Model_V4_Db
 	private function selectPosition()
 	{
 		$this->query = DB::select(
-			'post_rest_id',	'restname',
+			'rest_id',	'restname',
 			DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat')
 		)
 		->from(self::$table_name)

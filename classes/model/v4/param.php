@@ -548,11 +548,11 @@ class Model_V4_Param extends Model
 
         if(!empty($input_params['category_id'])) {
 
-            if(preg_match('/^\d$/', $input_params['category_id'])) {
+            if(preg_match('/^\d{1,9}$/', $input_params['category_id'])) {
                 $this->req_params['category_id'] = $input_params['category_id'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_CATEGORY_ID_MALFORMED';
-                $this->status['message'] = "Parameter 'category_id' is malformed. Should correspond to '^\d$'";
+                $this->status['message'] = "Parameter 'category_id' is malformed. Should correspond to '^\d{1,9}$'";
             }
         }
 
