@@ -17,7 +17,7 @@ desktop.ini
 # dynamically generated files
 /logs/*/*/*
 /cache/*/*
-/config/crypt.php
+/config/*
 
 
 #inase Custm
