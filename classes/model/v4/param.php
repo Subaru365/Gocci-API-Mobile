@@ -4,7 +4,7 @@
  * Parameter list of uri.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.0.0 (2016/1/15)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -38,7 +38,19 @@ class Model_V4_Param extends Model
         $this->uri_path     = str_replace("/", "_", $uri);
         $req_function_name  = "setReqParams_".$this->uri_path;
 
-        $this->$req_function_name($input_params);
+        try {
+            $this->$req_function_name($input_params);
+        }
+        catch (Throwable $e){
+            $this->setGlobalCode_ERROR_CLIENT_OUTDATED();
+            $json = json_encode(
+                $this->status,
+                JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|
+                JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_QUOT
+            );
+            echo $json;
+            exit;
+        }
 
         return $this->req_params;
     }
@@ -385,6 +397,26 @@ class Model_V4_Param extends Model
     }
 
 
+    private function setReqParams_unset_gochi($input_params)
+    {
+        if(!empty($input_params['post_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['post_id'])) {
+                $this->req_params['post_id'] = $input_params['post_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'post_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MISSING';
+            $this->status['message'] = "Parameter 'post_id' does not exist.";
+        }
+
+    }
+
+
     private function setReqParams_set_comment($input_params)
     {
         if(!empty($input_params['post_id'])) {
@@ -469,46 +501,6 @@ class Model_V4_Param extends Model
         else {
             $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MISSING';
             $this->status['message'] = "Parameter 'user_id' does not exist.";
-        }
-
-    }
-
-
-    private function setReqParams_set_want($input_params)
-    {
-        if(!empty($input_params['rest_id'])) {
-
-            if(preg_match('/^\d{1,9}$/', $input_params['rest_id'])) {
-                $this->req_params['rest_id'] = $input_params['rest_id'];
-            } else {
-                $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MALFORMED';
-                $this->status['message'] = "Parameter 'rest_id' is malformed. Should correspond to '^\d{1,9}$'";
-            }
-        }
-
-        else {
-            $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MISSING';
-            $this->status['message'] = "Parameter 'rest_id' does not exist.";
-        }
-
-    }
-
-
-    private function setReqParams_unset_want($input_params)
-    {
-        if(!empty($input_params['rest_id'])) {
-
-            if(preg_match('/^\d{1,9}$/', $input_params['rest_id'])) {
-                $this->req_params['rest_id'] = $input_params['rest_id'];
-            } else {
-                $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MALFORMED';
-                $this->status['message'] = "Parameter 'rest_id' is malformed. Should correspond to '^\d{1,9}$'";
-            }
-        }
-
-        else {
-            $this->status['code']    = 'ERROR_PARAMETER_REST_ID_MISSING';
-            $this->status['message'] = "Parameter 'rest_id' does not exist.";
         }
 
     }
@@ -861,6 +853,41 @@ class Model_V4_Param extends Model
     }
 
 
+    private function setReqParams_get_gochiline($input_params)
+    {
+        if(!empty($input_params['page'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['page'])) {
+                $this->req_params['page'] = $input_params['page'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_PAGE_MALFORMED';
+                $this->status['message'] = "Parameter 'page' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        if(!empty($input_params['category_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['category_id'])) {
+                $this->req_params['category_id'] = $input_params['category_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_CATEGORY_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'category_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        if(!empty($input_params['value_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['value_id'])) {
+                $this->req_params['value_id'] = $input_params['value_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_VALUE_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'value_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+    }
+
+
     private function setReqParams_get_timeline($input_params)
     {
         if(!empty($input_params['page'])) {
@@ -997,26 +1024,6 @@ class Model_V4_Param extends Model
 
 
     private function setReqParams_get_follower($input_params)
-    {
-        if(!empty($input_params['user_id'])) {
-
-            if(preg_match('/^\d{1,9}$/', $input_params['user_id'])) {
-                $this->req_params['user_id'] = $input_params['user_id'];
-            } else {
-                $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MALFORMED';
-                $this->status['message'] = "Parameter 'user_id' is malformed. Should correspond to '^\d{1,9}$'";
-            }
-        }
-
-        else {
-            $this->status['code']    = 'ERROR_PARAMETER_USER_ID_MISSING';
-            $this->status['message'] = "Parameter 'user_id' does not exist.";
-        }
-
-    }
-
-
-    private function setReqParams_get_want($input_params)
     {
         if(!empty($input_params['user_id'])) {
 

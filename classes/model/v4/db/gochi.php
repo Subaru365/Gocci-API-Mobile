@@ -32,10 +32,17 @@ class Model_V4_Db_Gochi extends Model_V4_Db
 
 	public function getNumForUser($user_id)
 	{
-		$this->selectIdForUser($user_id);;
+		$this->selectIdForUser($user_id);
 		$result = $this->run();
 		$num = count($result);
 		return $num;
+	}
+
+	public function getPostId()
+	{
+		$this->selectPostId();
+		$result = $this->run();
+		return $result;
 	}
 
 	public function getFlag($post_id)
@@ -81,6 +88,13 @@ class Model_V4_Db_Gochi extends Model_V4_Db
 		$this->query = DB::select('gochi_id')
 		->from (self::$table_name)
 		->where('gochi_user_id', $user_id);
+	}
+
+	private function selectPostId()
+	{
+		$this->query = DB::select('gochi_post_id')
+		->from (self::$table_name)
+		->where('gochi_user_id', session::get('user_id'));
 	}
 
 	private function insertData($post_id)

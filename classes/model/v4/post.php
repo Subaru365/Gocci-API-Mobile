@@ -39,7 +39,7 @@ class Model_V4_Post extends Model
 			$rest_ids[$i] = $result[$i]['post_rest_id'];
 		}
 		$posts = $this->post->getNearPost($rest_ids, $params);
-		
+
 		$num   = count($posts);
 		$posts = $this->decodeData($posts, $num);
 		$posts = $this->decodeDistance($posts, $num);
@@ -53,7 +53,20 @@ class Model_V4_Post extends Model
 	public function getFollowline($params)
 	{
 		$posts = $this->post->getFollowPost($params);
-		
+
+		$num   = count($posts);
+		$posts = $this->decodeData($posts, $num);
+		$posts = $this->decodeProfile($posts, $num);
+		$posts = $this->decodeDate($posts, $num);
+		$posts = $this->addGochiFlag($posts, $num);
+
+		return $posts;
+	}
+
+	public function getGochiline($params)
+	{
+		$posts = $this->post->getGochiPost($params);
+
 		$num   = count($posts);
 		$posts = $this->decodeData($posts, $num);
 		$posts = $this->decodeProfile($posts, $num);
@@ -66,7 +79,7 @@ class Model_V4_Post extends Model
 	public function getTimeline($params)
 	{
 		$posts = $this->post->getTimePost($params);
-		
+
 		$num   = count($posts);
 		$posts = $this->decodeData($posts, $num);
 		$posts = $this->decodeProfile($posts, $num);
@@ -79,7 +92,7 @@ class Model_V4_Post extends Model
 	public function getUserPost($user_id)
 	{
 		$posts = $this->post->getUserPost($user_id);
-		
+
 		$num   = count($posts);
 		$posts = $this->decodeData($posts, $num);
 		$posts = $this->decodeLonLat($posts, $num);
@@ -92,7 +105,7 @@ class Model_V4_Post extends Model
 	public function getRestPost($rest_id)
 	{
 		$posts = $this->post->getRestPost($rest_id);
-		
+
 		$num   = count($posts);
 		$posts = $this->decodeData($posts, $num);
 		$posts = $this->decodeProfile($posts, $num);
@@ -122,7 +135,7 @@ class Model_V4_Post extends Model
 
 	private function decodeLonLat($data, $num)
 	{
-		for ($i=0; $i < $num; $i++) { 
+		for ($i=0; $i < $num; $i++) {
 			$data[$i] = Model_V4_Transcode::decodeLonLat($data[$i]);
 		}
 		return $data;
@@ -166,7 +179,7 @@ class Model_V4_Post extends Model
 	private function addGochiFlag($data, $num)
 	{
 		$gochi 		= Model_V4_Db_Gochi::getInstance();
-		
+
 		for ($i=0; $i < $num; $i++) {
 			$data[$i]['gochi_flag']		= $gochi->getFlag($data[$i]['post_id']);
 		}

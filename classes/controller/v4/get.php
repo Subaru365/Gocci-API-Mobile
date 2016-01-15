@@ -58,6 +58,25 @@ class Controller_V4_Get extends Controller_V4_Gate
 	}
 
 
+	public function action_gochiline()
+	{
+		//$option is [call, order_id, category_id, value_id, lon, lat]
+		$post 	 = Model_V4_Post::getInstance();
+		$gochi   = Model_V4_Db_Gochi::getInstance();
+
+		$this->req_params['gochi_post_id'] = $gochi->getPostId();
+
+		if (empty($this->req_params['gochi_post_id'])) {
+			$param = Model_V4_Param::getInstance();
+			$param->setGlobalCode_SUCCESS(array('posts'=>array()));
+			$this->output();
+		}
+
+		$this->res_params['posts'] = $post->getGochiline($this->req_params);
+	   	$this->outputSuccess();
+	}
+
+
 	public function action_timeline()
     {
     	//$option is [call, order_id, category_id, value_id, lon, lat]
@@ -220,7 +239,7 @@ class Controller_V4_Get extends Controller_V4_Gate
 		$rests = $post->getPositionPost();
 
 		$num = count($rests);
-		for ($i=0; $i < $num; $i++) { 
+		for ($i=0; $i < $num; $i++) {
 			$this->res_params['rests'][$i] = Model_V4_Transcode::decodeLonLat($rests[$i]);
 		}
 		$this->outputSuccess();

@@ -78,6 +78,15 @@ class Model_V4_Db_Post extends Model_V4_Db
 		return $result;
 	}
 
+	public function getGochiPost($params)
+	{
+		$this->selectTimeData();
+		$this->query->where('post_id', 'in', $params['gochi_post_id']);
+		$this->addOption($params);
+		$result = $this->run();
+		return $result;
+	}
+
 	public function getUserPost($user_id)
 	{
 		$this->selectUserData($user_id);
