@@ -466,6 +466,46 @@ class Model_V4_Param extends Model
     }
 
 
+    private function setReqParams_set_comment_block($input_params)
+    {
+        if(!empty($input_params['comment_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['comment_id'])) {
+                $this->req_params['comment_id'] = $input_params['comment_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'comment_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MISSING';
+            $this->status['message'] = "Parameter 'comment_id' does not exist.";
+        }
+
+    }
+
+
+    private function setReqParams_unset_comment($input_params)
+    {
+        if(!empty($input_params['comment_id'])) {
+
+            if(preg_match('/^\d{1,9}$/', $input_params['comment_id'])) {
+                $this->req_params['comment_id'] = $input_params['comment_id'];
+            } else {
+                $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MALFORMED';
+                $this->status['message'] = "Parameter 'comment_id' is malformed. Should correspond to '^\d{1,9}$'";
+            }
+        }
+
+        else {
+            $this->status['code']    = 'ERROR_PARAMETER_POST_ID_MISSING';
+            $this->status['message'] = "Parameter 'comment_id' does not exist.";
+        }
+
+    }
+
+
     private function setReqParams_set_follow($input_params)
     {
         if(!empty($input_params['user_id'])) {
@@ -596,7 +636,7 @@ class Model_V4_Param extends Model
     }
 
 
-    private function setReqParams_unset_post($input_params)
+    private function setReqParams_set_post_block($input_params)
     {
         if(!empty($input_params['post_id'])) {
 
@@ -616,7 +656,7 @@ class Model_V4_Param extends Model
     }
 
 
-    private function setReqParams_set_post_block($input_params)
+    private function setReqParams_unset_post($input_params)
     {
         if(!empty($input_params['post_id'])) {
 

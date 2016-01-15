@@ -3,7 +3,7 @@
  * UnSet Class. This class request session.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.1.0 (2016/1/15)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -50,6 +50,16 @@ class Controller_V4_Unset extends Controller_V4_Gate
 		//Input post_id
 		$gochi = Model_V4_Db_Gochi::getInstance();
 		$result = $gochi->setUnGochi($this->req_params['post_id']);
+
+		$this->outputSuccess();
+	}
+
+
+	public function action_comment()
+	{
+		//Input post_id
+		$comment = Model_V4_Db_Comment::getInstance();
+		$result  = $comment->setUnComment($this->req_params['comment_id']);
 
 		$this->outputSuccess();
 	}

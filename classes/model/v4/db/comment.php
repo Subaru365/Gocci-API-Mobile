@@ -3,7 +3,7 @@
  * DB-Comment Class.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.1.0 (2016/1/15)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -44,6 +44,14 @@ class Model_V4_Db_Comment extends Model_V4_Db
 		return $result[0];
 	}
 
+	public function setUnComment($comment_id)
+	{
+		$this->deleteData($comment_id);
+		$result = $this->query->execute();
+		return $result[0];
+	}
+
+
 	//-----------------------------------------------------//
 
 	private function selectId($post_id)
@@ -52,7 +60,6 @@ class Model_V4_Db_Comment extends Model_V4_Db
 		->from(self::$table_name)
 		->where('comment_post_id', "$post_id");
 	}
-
 
 	private function selectData($post_id)
 	{
@@ -67,7 +74,6 @@ class Model_V4_Db_Comment extends Model_V4_Db
 		->where('comment_post_id', "$post_id");
 	}
 
-
 	private function insertData($params)
 	{
 		$this->query = DB::insert(self::$table_name)
@@ -77,4 +83,11 @@ class Model_V4_Db_Comment extends Model_V4_Db
 			'comment' 	      => $params['comment'],
 		));
 	}
+
+	private function deleteData($comment_id)
+	{
+		$this->query = DB::delete(self::$table_name)
+		->where('comment_id', $comment_id);
+	}
+
 }

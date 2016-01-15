@@ -3,7 +3,7 @@
  * Set Class. This class request session.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.1.0 (2016/1/15)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -91,6 +91,16 @@ class Controller_V4_Set extends Controller_V4_Gate
 	}
 
 
+	public function action_comment_block()
+	{
+		//Input comment_id
+		$block = Model_V4_Db_Block::getInstance();
+		$result = $block->setCommentBlock($this->req_params['comment_id']);
+
+		$this->outputSuccess();
+	}
+
+
 	public function action_follow()
 	{
 		//Input user_id
@@ -111,7 +121,8 @@ class Controller_V4_Set extends Controller_V4_Gate
 
 		$this->req_params = Model_V4_Transcode::encodePostName($this->req_params);
 		$post_id = $post->setPostData($this->req_params);
-		$hash_id = Model_V4_Hash::postIdHash($post_id);
+
+		$hash_id = Model_V4_External::getPostHashId($post_id);
 		$post->setHashId($post_id, $hash_id);
 		$this->res_params['post_id'] = $post_id;
 
@@ -123,7 +134,7 @@ class Controller_V4_Set extends Controller_V4_Gate
 	{
 		//Input post_id
 		$block = Model_V4_Db_Block::getInstance();
-		$result = $block->setBlock($this->req_params['post_id']);
+		$result = $block->setPostBlock($this->req_params['post_id']);
 
 		$this->outputSuccess();
 	}
@@ -169,6 +180,8 @@ class Controller_V4_Set extends Controller_V4_Gate
 	public function action_rest()
 	{
 		//Input restname, lat, lon
+		$this->req_params['address'] = Model_V4_External::getAddress($this->req_params['lon'], $this->req_params['lat']);
+
 		$rest = Model_V4_Db_Restaurant::getInstance();
 		$result = $rest->setRestData($this->req_params);
 

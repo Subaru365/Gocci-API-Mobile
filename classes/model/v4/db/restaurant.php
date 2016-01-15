@@ -3,7 +3,7 @@
  * DB-Restaurant Model Class.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.1.0 (2016/1/15)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -67,6 +67,7 @@ class Model_V4_Db_Restaurant extends Model_V4_Db
 		->set(array(
 			'restname' => $data['restname'],
 			'lon_lat'  => DB::expr("GeomFromText('POINT({$data['lon']} {$data['lat']})')"),
+			'locality' => $data['address'],
 		));
 	}
 }
