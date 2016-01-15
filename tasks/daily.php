@@ -1,6 +1,6 @@
 <?php
 /**
- * Daily Cron Code. 
+ * Daily Cron Code.
  *
  * @package    Gocci-Mobile
  * @version    3.1.0 (2016/1/14)
@@ -46,7 +46,7 @@ class Daily
 			'day3RR' 	=> count($day3RR),
 			'day5RR' 	=> count($day5RR),
 			'day7RR' 	=> count($day7RR),
-			'day14RR' 	=> count($day14RR),				
+			'day14RR' 	=> count($day14RR),
 		);
 
 		$this->setMessage($num);
@@ -59,6 +59,9 @@ class Daily
 	{
 		$query = \DB::select('login_user_id')
 		->from('logins')
+		->join('users', 'INNER')
+		->on('login_user_id', '=', 'user_id')
+
 		->where('login_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
 		->and_where('attribute', 'general')
 		->distinct(true);
@@ -80,6 +83,9 @@ class Daily
 	{
 		$query = \DB::select('gochi_user_id', 'gochi_post_id', 'gochi_date')
 		->from('gochis')
+		->join('users', 'INNER')
+		->on('login_user_id', '=', 'user_id')
+
 		->where('gochi_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
 		->and_where('attribute', 'general');
 
@@ -90,6 +96,9 @@ class Daily
 	{
 		$query = \DB::select('post_id', 'post_user_id', 'post_date')
 		->from('posts')
+		->join('users', 'INNER')
+		->on('login_user_id', '=', 'user_id')
+
 		->where('post_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
 		->and_where('attribute', 'general');
 
@@ -100,6 +109,9 @@ class Daily
 	{
 		$query = \DB::select('comment_id', 'comment_user_id', 'comment_post_id', 'comment_date')
 		->from('comments')
+		->join('users', 'INNER')
+		->on('login_user_id', '=', 'user_id')
+
 		->where('comment_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
 		->and_where('attribute', 'general');
 
@@ -112,18 +124,24 @@ class Daily
 
 		$query1 = \DB::select('login_user_id')
 		->from('logins')
+		->join('users', 'INNER')
+		->on('login_user_id', '=', 'user_id')
+
 		->where('login_date', 'between', array(\DB::expr("curdate() - interval {$day} day"),  \DB::expr("curdate() - interval {$yday} day")))
 		->and_where('attribute', 'general')
 		->distinct(true);
 
 		$dayx_login_user = $query1->execute()->as_array();
-		
+
 		if (empty($dayx_login_user)) {
 			return $dayx_login_user = 0;
 		}
 
 		$query2 = \DB::select('login_user_id')
 		->from('logins')
+		->join('users', 'INNER')
+		->on('login_user_id', '=', 'user_id')
+
 		->where('login_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
 		->and_where('login_user_id', 'in', $dayx_login_user[0])
 		->and_where('attribute', 'general')
@@ -141,10 +159,10 @@ class Daily
 		$per_day14RR 	= ($num['day14RR'] === 0)	? 0 : $num['day14RR'] 	/ $num['dau'] * 100;
 
 		$per_day2RR		= round($per_day2RR, 2);
-		$per_day3RR		= round($per_day3RR, 2);	
-		$per_day5RR		= round($per_day5RR, 2);	
-		$per_day7RR		= round($per_day7RR, 2);	
-		$per_day14RR	= round($per_day14RR, 2);	
+		$per_day3RR		= round($per_day3RR, 2);
+		$per_day5RR		= round($per_day5RR, 2);
+		$per_day7RR		= round($per_day7RR, 2);
+		$per_day14RR	= round($per_day14RR, 2);
 
 		$this->message = ""
 			."\n *Wake up and smell the coffee!*"
