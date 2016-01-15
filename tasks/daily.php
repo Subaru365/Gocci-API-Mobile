@@ -84,7 +84,7 @@ class Daily
 		$query = \DB::select('gochi_user_id', 'gochi_post_id', 'gochi_date')
 		->from('gochis')
 		->join('users', 'INNER')
-		->on('login_user_id', '=', 'user_id')
+		->on('gochi_user_id', '=', 'user_id')
 
 		->where('gochi_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
 		->and_where('attribute', 'general');
@@ -97,7 +97,7 @@ class Daily
 		$query = \DB::select('post_id', 'post_user_id', 'post_date')
 		->from('posts')
 		->join('users', 'INNER')
-		->on('login_user_id', '=', 'user_id')
+		->on('post_user_id', '=', 'user_id')
 
 		->where('post_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
 		->and_where('attribute', 'general');
@@ -110,7 +110,7 @@ class Daily
 		$query = \DB::select('comment_id', 'comment_user_id', 'comment_post_id', 'comment_date')
 		->from('comments')
 		->join('users', 'INNER')
-		->on('login_user_id', '=', 'user_id')
+		->on('comment_user_id', '=', 'user_id')
 
 		->where('comment_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
 		->and_where('attribute', 'general');
