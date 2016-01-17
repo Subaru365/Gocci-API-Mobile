@@ -54,8 +54,8 @@ class Model_V3_Db_Restaurant extends Model_V3_Db
 	{
 		$this->query = DB::select(
 			'rest_id',	'restname',	'locality',
-			'lat',		'lon', 		'tell',
-			'homepage', 'rest_category'
+			'tell', 	'homepage', 'rest_category',
+			DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat')
 		)
 		->from(self::$table_name)
 		->where('rest_id', $rest_id);
@@ -65,8 +65,10 @@ class Model_V3_Db_Restaurant extends Model_V3_Db
 	{
 		$this->query = DB::insert(self::$table_name)
 		->set(array(
-			'restname' => $data['restname'],
-			'lon_lat'  => DB::expr("GeomFromText('POINT({$data['lon']} {$data['lat']})')"),
+			'restname' 	=> $data['restname'],
+			'lon' 		=> $data['lon'],
+			'lat'		=> $data['lat'],
+			'lon_lat'  	=> DB::expr("GeomFromText('POINT({$data['lon']} {$data['lat']})')"),
 		));
 	}
 }

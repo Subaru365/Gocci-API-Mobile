@@ -54,8 +54,8 @@ class Model_V4_Db_Restaurant extends Model_V4_Db
 	{
 		$this->query = DB::select(
 			'rest_id',	'restname',	'locality',
-			'lat',		'lon', 		'tell',
-			'homepage', 'rest_category'
+			'tell',		'homepage', 'rest_category',
+			DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat')
 		)
 		->from(self::$table_name)
 		->where('rest_id', $rest_id);
