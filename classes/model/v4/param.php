@@ -608,11 +608,11 @@ class Model_V4_Param extends Model
 
         if(!empty($input_params['memo'])) {
 
-            if(preg_match('/^(\n|[^\p{Cntrl}]){1,140}$/', $input_params['memo'])) {
+            if(preg_match('/^(\n|[^\p{Cc}]){1,140}$/u', $input_params['memo'])) {
                 $this->req_params['memo'] = $input_params['memo'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_MEMO_MALFORMED';
-                $this->status['message'] = "Parameter 'memo' is malformed. Should correspond to '^(\\n|[^\p{Cntrl}]){1,140}$'";
+                $this->status['message'] = "Parameter 'memo' is malformed. Should correspond to '^(\n|[^\p{Cc}]){1,140}$'";
             }
         }
 
