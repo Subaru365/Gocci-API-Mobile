@@ -32,6 +32,13 @@ class Model_V4_Db_Post extends Model_V4_Db
 		$this->limit = $limit;
 	}
 
+	public function getPostData($post_id)
+	{
+		$this->selectData($post_id);
+		$result = $this->run();
+		return $result;
+	}
+
 	public function getNearPostRestId($params)
 	{
 		$this->selectNearPostRestId($params['lon'], $params['lat']);
@@ -44,7 +51,6 @@ class Model_V4_Db_Post extends Model_V4_Db
 			return '';
 		}
 	}
-
 
 	public function getNearPost($rest_ids, $params)
 	{
@@ -106,13 +112,6 @@ class Model_V4_Db_Post extends Model_V4_Db
 		$this->selectPosition();
 		$result = $this->run();
 		return $result;
-	}
-
-	public function getMovie($post_id)
-	{
-		$this->selectMovie($post_id);
-		$result = $this->run();
-		return $result[0]['movie'];
 	}
 
 	public function getPostUserId($post_id)
@@ -203,19 +202,35 @@ class Model_V4_Db_Post extends Model_V4_Db
 		->where('post_id', $post_id);
 	}
 
-	private function selectMovie($post_id)
-	{
-		$this->query = DB::select('movie')
-		->from(self::$table_name)
-		->where('post_id', $post_id);
-	}
-
 	private function selectCheer($user_id)
 	{
 		$this->query = DB::select('post_id')
 		->from(self::$table_name)
 		->where('post_user_id', $user_id)
 		->and_where('cheer_flag', '1');
+	}
+
+	private function selectData($post_id)
+	{
+		$this->query = DB::select(
+			'post_id',		'movie',		'thumbnail',
+			'category',		'value',		'memo',
+			'user_id', 		'username',		'profile_img',
+			'cheer_flag',	'post_date',	'rest_id',
+			'restname', 	'locality'
+		)
+		->from(self::$table_name)
+
+		->join('restaurants', 'INNER')
+		->on('post_rest_id', '=', 'rest_id')
+
+		->join('users', 'INNER')
+		->on('post_user_id', '=', 'user_id')
+		
+		->join('categories', 'LEFT OUTER')
+		->on('post_category_id', '=', 'category_id')
+
+		->where('post_id', $post_id);
 	}
 
 	private function selectNearData($lon, $lat, $post_ids)

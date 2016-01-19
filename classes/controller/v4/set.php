@@ -3,7 +3,7 @@
  * Set Class. This class request session.
  *
  * @package    Gocci-Mobile
- * @version    4.1.0 (2016/1/15)
+ * @version    4.2.0 (2016/1/19)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -50,14 +50,15 @@ class Controller_V4_Set extends Controller_V4_Gate
 	public function action_gochi()
 	{
 		//Input post_id
+		$params = $this->req_params;
+		$params['a_user_id'] = session::get('user_id');
 		$gochi  = Model_V4_Db_Gochi::getInstance();
 		$post   = Model_V4_Db_Post::getInstance();
-		$params = $this->req_params;
 
 		$result	= $gochi->setGochi($params['post_id']);
-		$params['post_user_id'] = $post->getPostUserId($params['post_id']);
+		$params['p_user_id'] = $post->getPostUserId($params['post_id']);
 
-		if (session::get('user_id') != $params['post_user_id']) {
+		if ($params['a_user_id'] != $params['p_user_id']) {
 			$notice = Model_V4_Notice::getInstance();
 			$notice->setGochi($params);
 		}
@@ -69,9 +70,10 @@ class Controller_V4_Set extends Controller_V4_Gate
 	public function action_comment()
 	{
 		//Input post_id, comment, re_user_id
+		$params 	= $this->req_params;
+		$params['a_user_id'] = session::get('user_id');
 		$comment 	= Model_V4_Db_Comment::getInstance();
 		$post 		= Model_V4_Db_Post::getInstance();
-		$params 	= $this->req_params;
 
 		$comment_id = $comment->setComment($params);
 
@@ -80,9 +82,9 @@ class Controller_V4_Set extends Controller_V4_Gate
 			$re->setRe($comment_id, $params['re_user_id']);
 		}
 
-		$params['post_user_id'] = $post->getPostUserId($params['post_id']);
+		$params['p_user_id'] = $post->getPostUserId($params['post_id']);
 
-		if (session::get('user_id') != $params['post_user_id'] || !empty($params['re_user_id'])) {
+		if ($params['a_user_id'] != $params['p_user_id'] || !empty($params['re_user_id'])) {
 			$notice = Model_V4_Notice::getInstance();
 			$notice->setComment($params);
 		}
@@ -104,11 +106,13 @@ class Controller_V4_Set extends Controller_V4_Gate
 	public function action_follow()
 	{
 		//Input user_id
+		$params['a_user_id'] = session::get('user_id');
+		$params['p_user_id'] = $this->req_params['user_id'];
 		$follow = Model_V4_Db_Follow::getInstance();
 		$notice = Model_V4_Notice::getInstance();
-		$result = $follow->setFollow($this->req_params['user_id']);
 
-		$notice->setFollow($this->req_params['user_id']);
+		$follow->setFollow($params['p_user_id']);
+		$notice->setFollow($params);
 
 		$this->outputSuccess();
 	}

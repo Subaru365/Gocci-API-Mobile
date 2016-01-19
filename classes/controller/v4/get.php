@@ -87,13 +87,12 @@ class Controller_V4_Get extends Controller_V4_Gate
 	}
 
 
-	//Shareに使用
 	public function action_post()
 	{
-		$post = Model_V4_Db_Post::getInstance();
+		//input post_id
+		$post = Model_V4_Post::getInstance();
 
-		$result = $post->getMovie($this->req_params['post_id']);
-		$this->res_params['mp4_movie'] = Model_V4_Transcode::decode_mp4_movie($result);
+		$this->res_params = $post->getPost($this->req_params['post_id']);
 		$this->outputSuccess();
 	}
 

@@ -27,6 +27,18 @@ class Model_V4_Post extends Model
 		$this->post = Model_V4_Db_Post::getInstance();
 	}
 
+	public function getPost($post_id)
+	{
+		$posts = $this->post->getPostData($post_id);
+
+		$posts = $this->decodeData($posts, 1);
+		$posts = $this->decodeProfile($posts, 1);
+		$posts = $this->decodeDate($posts, 1);
+		$posts = $this->addStatus($posts, 1);
+
+		return $posts[0];
+	}
+
 	public function getNearline($params)
 	{
 		$result = $this->post->getNearPostRestId($params);

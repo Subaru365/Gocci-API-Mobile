@@ -4,7 +4,7 @@
  * Parameter list of uri.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/15)
+ * @version    4.0.1 (2016/1/19)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -608,11 +608,11 @@ class Model_V4_Param extends Model
 
         if(!empty($input_params['memo'])) {
 
-            if(preg_match('/^\S{1,140}$/', $input_params['memo'])) {
+            if(preg_match('/^(\n|[^\p{Cntrl}]){1,140}$/', $input_params['memo'])) {
                 $this->req_params['memo'] = $input_params['memo'];
             } else {
                 $this->status['code']    = 'ERROR_PARAMETER_MEMO_MALFORMED';
-                $this->status['message'] = "Parameter 'memo' is malformed. Should correspond to '^\S{1,140}$'";
+                $this->status['message'] = "Parameter 'memo' is malformed. Should correspond to '^(\\n|[^\p{Cntrl}]){1,140}$'";
             }
         }
 

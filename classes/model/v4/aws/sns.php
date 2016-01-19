@@ -3,7 +3,7 @@
  * Aws-Sns Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.1.1 (2016/1/12)
+ * @version    3.2.0 (2016/1/19)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -33,10 +33,10 @@ class Model_V4_Aws_Sns extends Model
 		]);
     }
 
-    public function pushAndroid($username, $arn, $id)
+    public function pushAndroid($params, $arn)
     {
         try {
-            $this->publishAndroid($username, $arn, $id);
+            $this->publishAndroid($params['username'], $arn);
         }
         catch (Throwable $e) {
             error_log($arn . " Error!\n");
@@ -46,11 +46,11 @@ class Model_V4_Aws_Sns extends Model
         }
     }
 
-    public function pushiOS($username, $arn, $id, $badge)
+    public function pushiOS($params, $arn)
     {
         try {
-            $alert = makePayload($username);
-            $this->publishiOS($arn, $badge, $alert);
+            $data = makePayload($params);
+            $this->publishiOS($data, $arn);
         }
         catch (Throwable $e) {
             error_log($arn . " Error!\n");
@@ -105,12 +105,12 @@ class Model_V4_Aws_Sns extends Model
 	}
 
 
-	private function publishAndroid($username, $arn, $id)
+	private function publishAndroid($username, $arn)
 	{
         $message = array(
             'type'      => "$this->type",
-            'id'        => "$id",
-            'username'  => "$username",
+            'id'        => 1,
+            'username'  => $username,
         );
 
         $message = json_encode(
@@ -120,101 +120,113 @@ class Model_V4_Aws_Sns extends Model
         );
 
 	    $result = $this->client->publish([
-            'Message'   => "$message",
-            'TargetArn' => "$arn",
+            'Message'   => $message,
+            'TargetArn' => $arn,
         ]);
 	}
 
 
-	private function makePayload($username)
-	{
-        switch ($this->type) {
-
-            case 'like':
-                $alert   = $username.'さんにゴッチされました！';
-                // $payload = array(
-                //     'user_id'   => "$params[user_id]",
-                //     'username'  => "$params[username]",
-                // );
-                break;
-
-            case 'comment':
-                $alert   = $username.'さんからコメントされました！';
-                // $payload = array(
-                //     'user_id'   => "$params[user_id]",
-                //     'username'  => "$params[username]",
-                //     'post_id'   => "$params[post_id]",
-                //     'comment'   => "$params[comment]",
-                // );
-                break;
-
-            case 'follow':
-                $alert   = $username.'さんからフォローされました！';
-                // $payload = array(
-                //     'user_id'   => "$params[user_id]",
-                //     'username'  => "$params[username]",
-                // );
-                break;
-
-            case 'post_complete':
-                $alert   = '投稿が完了しました！';
-                // $payload = array(
-                //     'post_id'   => "$params[post_id]",
-                //     'rest_id'   => "$params[rest_id]",
-                //     'restname'  => "$params[restname]",
-                // );
-                break;
-
-            case 'announcement':
-                $alert   = '';
-                // $payload = array(
-                //     'head'      => "",
-                //     'bosy'      => "$params[message]",
-                // );
-                break;
-        }
-
-        return $alert;
-    }
-
-
-    private function publishiOS($arn, $badge, $alert)
+    private function publishiOS($data, $arn)
     {
-		$this->client->publish(array(
+        $this->client->publish(array(
 
-        	'TargetArn' => $params['arn'],
-        	'MessageStructure' => 'json',
+            'TargetArn' => $arn,
+            'MessageStructure' => 'json',
 
-        	'Message' => json_encode(array
-	        (
-	        	'APNS_SANDBOX' => json_encode(array
-	          	(
+            'Message' => json_encode(array
+            (
+                'APNS_SANDBOX' => json_encode(array
+                (
                     //'background' => array();
 
-	                'aps' => array(
-	                    'alert'    => "$alert",
-	                    'sound'    => 'default',
-	                    'badge'    => $badge,
-	            	),
+                    'aps' => array(
+                        'alert'    => $data['alert'],
+                        'sound'    => 'default',
+                        'badge'    => $data['badge'],
+                    ),
 
                     // 'foreground' => array(
                     //     'badge'    => $badge,
                     //     'type'     => "$this->type",
                     //     'payload'  => $payload,
                     // ),
-	            // カスタム
-	         	//'custom_text' => "$message",
-	        	)
-	        	)
-	    	)
-	    	)
+                // カスタム
+                //'custom_text' => "$message",
+                )
+                )
+            )
+            )
         ));
-	}
+    }
 
-	private function deleteEndpoint($endpoint_arn)
+    private function deleteEndpoint($endpoint_arn)
+    {
+        $this->client->deleteEndpoint([
+            'EndpointArn' => "$endpoint_arn",
+        ]);
+    }
+
+
+	private function makePayload($params)
 	{
-		$this->client->deleteEndpoint([
-    		'EndpointArn' => "$endpoint_arn",
-		]);
-	}
+        switch ($this->type) {
+
+            case 'like':
+                $data = array(
+                    'alert'     => "{$params['username']}さんにゴチされました！",
+                    'badge'     => $params['badge'],
+                    'payload'   => array(
+                        'user_id'   => $params['a_user_id'],
+                        'username'  => $params['username'],
+                    ),
+                );
+                break;
+
+            case 'comment':
+                $data = array(
+                    'alert'     => "{$params['username']}さんからコメントされました！",
+                    'badge'     => $params['badge'],
+                    'payload'   => array(
+                        'user_id'   => $params['a_user_id'],
+                        'username'  => $params['username'],
+                        'post_id'   => $params['post_id'],
+                        'comment'   => $params['comment'],
+                    ),
+                );
+                break;
+
+            case 'follow':
+                $data = array(
+                    'alert'     => "{$params['username']}さんからフォローされました！",
+                    'badge'     => $params['badge'],
+                    'payload'   => array(
+                        'user_id'   => $params['a_user_id'],
+                        'username'  => $params['username'],
+                    ),
+                );
+                break;
+
+            case 'post_complete':
+                $data = array(
+                    'alert'     => '投稿が完了しました！',
+                    'badge'     => $params['badge'],
+                    'payload'   => array(
+                        // 'post_id'   => "$params[post_id]",
+                        // 'rest_id'   => "$params[rest_id]",
+                        // 'restname'  => "$params[restname]",
+                    ),
+                );
+                break;
+
+            case 'announcement':
+                $data = array(
+                    'alert' => '',
+                    // 'head'      => "",
+                    // 'bosy'      => "$params[message]",
+                );
+                break;
+        }
+
+        return $data;
+    }
 }

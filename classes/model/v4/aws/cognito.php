@@ -71,6 +71,9 @@ class Model_V4_Aws_Cognito extends Model
             $result = $this->getId($params['provider'], $params['sns_token']);
             if (!empty($result)) {
                 $result = $this->deleteSnsAccount($result['IdentityId'], $params['provider'], $params['sns_token']);                
+                $result = $this->addSnsAccount($params['identity_id'], $params['provider'], $params['sns_token']);
+            } else {
+                error_log($e);
             }
         }
         return $result;
@@ -84,6 +87,8 @@ class Model_V4_Aws_Cognito extends Model
             $result = $this->getId($params['provider'], $params['sns_token']);
             if (!empty($result)) {
                 $result = $this->deleteSnsAccount($result['IdentityId'], $params['provider'], $params['sns_token']);                
+            } else {
+                error_log($e);
             }
         }
         return $result;

@@ -3,7 +3,7 @@
  * Notice Model Class.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.1.0 (2016/1/19)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -71,54 +71,58 @@ class Model_V4_Notice extends Model
 
 	public function setGochi($params)
 	{
-		$params['user_id'] = session::get('user_id');
 		$this->type = 'like';
 
-		$this->notice->setNotice($params['user_id'], $params['post_user_id'], $params['post_id']);
-		$this->push($params['user_id'], $params['post_user_id'], $params['post_id']);
+		$this->notice->setNotice($params['a_user_id'], $params['p_user_id'], $params['post_id']);
+		$this->push($params);
 	}
 
 
 	public function setComment($params)
 	{
-		$params['user_id'] = session::get('user_id');
 		$this->type = 'comment';
 
-		if ($params['user_id'] != $params['post_user_id'] && empty($params['re_user_id'])) {
-			//post_userのみに通知
-			$this->push($params['user_id'], $params['post_user_id'], $params['post_id']);
-			$this->notice->setNotice($params['user_id'], $params['post_user_id'], $params['post_id']);
+		if ($params['a_user_id'] != $params['p_user_id'] && !empty($params['re_user_id'])) {
+		//両方に通知
+			$this->notice->setNotice($params['a_user_id'], $params['p_user_id'], $params['post_id']);
+			$this->push($params);
 
-		} else if ($params['user_id'] == $params['post_user_id']) {
-			//re_userのみに通知
 			$re_user_id = explode(',', $params['re_user_id']);
 			$num = count($re_user_id);
-
 			for ($i=0; $i < $num; $i++) {
-				$this->notice->setNotice($params['user_id'], $re_user_id[$i], $params['post_id']);
-				$this->push($params['user_id'], $re_user_id[$i], $params['post_id']);
+				$params['p_user_id'] = $re_user_id[$i];
+				$this->notice->setNotice($params['a_user_id'], $params['p_user_id'], $params['post_id']);
+				$this->push($params);
+			}
+
+
+		} else if ($params['a_user_id'] != $params['p_user_id']) {
+		//投稿者の通知
+			$this->notice->setNotice($params['a_user_id'], $params['p_user_id'], $params['post_id']);
+			$this->push($params);
+
+
+		} else if (!empty($params['re_user_id'])) {
+		//返信者に通知
+			$re_user_id = explode(',', $params['re_user_id']);
+			$num = count($re_user_id);
+			for ($i=0; $i < $num; $i++) {
+				$params['p_user_id'] = $re_user_id[$i];
+				$this->notice->setNotice($params['a_user_id'], $params['p_user_id'], $params['post_id']);
+				$this->push($params);
 			}
 
 		} else {
-			//両方に通知
-			$this->notice->setNotice($params['user_id'], $params['post_user_id'], $params['post_id']);
-			$this->push($params['user_id'], $params['post_user_id']);
-
-			$re_user_id = explode(',', $params['re_user_id']);
-			$num = count($re_user_id);
-			for ($i=0; $i < $num; $i++) {
-				$this->notice->setNotice($params['user_id'], $re_user_id[$i], $params['post_id']);
-				$this->push($params['user_id'], $re_user_id[$i], $params['post_id']);
-			}
+		//通知なし
 		}
 	}
 
-	public function setFollow($follow_user_id)
+	public function setFollow($params)
 	{
 		$this->type = 'follow';
 
-		$this->notice->setNotice(session::get('user_id'), $follow_user_id);
-		$this->push(session::get('user_id'), $follow_user_id);
+		$this->notice->setNotice($params['a_user_id'], $params['p_user_id']);
+		$this->push($params);
 	}
 
 	public function pushPostComplete($user_id)
@@ -145,30 +149,30 @@ class Model_V4_Notice extends Model
 	}
 
 
-	private function push($a_user_id, $p_user_id, $id = 1)
+	private function push($params)
 	{
 		$user   = Model_V4_Db_User::getInstance();
 		$device = Model_V4_Db_Device::getInstance();
 		$sns 	= Model_V4_Aws_Sns::getInstance();
 
-		$username    = $user->getName($a_user_id);
-		$device_data = $device->getData($p_user_id);
+		$params['username'] = $user->getName($params['a_user_id']);
+		$device_data = $device->getData($params['p_user_id']);
 
 		if (!empty($device_data[0]['endpoint_arn'])) {
 
 			if ($device_data[0]['os'] ===  'android') {
-				$sns->pushAndroid($username, $device_data[0]['endpoint_arn'], $id);
+				$sns->pushAndroid($params, $device_data[0]['endpoint_arn']);
 
 			} else if ($device_data[0]['os'] === 'iOS') {
-				$badge = $user->getBadge($p_user_id);
-				$sns->pushiOS($username, $device_data[0]['endpoint_arn'], $id, $badge);
+				$params['badge'] = $user->getBadge($p_user_id);
+				$sns->pushiOS($params, $device_data[0]['endpoint_arn']);
 
 			} else {
 				//Webで利用 通知不必要
 			}
 
 		} else {
-			error_log("{$p_user_id}に通知できませんでした");
+			error_log("{$params['p_user_id']}に通知できませんでした");
 		}
 	}
 }
