@@ -3,7 +3,7 @@
  * Set Class. This class request session.
  *
  * @package    Gocci-Mobile
- * @version    4.2.0 (2016/1/19)
+ * @version    4.3.1 (2016/1/21)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -75,7 +75,7 @@ class Controller_V4_Set extends Controller_V4_Gate
 		$comment 	= Model_V4_Db_Comment::getInstance();
 		$post 		= Model_V4_Db_Post::getInstance();
 
-		$comment_id = $comment->setComment($params);
+		$comment_id = $comment->setCommentData($params);
 
 		if (!empty($params['re_user_id'])) {
 			$re = Model_V4_Db_Re::getInstance();
@@ -93,30 +93,25 @@ class Controller_V4_Set extends Controller_V4_Gate
 	}
 
 
+	public function action_comment_edit()
+	{
+		//Input comment_id, comment
+		$comment = Model_V4_Db_Comment::getInstance();
+		$comment->setComment($this->req_params['comment_id'], $this->req_params['comment']);
+		
+		$this->outputSuccess();
+	}
+
+
 	public function action_comment_block()
 	{
 		//Input comment_id
 		$block = Model_V4_Db_Block::getInstance();
 		$result = $block->setCommentBlock($this->req_params['comment_id']);
+		Model_V4_External::blockAlert($this->req_params['comment_id'], 'Comment');
 
 		$this->outputSuccess();
 	}
-
-
-	public function action_follow()
-	{
-		//Input user_id
-		$params['a_user_id'] = session::get('user_id');
-		$params['p_user_id'] = $this->req_params['user_id'];
-		$follow = Model_V4_Db_Follow::getInstance();
-		$notice = Model_V4_Notice::getInstance();
-
-		$follow->setFollow($params['p_user_id']);
-		$notice->setFollow($params);
-
-		$this->outputSuccess();
-	}
-
 
 	public function action_post()
 	{
@@ -134,11 +129,37 @@ class Controller_V4_Set extends Controller_V4_Gate
 	}
 
 
+	public function action_memo_edit()
+	{
+		//Input post_id, memo
+		$post = Model_V4_Db_Post::getInstance();
+		$post->setMemo($this->req_params['post_id'], $this->req_params['memo']);
+		
+		$this->outputSuccess();
+	}
+
+
 	public function action_post_block()
 	{
 		//Input post_id
 		$block = Model_V4_Db_Block::getInstance();
 		$result = $block->setPostBlock($this->req_params['post_id']);
+		Model_V4_External::blockAlert($this->req_params['post_id'], 'Post');
+
+		$this->outputSuccess();
+	}
+
+
+	public function action_follow()
+	{
+		//Input user_id
+		$params['a_user_id'] = session::get('user_id');
+		$params['p_user_id'] = $this->req_params['user_id'];
+		$follow = Model_V4_Db_Follow::getInstance();
+		$notice = Model_V4_Notice::getInstance();
+
+		$follow->setFollow($params['p_user_id']);
+		$notice->setFollow($params);
 
 		$this->outputSuccess();
 	}
@@ -176,6 +197,7 @@ class Controller_V4_Set extends Controller_V4_Gate
 		//Input feedback
 		$feedback = Model_V4_Db_Feedback::getInstance();
 		$result = $feedback->setFeedback($this->req_params['feedback']);
+		Model_V4_External::feedbackAlert($this->req_params['feedback']);
 
 		$this->outputSuccess();
 	}

@@ -3,7 +3,7 @@
  * Get  Class. Request SignUp, LogIn.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.1.0 (2016/1/21)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -224,11 +224,12 @@ class Controller_V4_Get extends Controller_V4_Gate
 	}
 
 
-	public function action_user_search()
+	public function action_username()
 	{
-		$target_username = Input::get('username');
-		$user_id 		 = Model_V2_Router::search_user($target_username);
-	   	$this->output_json($data);
+		//Input username
+		$user = Model_V4_User::getInstance();
+		$this->res_params['users'] = $user->getUsername($this->req_params['username']);
+	   	$this->outputSuccess();
 	}
 
 

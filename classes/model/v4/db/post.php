@@ -3,7 +3,7 @@
  * DB-Post Model Class.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.1.0 (2016/1/21)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -170,6 +170,13 @@ class Model_V4_Db_Post extends Model_V4_Db
 		$this->updateHash($post_id, $hash_id);
 		$result = $this->query->execute();
 		return $result;
+	}
+
+	public function setMemo($post_id, $memo)
+	{
+		$this->updateMemo($post_id, $memo);
+		$result = $this->query->execute();
+		return $result;	
 	}
 
 	public function setUnPostData($post_id)
@@ -424,7 +431,6 @@ class Model_V4_Db_Post extends Model_V4_Db
 		->where('movie', $movie_name);
 	}
 
-
 	private function updateStatus($post_id, $status)
 	{
 		$this->query = DB::update(self::$table_name)
@@ -436,6 +442,13 @@ class Model_V4_Db_Post extends Model_V4_Db
 	{
 		$this->query = DB::update(self::$table_name)
 		->value('post_hash_id', $hash_id)
+		->where('post_id', $post_id);
+	}
+
+	private function updateMemo($post_id, $memo)
+	{
+		$this->query = DB::update(self::$table_name)
+		->value('memo', $memo)
 		->where('post_id', $post_id);
 	}
 

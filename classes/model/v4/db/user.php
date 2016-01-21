@@ -80,11 +80,18 @@ class Model_V4_Db_User extends Model_V4_Db
         return $result[0]['badge_num'];
     }
 
-    public function getProfile($user_id)
+    public function getProfileForId($user_id)
     {
-        $this->select_prof($user_id);
+        $this->selectProfileForId($user_id);
         $result = $this->run();
         return $result[0];
+    }
+
+    public function getProfileForName($username)
+    {
+        $this->selectProfileForName($username);
+        $result = $this->run();
+        return $result;        
     }
 
     public function getUser($identity_id)
@@ -221,13 +228,22 @@ class Model_V4_Db_User extends Model_V4_Db
     }
 
     /** @param Integer $user_id */
-    private function select_prof($user_id)
+    private function selectProfileForId($user_id)
     {
         $this->query = DB::select(
             'user_id', 'username', 'profile_img'
         )
         ->from(self::$table_name)
         ->where('user_id', "$user_id");
+    }
+
+    private function selectProfileForName($username)
+    {
+        $this->query = DB::select(
+            'user_id', 'username', 'profile_img'
+        )
+        ->from(self::$table_name)
+        ->where('username', 'like', "%{$username}%");
     }
 
     /** @param String $identity_id */

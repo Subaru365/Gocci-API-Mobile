@@ -3,7 +3,7 @@
  * User Model Class.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.1.0 (2016/1/21)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -30,18 +30,28 @@ class Model_V4_User extends Model
 		$gochi		= Model_V4_Db_Gochi::getInstance();
 		$post   	= Model_V4_Db_Post::getInstance();
 
-		$profile 	= $this->user->getProfile($user_id);
+		$data 	= $this->user->getProfileForId($user_id);
 
-		$profile['profile_img'] 	= Model_V4_Transcode::decode_profile_img($profile['profile_img']);
+		$data['profile_img'] 	= Model_V4_Transcode::decode_profile_img($data['profile_img']);
 
-		$profile['follow_num'] 		= $follow->getFollowNum($user_id);
-        $profile['follower_num'] 	= $follow->getFollowerNum($user_id);
-        $profile['follow_flag']   	= $follow->getFollowFlag($user_id);
-        $profile['post_num']   		= $post->getNumForUser($user_id);
-        $profile['gochi_num']   	= $gochi->getNumForUser($user_id);
-        $profile['cheer_num']     	= $post->getUserCheerNum($user_id);
+		$data['follow_num'] 	= $follow->getFollowNum($user_id);
+        $data['follower_num'] 	= $follow->getFollowerNum($user_id);
+        $data['follow_flag']   	= $follow->getFollowFlag($user_id);
+        $data['post_num']   	= $post->getNumForUser($user_id);
+        $data['gochi_num']   	= $gochi->getNumForUser($user_id);
+        $data['cheer_num']     	= $post->getUserCheerNum($user_id);
 
-        return $profile;
+        return $data;
+	}
+
+	public function getUsername($username)
+	{
+		$gochi = Model_V4_Db_Gochi::getInstance();
+
+		$data = $this->user->getProfileForName($username);
+		$data = $this->addData($data);
+
+		return $data;
 	}
 
 	public function getFollowlist($user_id)
@@ -104,11 +114,13 @@ class Model_V4_User extends Model
 
 	private function addData($data)
 	{
+		$gochi  = Model_V4_Db_Gochi::getInstance();
 		$follow = Model_V4_Db_Follow::getInstance();
 		$num 	= count($data);
 
 		for ($i=0; $i < $num; $i++) {
 			$data[$i]['profile_img'] = Model_V4_Transcode::decode_profile_img($data[$i]['profile_img']);
+			$data[$i]['gochi_num']	 = $gochi->getNumForUser($data[$i]['user_id']);
 			$data[$i]['follow_flag'] = $follow->getFollowFlag($data[$i]['user_id']);
 		}
 

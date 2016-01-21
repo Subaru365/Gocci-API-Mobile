@@ -24,4 +24,45 @@ class Model_V4_External extends Model
 		$address = substr($data['results'][0]['formatted_address'], 20);
 		return $address;
     }
+
+    public static function blockAlert($id, $category)
+    {
+        $url        = Config::get('_slack.webhook_url');
+        $payload    = array(
+            'text'       => "*Block*\n  {$category}ID : {$id}",
+            'icon_emoji' => ':warning:',
+        );
+        self::slackAlert($url, $payload);
+    }
+
+    public static function feedbackAlert($feedback)
+    {
+        $url        = Config::get('_slack.webhook_url');
+        $payload    = array(
+            'text'       => "*Feedback*\n```$feedback```",
+            'icon_emoji' => ':loudspeaker:',
+        );
+        self::slackAlert($url, $payload);
+    }
+
+    private static function slackAlert($url, $data)
+    {
+        $headers    = array();
+        $params     = array('payload' => json_encode($data));
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $result = curl_exec($ch);
+        $error  = curl_error($ch);
+
+        curl_close($ch);
+        if ($error) {
+            error_log($error);
+        }
+    }
 }

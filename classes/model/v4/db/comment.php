@@ -3,7 +3,7 @@
  * DB-Comment Class.
  *
  * @package    Gocci-Mobile
- * @version    4.1.0 (2016/1/15)
+ * @version    4.2.0 (2016/1/21)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -37,7 +37,14 @@ class Model_V4_Db_Comment extends Model_V4_Db
 		return $result;
 	}
 
-	public function setComment($params)
+	public function setComment($comment_id, $comment)
+	{
+		$this->updateComment($comment_id, $comment);
+		$result = $this->query->execute();
+		return $result;		
+	}
+
+	public function setCommentData($params)
 	{
 		$this->insertData($params);
 		$result = $this->query->execute();
@@ -72,6 +79,13 @@ class Model_V4_Db_Comment extends Model_V4_Db
 		->on('comment_user_id', '=', 'user_id')
 
 		->where('comment_post_id', "$post_id");
+	}
+
+	private function updateComment($comment_id, $comment)
+	{
+		$this->query = DB::update(self::$table_name)
+		->value('comment', $comment)
+		->where('comment_id', $comment_id);
 	}
 
 	private function insertData($params)
