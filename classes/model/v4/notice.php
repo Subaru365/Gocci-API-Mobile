@@ -3,7 +3,7 @@
  * Notice Model Class.
  *
  * @package    Gocci-Mobile
- * @version    4.1.0 (2016/1/19)
+ * @version    4.2.0 (2016/1/22)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -125,11 +125,16 @@ class Model_V4_Notice extends Model
 		$this->push($params);
 	}
 
-	public function pushPostComplete($user_id)
+	public function pushPostComplete($movie)
 	{
 		$sns = Model_V4_Aws_Sns::getInstance();
 		$sns->type = 'post_complete';
-		$this->push($user_id, $user_id);
+
+		$post   = Model_V4_Db_Post::getInstance();
+		$params = $post->getUploadData($movie);
+		$params['a_user_id'] = $params['post_user_id'];
+		$params['p_user_id'] = $params['post_user_id'];
+		$this->push($params);
 	}
 
 

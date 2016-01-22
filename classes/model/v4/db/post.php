@@ -3,7 +3,7 @@
  * DB-Post Model Class.
  *
  * @package    Gocci-Mobile
- * @version    4.1.0 (2016/1/21)
+ * @version    4.2.0 (2016/1/22)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -37,6 +37,13 @@ class Model_V4_Db_Post extends Model_V4_Db
 		$this->selectData($post_id);
 		$result = $this->run();
 		return $result;
+	}
+
+	public function getUploadData($movie)
+	{
+		$this->selectDataForMovie($movie);
+		$result = $this->run();
+		return $result[0];
 	}
 
 	public function getNearPostRestId($params)
@@ -153,7 +160,7 @@ class Model_V4_Db_Post extends Model_V4_Db
 
 	public function postEnable($movie_name)
 	{
-		$this->enablePost($movie_name);
+		$this->updateEnable($movie_name);
 		$result = $this->query->execute();
 		return $result;
 	}
@@ -176,7 +183,7 @@ class Model_V4_Db_Post extends Model_V4_Db
 	{
 		$this->updateMemo($post_id, $memo);
 		$result = $this->query->execute();
-		return $result;	
+		return $result;
 	}
 
 	public function setUnPostData($post_id)
@@ -233,11 +240,25 @@ class Model_V4_Db_Post extends Model_V4_Db
 
 		->join('users', 'INNER')
 		->on('post_user_id', '=', 'user_id')
-		
+
 		->join('categories', 'LEFT OUTER')
 		->on('post_category_id', '=', 'category_id')
 
 		->where('post_id', $post_id);
+	}
+
+	private function selectDataForMovie($movie)
+	{
+		$this->query = DB::select(
+			'post_id',	'post_user_id',	'rest_id',
+			'restname'
+		)
+		->from(self::$table_name)
+
+		->join('restaurants', 'INNER')
+		->on('post_rest_id', '=', 'rest_id')
+
+		->where('movie', $movie);
 	}
 
 	private function selectNearData($lon, $lat, $post_ids)

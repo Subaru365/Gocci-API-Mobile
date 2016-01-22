@@ -3,7 +3,7 @@
  * Aws-Sns Model Class.
  *
  * @package    Gocci-Mobile
- * @version    3.2.0 (2016/1/19)
+ * @version    3.2.1 (2016/1/22)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -54,11 +54,10 @@ class Model_V4_Aws_Sns extends Model
             $this->publishiOS($data, $arn);
         }
         catch (Throwable $e) {
-            // error_log($arn . " Error!\n");
-            // $device = Model_V4_Db_Device::getInstance();
-            // $device->deleteDeviceForArn($arn);
-            // $this->deleteEndpoint($arn);
-            echo $e;
+            error_log($arn . " Error!\n");
+            $device = Model_V4_Db_Device::getInstance();
+            $device->deleteDeviceForArn($arn);
+            $this->deleteEndpoint($arn);
         }
     }
 
@@ -213,9 +212,9 @@ class Model_V4_Aws_Sns extends Model
                     'alert'     => '投稿が完了しました！',
                     'badge'     => $params['badge'],
                     'payload'   => array(
-                        // 'post_id'   => "$params[post_id]",
-                        // 'rest_id'   => "$params[rest_id]",
-                        // 'restname'  => "$params[restname]",
+                        'post_id'   => "$params[post_id]",
+                        'rest_id'   => "$params[rest_id]",
+                        'restname'  => "$params[restname]",
                     ),
                 );
                 break;
