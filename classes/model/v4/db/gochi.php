@@ -87,7 +87,9 @@ class Model_V4_Db_Gochi extends Model_V4_Db
 	{
 		$this->query = DB::select('gochi_id')
 		->from (self::$table_name)
-		->where('gochi_user_id', $user_id);
+		->join ('posts')
+		->on   ('gochi_post_id', '=', 'post_id')
+		->where('post_user_id', $user_id);
 	}
 
 	private function selectPostId()

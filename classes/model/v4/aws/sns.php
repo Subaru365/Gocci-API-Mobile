@@ -49,14 +49,16 @@ class Model_V4_Aws_Sns extends Model
     public function pushiOS($params, $arn)
     {
         try {
-            $data = makePayload($params);
+            $data = $this->makePayload($params);
+            // var_dump($data);
             $this->publishiOS($data, $arn);
         }
         catch (Throwable $e) {
-            error_log($arn . " Error!\n");
-            $device = Model_V4_Db_Device::getInstance();
-            $device->deleteDeviceForArn($arn);
-            $this->deleteEndpoint($arn);
+            // error_log($arn . " Error!\n");
+            // $device = Model_V4_Db_Device::getInstance();
+            // $device->deleteDeviceForArn($arn);
+            // $this->deleteEndpoint($arn);
+            echo $e;
         }
     }
 
@@ -145,11 +147,11 @@ class Model_V4_Aws_Sns extends Model
                         'badge'    => $data['badge'],
                     ),
 
-                    // 'foreground' => array(
-                    //     'badge'    => $badge,
-                    //     'type'     => "$this->type",
-                    //     'payload'  => $payload,
-                    // ),
+                    'foreground' => array(
+                        'badge'    => $data['badge'],
+                        'type'     => "$this->type",
+                        'payload'  => $data['payload'],
+                    ),
                 // カスタム
                 //'custom_text' => "$message",
                 )

@@ -164,7 +164,7 @@ class Model_V4_Notice extends Model
 				$sns->pushAndroid($params, $device_data[0]['endpoint_arn']);
 
 			} else if ($device_data[0]['os'] === 'iOS') {
-				$params['badge'] = $user->getBadge($p_user_id);
+				$params['badge'] = $user->getBadge($params['p_user_id']);
 				$sns->pushiOS($params, $device_data[0]['endpoint_arn']);
 
 			} else {
