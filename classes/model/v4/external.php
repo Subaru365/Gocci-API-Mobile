@@ -21,8 +21,13 @@ class Model_V4_External extends Model
     {
     	$json = file_get_contents('https://maps.googleapis.com/maps/api/geocode/json?language=ja&latlng='.$lat.','.$lon.'&sensor=false');
 		$data = json_decode($json, true);
-		$address = substr($data['results'][0]['formatted_address'], 20);
-		return $address;
+
+        if (!empty($data['results'][0]['formatted_address'])) {
+            $address = substr($data['results'][0]['formatted_address'], 20);
+            return $address;
+        } else {
+            return '不明';
+        }
     }
 
     public static function blockAlert($id, $category)
@@ -56,7 +61,7 @@ class Model_V4_External extends Model
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
         // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
+
         $result = curl_exec($ch);
         $error  = curl_error($ch);
 

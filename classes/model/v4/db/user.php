@@ -3,7 +3,7 @@
  * Status Code and Message list.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.1.0 (2016/1/26)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -91,7 +91,7 @@ class Model_V4_Db_User extends Model_V4_Db
     {
         $this->selectProfileForName($username);
         $result = $this->run();
-        return $result;        
+        return $result;
     }
 
     public function getUser($identity_id)

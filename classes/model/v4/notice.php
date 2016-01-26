@@ -137,6 +137,30 @@ class Model_V4_Notice extends Model
 		$this->push($params);
 	}
 
+	public function pushAnnouncement($params)
+	{
+		$device = Model_V4_Db_Device::getInstance();
+		$sns 	= Model_V4_Aws_Sns::getInstance();
+		$user   = Model_V4_Db_User::getInstance();
+
+		$sns->type = 'announcement';
+		$device_data = $device->getData(1173);
+
+		if (!empty($device_data[0]['endpoint_arn'])) {
+
+			if ($device_data[0]['os'] ===  'android') {
+				$sns->pushAndroid($params, $device_data[0]['endpoint_arn']);
+
+			} else if ($device_data[0]['os'] === 'iOS') {
+				$params['badge'] = $user->getBadge(1173);
+				$sns->pushiOS($params, $device_data[0]['endpoint_arn']);
+
+			} else {
+				//Webで利用 通知不必要
+			}
+		}
+	}
+
 
 
 	//==================================================//

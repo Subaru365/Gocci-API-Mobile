@@ -25,4 +25,16 @@ class Controller_V4_Bgp extends Controller
 
         echo 'SUCCESS!';
     }
+
+    public function action_announce()
+    {
+        $notice = Model_V4_Notice::getInstance();
+
+        $params['alert']   = Input::get('alert');
+        $params['message'] = Input::get('message');
+
+        $notice->pushAnnouncement($params);
+
+        echo 'SUCCESS!';
+    }
 }

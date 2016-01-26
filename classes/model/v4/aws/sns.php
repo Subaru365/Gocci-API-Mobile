@@ -54,10 +54,11 @@ class Model_V4_Aws_Sns extends Model
             $this->publishiOS($data, $arn);
         }
         catch (Throwable $e) {
-            error_log($arn . " Error!\n");
-            $device = Model_V4_Db_Device::getInstance();
-            $device->deleteDeviceForArn($arn);
-            $this->deleteEndpoint($arn);
+            // error_log($arn . " Error!\n");
+            // $device = Model_V4_Db_Device::getInstance();
+            // $device->deleteDeviceForArn($arn);
+            // $this->deleteEndpoint($arn);
+            echo $e;
         }
     }
 
@@ -221,9 +222,11 @@ class Model_V4_Aws_Sns extends Model
 
             case 'announcement':
                 $data = array(
-                    'alert' => '',
-                    // 'head'      => "",
-                    // 'bosy'      => "$params[message]",
+                    'alert'     => $params['alert'],
+                    'payload'   => array(
+                        'head'      => $params['alert'],
+                        'body'      => $params['message'],
+                    )
                 );
                 break;
         }

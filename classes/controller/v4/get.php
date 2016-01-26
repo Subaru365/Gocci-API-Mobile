@@ -3,7 +3,7 @@
  * Get  Class. Request SignUp, LogIn.
  *
  * @package    Gocci-Mobile
- * @version    4.1.0 (2016/1/21)
+ * @version    4.2.0 (2016/1/26)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -250,6 +250,14 @@ class Controller_V4_Get extends Controller_V4_Gate
 	{
 		$rest = Model_V4_Db_Restaurant::getInstance();
 		$this->res_params['rests'] = $rest->getNearData($this->req_params['lon'], $this->req_params['lat']);
+		$this->outputSuccess();
+	}
+
+
+	public function action_follower_rank()
+	{
+		$user = Model_V4_User::getInstance();
+		$this->res_params['users'] = $user->getFollowerRank();
 		$this->outputSuccess();
 	}
 }

@@ -3,7 +3,7 @@
  * DB-Follow class.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.1.0 (2016/1/26)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -59,6 +59,13 @@ class Model_V4_Db_Follow extends Model_V4_Db
 		return $flag;
 	}
 
+	public function getFollowerRank()
+	{
+		$this->selectFollowerRankData();
+		$result = $this->run();
+		return $result;
+	}
+
 	public function getFollowData($user_id)
 	{
 		$this->selectActiveData($user_id);
@@ -107,15 +114,24 @@ class Model_V4_Db_Follow extends Model_V4_Db
 	private function selectFollowFlag($user_id)
 	{
 		$this->query = DB::select('follow_id')
-		->from     ('follows')
+		->from     (self::$table_name)
 		->where    ('follow_a_user_id', session::get('user_id'))
 		->and_where('follow_p_user_id', $user_id);
+	}
+
+	private function selectFollowerRankData()
+	{
+		$this->query = DB::select('follow_p_user_id', DB::expr('COUNT(*) AS num'))
+		->from    (self::$table_name)
+		->group_by('follow_p_user_id')
+		->order_by(DB::expr('COUNT(*)'), 'desc')
+		->limit   (10);
 	}
 
 	private function selectPassiveData($user_id)
 	{
 		$this->query = DB::select('user_id', 'username', 'profile_img')
-		->from ('follows')
+		->from (self::$table_name)
 		->join ('users', 'INNER')
 		->on   ('follow_a_user_id', '=', 'user_id')
 		->where('follow_p_user_id', $user_id);
@@ -124,7 +140,7 @@ class Model_V4_Db_Follow extends Model_V4_Db
 	private function selectActiveData($user_id)
 	{
 		$this->query = DB::select('user_id', 'username', 'profile_img')
-		->from ('follows')
+		->from (self::$table_name)
 		->join ('users', 'INNER')
 		->on   ('follow_p_user_id', '=', 'user_id')
 		->where('follow_a_user_id', $user_id);
@@ -132,17 +148,16 @@ class Model_V4_Db_Follow extends Model_V4_Db
 
 	private function insertData($user_id)
 	{
-		$this->query = DB::insert('follows')
+		$this->query = DB::insert(self::$table_name)
 		->set(array(
 			'follow_a_user_id' => session::get('user_id'),
 			'follow_p_user_id' => $user_id
 		));
 	}
 
-
 	private function deleteData($user_id)
 	{
-		$this->query = DB::delete('follows')
+		$this->query = DB::delete(self::$table_name)
 		->where     ('follow_a_user_id', session::get('user_id'))
 		->and_where ('follow_p_user_id', $user_id);
 	}
