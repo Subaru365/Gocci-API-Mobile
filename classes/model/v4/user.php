@@ -3,7 +3,7 @@
  * User Model Class.
  *
  * @package    Gocci-Mobile
- * @version    4.2.0 (2016/1/26)
+ * @version    4.2.1 (2016/1/26)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -74,16 +74,14 @@ class Model_V4_User extends Model
 		return $list;
 	}
 
-	public function getFollowerRank()
+	public function getFollowerRank($page)
 	{
 		$follow = Model_V4_Db_Follow::getInstance();
 		$post   = Model_V4_Db_Post::getInstance();
 
-		$rank = $follow->getFollowerRank();
+		$rank = $follow->getFollowerRank($page);
 		for ($i=0; $i < 10; $i++) {
 			$data[$i] = $this->user->getProfileForId($rank[$i]['follow_p_user_id']);
-			$data[$i]['post_num'] 	  = $post->getNumForUser($rank[$i]['follow_p_user_id']);
-			$data[$i]['follower_num'] = (int)$rank[$i]['num'];
 		}
 		$data = $this->addData($data);
 		return $data;

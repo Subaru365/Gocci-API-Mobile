@@ -4,7 +4,7 @@
  * Parameter list of uri.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/21)
+ * @version    4.1.0 (2016/1/26)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -1306,7 +1306,10 @@ class Model_V4_Param extends Model
                 $this->status['message'] = "Parameter 'page' is malformed. Should correspond to '^\d{1,9}$'";
             }
 
+        } else {
+            $this->req_params['page'] = '0';
         }
+
 
     }
 

@@ -256,8 +256,9 @@ class Controller_V4_Get extends Controller_V4_Gate
 
 	public function action_follower_rank()
 	{
+		//input OPT page
 		$user = Model_V4_User::getInstance();
-		$this->res_params['users'] = $user->getFollowerRank();
+		$this->res_params['users'] = $user->getFollowerRank($this->req_params['page']);
 		$this->outputSuccess();
 	}
 }

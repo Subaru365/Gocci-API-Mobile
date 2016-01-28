@@ -3,7 +3,7 @@
  * DB-Follow class.
  *
  * @package    Gocci-Mobile
- * @version    4.1.0 (2016/1/26)
+ * @version    4.1.1 (2016/1/26)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -59,9 +59,13 @@ class Model_V4_Db_Follow extends Model_V4_Db
 		return $flag;
 	}
 
-	public function getFollowerRank()
+	public function getFollowerRank($page)
 	{
 		$this->selectFollowerRankData();
+		if ($page != 0) {
+			$num = $page * 10;
+			$this->query->offset($num);
+		}
 		$result = $this->run();
 		return $result;
 	}
@@ -121,7 +125,7 @@ class Model_V4_Db_Follow extends Model_V4_Db
 
 	private function selectFollowerRankData()
 	{
-		$this->query = DB::select('follow_p_user_id', DB::expr('COUNT(*) AS num'))
+		$this->query = DB::select('follow_p_user_id')
 		->from    (self::$table_name)
 		->group_by('follow_p_user_id')
 		->order_by(DB::expr('COUNT(*)'), 'desc')
