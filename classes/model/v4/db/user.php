@@ -3,7 +3,7 @@
  * Status Code and Message list.
  *
  * @package    Gocci-Mobile
- * @version    4.1.0 (2016/1/26)
+ * @version    4.2.0 (2016/1/29)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -125,6 +125,12 @@ class Model_V4_Db_User extends Model_V4_Db
     public function resetBadge()
     {
         $this->updateBadge(session::get('user_id'), 0);
+        $this->query->execute();
+    }
+
+    public function setAPI($api)
+    {
+        $this->updateAPI($api);
         $this->query->execute();
     }
 
@@ -294,6 +300,13 @@ class Model_V4_Db_User extends Model_V4_Db
         $this->query = DB::update(self::$table_name)
         ->value('password', "$password")
         ->where('user_id', $id);
+    }
+
+    private function updateAPI($api)
+    {
+        $this->query = DB::update(self::$table_name)
+        ->value('API', $api)
+        ->where('user_id', session::get('user_id'));
     }
 
     private function updateFacebookFlag($flag)

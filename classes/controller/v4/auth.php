@@ -3,7 +3,7 @@
  * Authentication Class. Request SignUp, LogIn.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.0.1 (2016/1/29)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -24,8 +24,14 @@ class Controller_V4_Auth extends Controller_V4_Public
         $params = $this->getLoginData($this->req_params['identity_id']);
 
         session::set('user_id', $params['user_id']);
+
         $login = Model_V4_Db_Login::getInstance();
         $login->setLogin();
+
+        $user  = Model_V4_Db_User::getInstance();
+        $ua    = Input::user_agent();
+        $api   = preg_split("/[ \/]/", $ua);
+        $user->setAPI($api[4]);
 
         $this->res_params = $params;
         $this->outputSuccess();
