@@ -206,7 +206,8 @@ class Model_V4_Db_Post extends Model_V4_Db
 	{
 		$this->query = DB::select('post_id')
 		->from(self::$table_name)
-		->where('post_user_id', $user_id);
+		->where('post_user_id', $user_id)
+		->and_where('post_status_flag', '1');
 	}
 
 	private function selectUserId($post_id)
