@@ -3,7 +3,7 @@
  * DB-Re Model Class.
  *
  * @package    Gocci-Mobile
- * @version    4.0.0 (2016/1/14)
+ * @version    4.1.0 (2016/1/28)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -37,6 +37,13 @@ class Model_V4_Db_Re extends Model_V4_Db
 		}
 	}
 
+	public function unsetRe($comment_id)
+	{
+		$this->deleteData($comment_id);
+		$result = $this->query->execute();
+		return $result;
+	}
+
 
 	//=====================================================//
 
@@ -60,5 +67,11 @@ class Model_V4_Db_Re extends Model_V4_Db
 			're_comment_id' => $comment_id,
 			're_user_id' 	=> $re_user_id,
 		));
+	}
+
+	private function deleteData($comment_id)
+	{
+		$this->query = DB::delete(self::$table_name)
+		->where('re_comment_id', $comment_id);
 	}
 }

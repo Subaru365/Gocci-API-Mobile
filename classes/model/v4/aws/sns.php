@@ -50,15 +50,13 @@ class Model_V4_Aws_Sns extends Model
     {
         try {
             $data = $this->makePayload($params);
-            // var_dump($data);
             $this->publishiOS($data, $arn);
         }
         catch (Throwable $e) {
-            // error_log($arn . " Error!\n");
-            // $device = Model_V4_Db_Device::getInstance();
-            // $device->deleteDeviceForArn($arn);
-            // $this->deleteEndpoint($arn);
-            echo $e;
+            error_log($arn . " Error!\n");
+            $device = Model_V4_Db_Device::getInstance();
+            $device->deleteDeviceForArn($arn);
+            $this->deleteEndpoint($arn);
         }
     }
 
