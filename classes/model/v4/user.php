@@ -80,6 +80,9 @@ class Model_V4_User extends Model
 		$post   = Model_V4_Db_Post::getInstance();
 
 		$rank = $follow->getFollowerRank($page);
+		if (empty($rank)) {
+			return '';
+		}
 		for ($i=0; $i < 10; $i++) {
 			$data[$i] = $this->user->getProfileForId($rank[$i]['follow_p_user_id']);
 		}
