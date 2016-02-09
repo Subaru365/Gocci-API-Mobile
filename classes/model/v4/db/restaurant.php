@@ -66,6 +66,8 @@ class Model_V4_Db_Restaurant extends Model_V4_Db
 		$this->query = DB::insert(self::$table_name)
 		->set(array(
 			'restname' => $data['restname'],
+			'lon' 	   => $data['lon'],
+			'lat' 	   => $data['lat'],
 			'lon_lat'  => DB::expr("GeomFromText('POINT({$data['lon']} {$data['lat']})')"),
 			'locality' => $data['address'],
 		));
