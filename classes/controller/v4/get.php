@@ -260,7 +260,7 @@ class Controller_V4_Get extends Controller_V4_Gate
 		$user = Model_V4_User::getInstance();
 		$this->res_params['users'] = $user->getFollowerRank($this->req_params['page']);
 
-		if (empty($data)) {
+		if (empty($this->res_params)) {
 			$param = Model_V4_Param::getInstance();
 			$param->setGlobalCode_SUCCESS(array('users'=>array()));
 			$this->output();
