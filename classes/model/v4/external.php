@@ -3,7 +3,7 @@
  * External Model Class.
  *
  * @package    Gocci-Mobile
- * @version    4.1.1 (2016/1/20)
+ * @version    4.2.0 (2016/2/11)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -30,11 +30,23 @@ class Model_V4_External extends Model
         }
     }
 
+    public static function postCrashAlert($user_id, $post_id, $rest_id)
+    {
+        $url        = Config::get('_slack.webhook_url');
+        $payload    = array(
+            'text'       => "*Post Crash*"
+                ."\nPostID:{$post_id}  RestID:{$rest_id}"
+                ."\nCheck ↓ Movie at UserID:{$user_id}",
+            'icon_emoji' => ':boom:',
+        );
+        self::slackAlert($url, $payload);
+    }
+
     public static function blockAlert($id, $category)
     {
         $url        = Config::get('_slack.webhook_url');
         $payload    = array(
-            'text'       => "*Block*\n  {$category}ID : {$id}",
+            'text'       => "*Block*\n  {$category}ID:{$id}",
             'icon_emoji' => ':warning:',
         );
         self::slackAlert($url, $payload);

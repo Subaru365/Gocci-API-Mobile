@@ -3,7 +3,7 @@
  * Set Class. This class request session.
  *
  * @package    Gocci-Mobile
- * @version    4.3.1 (2016/1/21)
+ * @version    4.4.0 (2016/2/11)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2016 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
@@ -116,14 +116,48 @@ class Controller_V4_Set extends Controller_V4_Gate
 	public function action_post()
 	{
 		//Input rest_id, movie_name, category_id, value, memo, cheer_flag
-		$post = Model_V4_Db_Post::getInstance();
-
 		$this->req_params = Model_V4_Transcode::encodePostName($this->req_params);
+
+		$post = Model_V4_Db_Post::getInstance();
 		$post_id = $post->setPostData($this->req_params);
 
 		$hash_id = Model_V4_External::getPostHashId($post_id);
 		$post->setHashId($post_id, $hash_id);
 		$this->res_params['post_id'] = $post_id;
+
+		$this->outputSuccess();
+	}
+
+
+	public function action_post_crash()
+	{
+		//Input restname, area, movie_name, 
+		$this->req_params = Model_V4_Transcode::encodePostName($this->req_params);
+
+		$rest = Model_V4_Db_Restaurant::getInstance();
+		$post = Model_V4_Db_Post::getInstance();
+		
+		$this->req_params['lat']  		= 35.000;
+		$this->req_params['lon']  		= 135.000;
+		$this->req_params['rest_id'] 	= $rest->setRestData($this->req_params);
+
+		$post_id = $post->setPostData($this->req_params);
+
+		$hash_id = Model_V4_External::getPostHashId($post_id);
+		$post->setHashId($post_id, $hash_id);
+		$this->res_params['post_id'] = $post_id;
+
+		Model_V4_External::postCrashAlert(session::get('user_id'), $post_id, $this->req_params['rest_id']);
+
+		$this->outputSuccess();	
+	}
+
+	public function action_post_block()
+	{
+		//Input post_id
+		$block = Model_V4_Db_Block::getInstance();
+		$result = $block->setPostBlock($this->req_params['post_id']);
+		Model_V4_External::blockAlert($this->req_params['post_id'], 'Post');
 
 		$this->outputSuccess();
 	}
@@ -135,17 +169,6 @@ class Controller_V4_Set extends Controller_V4_Gate
 		$post = Model_V4_Db_Post::getInstance();
 		$post->setMemo($this->req_params['post_id'], $this->req_params['memo']);
 		
-		$this->outputSuccess();
-	}
-
-
-	public function action_post_block()
-	{
-		//Input post_id
-		$block = Model_V4_Db_Block::getInstance();
-		$result = $block->setPostBlock($this->req_params['post_id']);
-		Model_V4_External::blockAlert($this->req_params['post_id'], 'Post');
-
 		$this->outputSuccess();
 	}
 

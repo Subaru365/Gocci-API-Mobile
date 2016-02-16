@@ -55,6 +55,7 @@ class Model_V4_Post extends Model
 		$num   = count($posts);
 		$posts = $this->decodeData($posts, $num);
 		$posts = $this->decodeDistance($posts, $num);
+		$posts = $this->decodeLonLat($posts, $num);
 		$posts = $this->decodeProfile($posts, $num);
 		$posts = $this->decodeDate($posts, $num);
 		$posts = $this->addGochiFlag($posts, $num);

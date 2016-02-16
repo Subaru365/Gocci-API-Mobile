@@ -25,6 +25,7 @@ class Daily
 	{
 		$dau 		= $this->dau();
 		$newUser 	= $this->newUser();
+		$device     = $this->device($newUser);
 		$gochi 		= $this->gochi();
 		$post 		= $this->post();
 		$comment 	= $this->comment();
@@ -38,6 +39,7 @@ class Daily
 		$num = array(
 			'dau'		=> count($dau),
 			'newUser' 	=> count($newUser),
+			'mobile'    => count($device),
 			'gochi'		=> count($gochi),
 			'post'		=> count($post),
 			'comment' 	=> count($comment),
@@ -71,10 +73,19 @@ class Daily
 
 	private function newUser()
 	{
-		$query = \DB::select('user_id', 'user_date')
+		$query = \DB::select('user_id')
 		->from('users')
 		->where('user_date', 'between', array(\DB::expr('curdate() - interval 1 day'),  \DB::expr('curdate()')))
 		->and_where('attribute', 'general');
+
+		return $query->execute()->as_array();
+	}
+
+	private function device($user_id)
+	{
+		$query = \DB::select('device_id')
+		->from('devices')
+		->where('device_user_id', 'in', $user_id);
 
 		return $query->execute()->as_array();
 	}
@@ -158,16 +169,16 @@ class Daily
 		$per_day7RR 	= ($num['day7RR'] === 0)	? 0 : $num['day7RR'] 	/ $num['dau'] * 100;
 		$per_day14RR 	= ($num['day14RR'] === 0)	? 0 : $num['day14RR'] 	/ $num['dau'] * 100;
 
-		$per_day2RR		= round($per_day2RR, 2);
-		$per_day3RR		= round($per_day3RR, 2);
-		$per_day5RR		= round($per_day5RR, 2);
-		$per_day7RR		= round($per_day7RR, 2);
+		$per_day2RR		= round($per_day2RR,  2);
+		$per_day3RR		= round($per_day3RR,  2);
+		$per_day5RR		= round($per_day5RR,  2);
+		$per_day7RR		= round($per_day7RR,  2);
 		$per_day14RR	= round($per_day14RR, 2);
 
 		$this->message = ""
 			."\n *Wake up and smell the coffee!*"
 			."\n *DAU       : {$num['dau']}*"
-			."\n *New User  : {$num['newUser']}*"
+			."\n *New User  : {$num['newUser']}*  (Mobile : {$num['mobile']})"
 			."\n  gochi     : {$num['gochi']}"
 			."\n  Post      : {$num['post']}"
 			."\n  Comment   : {$num['comment']}"

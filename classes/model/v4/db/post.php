@@ -269,6 +269,7 @@ class Model_V4_Db_Post extends Model_V4_Db
 			'value', 		'rest_id', 		'restname',
 			'user_id', 		'username',		'profile_img',
 			'cheer_flag',	'post_date',
+			DB::expr('X(lon_lat) as lon, Y(lon_lat) as lat'),
 			DB::expr("GLength(GeomFromText(CONCAT('LineString(
 				{$lon} {$lat},', X(lon_lat),' ', Y(lon_lat),')'))) as distance"
 			)
