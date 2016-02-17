@@ -3,7 +3,7 @@
  * Daily Cron Code.
  *
  * @package    Gocci-Mobile
- * @version    3.1.0 (2016/1/14)
+ * @version    3.1.1 (2016/2/16)
  * @author     Subaru365 (a-murata@inase-inc.jp)
  * @copyright  (C) 2015 Akira Murata
  * @link       https://bitbucket.org/inase/gocci-mobile-api
